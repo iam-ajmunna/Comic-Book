@@ -1,0 +1,661 @@
+{
+  "version": 1,
+  "comics": [
+    {
+      "id": "multiversal-love",
+      "title": "Multiversal Love",
+      "issue": "Complete graphic novel",
+      "edition": "revised-80-v1",
+      "author": "Assaduzzaman Munna",
+      "description": "Moon has lost the person he loves. Across an impossible distance, another version of Rouhi is still waiting. A sci-fi romance about grief, friendship, and the worlds we would cross for a second chance.",
+      "genre": "Sci-fi / Romance",
+      "cover": "assets/pages/000.webp",
+      "width": 1600,
+      "height": 2476,
+      "readingDirection": "ltr",
+      "transcript": "assets/book.json",
+      "pages": [
+        {
+          "src": "assets/pages/000.webp",
+          "small": "assets/pages/000-small.webp",
+          "thumbnail": "assets/thumbs/000.webp",
+          "label": "Cover",
+          "title": "Multiversal Love",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/001.webp",
+          "small": "assets/pages/001-small.webp",
+          "thumbnail": "assets/thumbs/001.webp",
+          "label": "01",
+          "title": "The friends who stayed",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/002.webp",
+          "small": "assets/pages/002-small.webp",
+          "thumbnail": "assets/thumbs/002.webp",
+          "label": "02",
+          "title": "The friends who stayed",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/003.webp",
+          "small": "assets/pages/003-small.webp",
+          "thumbnail": "assets/thumbs/003.webp",
+          "label": "03",
+          "title": "A new face",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/004.webp",
+          "small": "assets/pages/004-small.webp",
+          "thumbnail": "assets/thumbs/004.webp",
+          "label": "04",
+          "title": "A new face",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/005.webp",
+          "small": "assets/pages/005-small.webp",
+          "thumbnail": "assets/thumbs/005.webp",
+          "label": "05",
+          "title": "Someone willing to listen",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/006.webp",
+          "small": "assets/pages/006-small.webp",
+          "thumbnail": "assets/thumbs/006.webp",
+          "label": "06",
+          "title": "Someone willing to listen",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/007.webp",
+          "small": "assets/pages/007-small.webp",
+          "thumbnail": "assets/thumbs/007.webp",
+          "label": "07",
+          "title": "When there was always tomorrow",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/008.webp",
+          "small": "assets/pages/008-small.webp",
+          "thumbnail": "assets/thumbs/008.webp",
+          "label": "08",
+          "title": "When there was always tomorrow",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/009.webp",
+          "small": "assets/pages/009-small.webp",
+          "thumbnail": "assets/thumbs/009.webp",
+          "label": "09",
+          "title": "The space between promises",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/010.webp",
+          "small": "assets/pages/010-small.webp",
+          "thumbnail": "assets/thumbs/010.webp",
+          "label": "10",
+          "title": "The space between promises",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/011.webp",
+          "small": "assets/pages/011-small.webp",
+          "thumbnail": "assets/thumbs/011.webp",
+          "label": "11",
+          "title": "Words that arrive too quickly",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/012.webp",
+          "small": "assets/pages/012-small.webp",
+          "thumbnail": "assets/thumbs/012.webp",
+          "label": "12",
+          "title": "Words that arrive too quickly",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/013.webp",
+          "small": "assets/pages/013-small.webp",
+          "thumbnail": "assets/thumbs/013.webp",
+          "label": "13",
+          "title": "The day he finally listened",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/014.webp",
+          "small": "assets/pages/014-small.webp",
+          "thumbnail": "assets/thumbs/014.webp",
+          "label": "14",
+          "title": "The day he finally listened",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/015.webp",
+          "small": "assets/pages/015-small.webp",
+          "thumbnail": "assets/thumbs/015.webp",
+          "label": "15",
+          "title": "What silence allowed",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/016.webp",
+          "small": "assets/pages/016-small.webp",
+          "thumbnail": "assets/thumbs/016.webp",
+          "label": "16",
+          "title": "What silence allowed",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/017.webp",
+          "small": "assets/pages/017-small.webp",
+          "thumbnail": "assets/thumbs/017.webp",
+          "label": "17",
+          "title": "A future ends on the telephone",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/018.webp",
+          "small": "assets/pages/018-small.webp",
+          "thumbnail": "assets/thumbs/018.webp",
+          "label": "18",
+          "title": "A future ends on the telephone",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/019.webp",
+          "small": "assets/pages/019-small.webp",
+          "thumbnail": "assets/thumbs/019.webp",
+          "label": "19",
+          "title": "Before the impossible question",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/020.webp",
+          "small": "assets/pages/020-small.webp",
+          "thumbnail": "assets/thumbs/020.webp",
+          "label": "20",
+          "title": "Before the impossible question",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/021.webp",
+          "small": "assets/pages/021-small.webp",
+          "thumbnail": "assets/thumbs/021.webp",
+          "label": "21",
+          "title": "An absence in the air",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/022.webp",
+          "small": "assets/pages/022-small.webp",
+          "thumbnail": "assets/thumbs/022.webp",
+          "label": "22",
+          "title": "An absence in the air",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/023.webp",
+          "small": "assets/pages/023-small.webp",
+          "thumbnail": "assets/thumbs/023.webp",
+          "label": "23",
+          "title": "The room carries on",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/024.webp",
+          "small": "assets/pages/024-small.webp",
+          "thumbnail": "assets/thumbs/024.webp",
+          "label": "24",
+          "title": "The room carries on",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/025.webp",
+          "small": "assets/pages/025-small.webp",
+          "thumbnail": "assets/thumbs/025.webp",
+          "label": "25",
+          "title": "A theory with consequences",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/026.webp",
+          "small": "assets/pages/026-small.webp",
+          "thumbnail": "assets/thumbs/026.webp",
+          "label": "26",
+          "title": "A theory with consequences",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/027.webp",
+          "small": "assets/pages/027-small.webp",
+          "thumbnail": "assets/thumbs/027.webp",
+          "label": "27",
+          "title": "Only Moon can see it",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/028.webp",
+          "small": "assets/pages/028-small.webp",
+          "thumbnail": "assets/thumbs/028.webp",
+          "label": "28",
+          "title": "Only Moon can see it",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/029.webp",
+          "small": "assets/pages/029-small.webp",
+          "thumbnail": "assets/thumbs/029.webp",
+          "label": "29",
+          "title": "The promise on his wrist",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/030.webp",
+          "small": "assets/pages/030-small.webp",
+          "thumbnail": "assets/thumbs/030.webp",
+          "label": "30",
+          "title": "The promise on his wrist",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/031.webp",
+          "small": "assets/pages/031-small.webp",
+          "thumbnail": "assets/thumbs/031.webp",
+          "label": "31",
+          "title": "A long night",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/032.webp",
+          "small": "assets/pages/032-small.webp",
+          "thumbnail": "assets/thumbs/032.webp",
+          "label": "32",
+          "title": "A long night",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/033.webp",
+          "small": "assets/pages/033-small.webp",
+          "thumbnail": "assets/thumbs/033.webp",
+          "label": "33",
+          "title": "Two views of one corner",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/034.webp",
+          "small": "assets/pages/034-small.webp",
+          "thumbnail": "assets/thumbs/034.webp",
+          "label": "34",
+          "title": "Two views of one corner",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/035.webp",
+          "small": "assets/pages/035-small.webp",
+          "thumbnail": "assets/thumbs/035.webp",
+          "label": "35",
+          "title": "What makes it leave",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/036.webp",
+          "small": "assets/pages/036-small.webp",
+          "thumbnail": "assets/thumbs/036.webp",
+          "label": "36",
+          "title": "What makes it leave",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/037.webp",
+          "small": "assets/pages/037-small.webp",
+          "thumbnail": "assets/thumbs/037.webp",
+          "label": "37",
+          "title": "A question without ridicule",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/038.webp",
+          "small": "assets/pages/038-small.webp",
+          "thumbnail": "assets/thumbs/038.webp",
+          "label": "38",
+          "title": "A question without ridicule",
+          "cue": "soft"
+        },
+        {
+          "src": "assets/pages/039.webp",
+          "small": "assets/pages/039-small.webp",
+          "thumbnail": "assets/thumbs/039.webp",
+          "label": "39",
+          "title": "The thought before the darkness",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/040.webp",
+          "small": "assets/pages/040-small.webp",
+          "thumbnail": "assets/thumbs/040.webp",
+          "label": "40",
+          "title": "The thought before the darkness",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/041.webp",
+          "small": "assets/pages/041-small.webp",
+          "thumbnail": "assets/thumbs/041.webp",
+          "label": "41",
+          "title": "The other half of the pattern",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/042.webp",
+          "small": "assets/pages/042-small.webp",
+          "thumbnail": "assets/thumbs/042.webp",
+          "label": "42",
+          "title": "The other half of the pattern",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/043.webp",
+          "small": "assets/pages/043-small.webp",
+          "thumbnail": "assets/thumbs/043.webp",
+          "label": "43",
+          "title": "The shape of a wish",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/044.webp",
+          "small": "assets/pages/044-small.webp",
+          "thumbnail": "assets/thumbs/044.webp",
+          "label": "44",
+          "title": "The shape of a wish",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/045.webp",
+          "small": "assets/pages/045-small.webp",
+          "thumbnail": "assets/thumbs/045.webp",
+          "label": "45",
+          "title": "Two impossible truths",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/046.webp",
+          "small": "assets/pages/046-small.webp",
+          "thumbnail": "assets/thumbs/046.webp",
+          "label": "46",
+          "title": "Two impossible truths",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/047.webp",
+          "small": "assets/pages/047-small.webp",
+          "thumbnail": "assets/thumbs/047.webp",
+          "label": "47",
+          "title": "Beyond their reach",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/048.webp",
+          "small": "assets/pages/048-small.webp",
+          "thumbnail": "assets/thumbs/048.webp",
+          "label": "48",
+          "title": "Beyond their reach",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/049.webp",
+          "small": "assets/pages/049-small.webp",
+          "thumbnail": "assets/thumbs/049.webp",
+          "label": "49",
+          "title": "A hand made real",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/050.webp",
+          "small": "assets/pages/050-small.webp",
+          "thumbnail": "assets/thumbs/050.webp",
+          "label": "50",
+          "title": "A hand made real",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/051.webp",
+          "small": "assets/pages/051-small.webp",
+          "thumbnail": "assets/thumbs/051.webp",
+          "label": "51",
+          "title": "The lives left outside the embrace",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/052.webp",
+          "small": "assets/pages/052-small.webp",
+          "thumbnail": "assets/thumbs/052.webp",
+          "label": "52",
+          "title": "The lives left outside the embrace",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/053.webp",
+          "small": "assets/pages/053-small.webp",
+          "thumbnail": "assets/thumbs/053.webp",
+          "label": "53",
+          "title": "The life on the other side",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/054.webp",
+          "small": "assets/pages/054-small.webp",
+          "thumbnail": "assets/thumbs/054.webp",
+          "label": "54",
+          "title": "The life on the other side",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/055.webp",
+          "small": "assets/pages/055-small.webp",
+          "thumbnail": "assets/thumbs/055.webp",
+          "label": "55",
+          "title": "The road home",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/056.webp",
+          "small": "assets/pages/056-small.webp",
+          "thumbnail": "assets/thumbs/056.webp",
+          "label": "56",
+          "title": "The road home",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/057.webp",
+          "small": "assets/pages/057-small.webp",
+          "thumbnail": "assets/thumbs/057.webp",
+          "label": "57",
+          "title": "Months without an answer",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/058.webp",
+          "small": "assets/pages/058-small.webp",
+          "thumbnail": "assets/thumbs/058.webp",
+          "label": "58",
+          "title": "Months without an answer",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/059.webp",
+          "small": "assets/pages/059-small.webp",
+          "thumbnail": "assets/thumbs/059.webp",
+          "label": "59",
+          "title": "One moment, two worlds",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/060.webp",
+          "small": "assets/pages/060-small.webp",
+          "thumbnail": "assets/thumbs/060.webp",
+          "label": "60",
+          "title": "One moment, two worlds",
+          "cue": "wonder"
+        },
+        {
+          "src": "assets/pages/061.webp",
+          "small": "assets/pages/061-small.webp",
+          "thumbnail": "assets/thumbs/061.webp",
+          "label": "61",
+          "title": "The same opening, seen from home",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/062.webp",
+          "small": "assets/pages/062-small.webp",
+          "thumbnail": "assets/thumbs/062.webp",
+          "label": "62",
+          "title": "The same opening, seen from home",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/063.webp",
+          "small": "assets/pages/063-small.webp",
+          "thumbnail": "assets/thumbs/063.webp",
+          "label": "63",
+          "title": "For one breath",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/064.webp",
+          "small": "assets/pages/064-small.webp",
+          "thumbnail": "assets/thumbs/064.webp",
+          "label": "64",
+          "title": "For one breath",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/065.webp",
+          "small": "assets/pages/065-small.webp",
+          "thumbnail": "assets/thumbs/065.webp",
+          "label": "65",
+          "title": "A world where the sky should be",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/066.webp",
+          "small": "assets/pages/066-small.webp",
+          "thumbnail": "assets/thumbs/066.webp",
+          "label": "66",
+          "title": "A world where the sky should be",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/067.webp",
+          "small": "assets/pages/067-small.webp",
+          "thumbnail": "assets/thumbs/067.webp",
+          "label": "67",
+          "title": "Maybe",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/068.webp",
+          "small": "assets/pages/068-small.webp",
+          "thumbnail": "assets/thumbs/068.webp",
+          "label": "68",
+          "title": "Maybe",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/069.webp",
+          "small": "assets/pages/069-small.webp",
+          "thumbnail": "assets/thumbs/069.webp",
+          "label": "69",
+          "title": "No answer large enough",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/070.webp",
+          "small": "assets/pages/070-small.webp",
+          "thumbnail": "assets/thumbs/070.webp",
+          "label": "70",
+          "title": "No answer large enough",
+          "cue": "cinematic"
+        },
+        {
+          "src": "assets/pages/071.webp",
+          "small": "assets/pages/071-small.webp",
+          "thumbnail": "assets/thumbs/071.webp",
+          "label": "71",
+          "title": "The question he can ask",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/072.webp",
+          "small": "assets/pages/072-small.webp",
+          "thumbnail": "assets/thumbs/072.webp",
+          "label": "72",
+          "title": "The question he can ask",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/073.webp",
+          "small": "assets/pages/073-small.webp",
+          "thumbnail": "assets/thumbs/073.webp",
+          "label": "73",
+          "title": "With everything",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/074.webp",
+          "small": "assets/pages/074-small.webp",
+          "thumbnail": "assets/thumbs/074.webp",
+          "label": "74",
+          "title": "With everything",
+          "cue": "memory"
+        },
+        {
+          "src": "assets/pages/075.webp",
+          "small": "assets/pages/075-small.webp",
+          "thumbnail": "assets/thumbs/075.webp",
+          "label": "75",
+          "title": "After the light",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/076.webp",
+          "small": "assets/pages/076-small.webp",
+          "thumbnail": "assets/thumbs/076.webp",
+          "label": "76",
+          "title": "After the light",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/077.webp",
+          "small": "assets/pages/077-small.webp",
+          "thumbnail": "assets/thumbs/077.webp",
+          "label": "77",
+          "title": "And what about them?",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/078.webp",
+          "small": "assets/pages/078-small.webp",
+          "thumbnail": "assets/thumbs/078.webp",
+          "label": "78",
+          "title": "And what about them?",
+          "cue": "silence"
+        },
+        {
+          "src": "assets/pages/079.webp",
+          "small": "assets/pages/079-small.webp",
+          "thumbnail": "assets/thumbs/079.webp",
+          "label": "79",
+          "title": "An unfinished sky",
+          "cue": "memory"
+        }
+      ]
+    }
+  ]
+}
