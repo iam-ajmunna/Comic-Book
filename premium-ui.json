@@ -1,0 +1,10 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["src", "index.html"],
+  "locale": "en",
+  "canonicalMap": "DESIGN.md",
+  "requiredCapabilities": ["Form", "Scrollbar"],
+  "requiredCommands": ["unit", "build"],
+  "commands": { "unit": "npm test", "build": "npm run build" },
+  "evidence": { "failurePaths": "tests/state.test.mjs" }
+}

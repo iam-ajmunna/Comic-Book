@@ -1,0 +1,16 @@
+{
+  "name": "multiversal-love",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A cinematic 80-page comic reader.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check src/app.js && node --check src/ambience.js && node --check src/comments.js && npm test && npm run build"
+  }
+}

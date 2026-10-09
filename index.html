@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#151923" />
+    <meta
+      name="description"
+      content="Read Multiversal Love, an illustrated sci-fi romance, in an immersive two-page reader with ambient light and a quiet scene-aware soundtrack."
+    />
+    <title>Multiversal Love — The complete graphic novel</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="src/styles.css" />
+    <link rel="preload" as="image" href="assets/pages/000-small.webp" />
+    <script type="module" src="src/app.js"></script>
+  </head>
+  <body data-mood="soft" data-sound="quiet">
+    <a class="skip-link" href="#reader">Skip to the book</a>
+    <header class="masthead">
+      <a
+        class="wordmark"
+        href="#page=0"
+        aria-label="Multiversal Love, return to the cover"
+        ><span>MULTIVERSAL</span><strong>LOVE<span>.</span></strong></a
+      >
+      <div class="edition">
+        <span>THE COMPLETE GRAPHIC NOVEL</span>
+        <p>80 pages · An illustrated sci-fi romance</p>
+      </div>
+      <a class="discussion-link" href="#discussion">Reader comments ↘</a>
+    </header>
+    <main>
+      <section
+        class="reader"
+        id="reader"
+        aria-label="Book reader"
+        tabindex="-1"
+      >
+        <div class="reader-toolbar">
+          <div>
+            <span class="eyebrow" id="scene-kicker">OPEN THE BOOK</span>
+            <h1 id="scene-title">Multiversal Love</h1>
+          </div>
+          <div class="tools" role="group" aria-label="Reading options">
+            <button
+              class="button subtle"
+              id="contents-button"
+              type="button"
+              aria-haspopup="dialog"
+            >
+              Contents</button
+            ><button
+              class="button subtle"
+              id="layout-button"
+              type="button"
+              aria-pressed="false"
+            >
+              Single page</button
+            ><button
+              class="button subtle"
+              id="text-button"
+              type="button"
+              aria-pressed="false"
+            >
+              Read text
+            </button>
+          </div>
+        </div>
+        <div class="ambience-bar" aria-label="Reading atmosphere">
+          <div class="sound-control">
+            <span class="sound-indicator" aria-hidden="true"
+              ><i></i><i></i><i></i><i></i></span
+            ><span id="sound-label" role="status">Soundtrack off</span
+            ><button
+              class="text-button"
+              id="sound-button"
+              type="button"
+              aria-pressed="false"
+            >
+              Turn sound on
+            </button>
+          </div>
+          <div class="volume-control">
+            <label for="volume">Volume</label
+            ><input
+              id="volume"
+              type="range"
+              min="0"
+              max="35"
+              value="15"
+            /><output id="volume-value" for="volume">15%</output>
+          </div>
+          <button
+            class="text-button"
+            id="glow-button"
+            type="button"
+            aria-pressed="true"
+          >
+            Ambient light on
+          </button>
+        </div>
+        <p class="notice" id="storage-notice" hidden>
+          Progress can’t be saved in this browser. Keep this tab open to finish
+          the book and unlock comments.
+        </p>
+        <div class="book-stage" id="book-stage" aria-label="Current pages">
+          <p class="loading-message" role="status">Opening the book…</p>
+        </div>
+        <nav class="page-navigation" aria-label="Book pages">
+          <button class="button turn" id="previous" type="button" disabled>
+            ← Previous
+          </button>
+          <div class="page-position">
+            <span id="page-label" aria-live="polite" aria-atomic="true"
+              >Cover</span
+            ><span class="keyboard-hint">Use ← → to turn the page</span>
+          </div>
+          <button class="button turn" id="next" type="button" disabled>
+            Next →
+          </button>
+        </nav>
+        <div class="reading-progress">
+          <span id="progress-label">0 of 80 pages opened</span
+          ><progress
+            id="progress"
+            max="80"
+            value="0"
+            aria-labelledby="progress-label"
+          ></progress
+          ><button class="text-button" id="next-unread" type="button">
+            Continue unread ↗
+          </button>
+        </div>
+        <p class="reader-note">
+          Your place is saved on this device. Select an illustrated page to see
+          it in detail.
+        </p>
+      </section>
+      <section
+        class="discussion"
+        id="discussion"
+        aria-labelledby="discussion-title"
+      >
+        <div class="discussion-heading">
+          <span class="eyebrow">AFTER THE LAST PAGE</span>
+          <h2 id="discussion-title">
+            The story ends.<br />The conversation begins.
+          </h2>
+          <p>What stayed with you?</p>
+        </div>
+        <div class="discussion-body">
+          <div class="locked-note" id="comments-locked">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              aria-hidden="true"
+            >
+              <rect x="5" y="10" width="14" height="11" rx="2" />
+              <path d="M8 10V6a4 4 0 0 1 8 0v4" />
+            </svg>
+            <h3>A little room for the ending.</h3>
+            <p>
+              Open every page to unlock reader comments. There’s a whole world
+              ahead of you.
+            </p>
+            <p class="lock-count" id="lock-count">80 pages left to open</p>
+            <button class="button primary" id="finish-reading" type="button">
+              Keep reading →
+            </button>
+          </div>
+          <div id="comments-open" hidden>
+            <p class="unlocked" role="status">
+              All 80 pages opened. Welcome to the conversation.
+            </p>
+            <form id="comment-form" novalidate>
+              <label for="comment">Your thoughts on the book</label
+              ><textarea
+                id="comment"
+                name="comment"
+                rows="5"
+                maxlength="600"
+                required
+                aria-describedby="comment-help comment-error"
+              ></textarea>
+              <div class="field-meta">
+                <p id="comment-help">
+                  Comments are public. You’ll review and post yours on GitHub
+                  with your own account.
+                </p>
+                <span id="comment-count">0/600</span>
+              </div>
+              <p class="error-text" id="comment-error" hidden></p>
+              <button class="button primary" type="submit">
+                Continue on GitHub ↗
+              </button>
+              <p class="form-status" id="comment-status" role="status"></p>
+            </form>
+            <div class="comments-toolbar">
+              <h3>Reader comments</h3>
+              <button class="text-button" id="refresh-comments" type="button">
+                Refresh
+              </button>
+            </div>
+            <p id="comments-status" role="status"></p>
+            <div id="comment-list"></div>
+            <button
+              class="button subtle"
+              id="more-comments"
+              type="button"
+              hidden
+            >
+              Load more
+            </button>
+          </div>
+        </div>
+      </section>
+      <section class="author-section" aria-labelledby="author-title">
+        <div class="author-monogram" aria-hidden="true">
+          AJ<span>ENGINEER / STORYTELLER</span>
+        </div>
+        <div class="author-copy">
+          <span class="eyebrow">BEHIND THE STORY</span>
+          <h2 id="author-title">Assaduzzaman Munna <span>AJ</span></h2>
+          <p>
+            AI engineer, full-stack systems specialist, and creator of
+            <em>Multiversal Love</em>. Alongside building intelligent systems,
+            AJ explores love, loss, friendship, and the possibility of another
+            world through this illustrated story.
+          </p>
+          <a
+            class="author-social"
+            href="https://github.com/iam-ajmunna"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub <span>@iam-ajmunna</span> ↗</a
+          >
+        </div>
+      </section>
+    </main>
+    <footer>
+      <span>Multiversal Love</span><span>A story to sit with.</span
+      ><a
+        href="https://github.com/iam-ajmunna/Comic-Book"
+        target="_blank"
+        rel="noopener noreferrer"
+        >View on GitHub ↗</a
+      >
+    </footer>
+    <dialog id="contents-dialog" aria-labelledby="contents-title">
+      <div class="dialog-heading">
+        <div>
+          <span class="eyebrow">FIND YOUR PLACE</span>
+          <h2 id="contents-title">Inside the book</h2>
+        </div>
+        <button class="button subtle" id="close-contents" type="button">
+          Close ×
+        </button>
+      </div>
+      <p>Choose any page. Opened pages are marked with a check.</p>
+      <div class="contents-grid" id="contents-grid"></div>
+    </dialog>
+    <dialog id="zoom-dialog" aria-labelledby="zoom-title">
+      <div class="dialog-heading">
+        <h2 id="zoom-title">Page detail</h2>
+        <button class="button subtle" id="close-zoom" type="button">
+          Close ×
+        </button>
+      </div>
+      <p>Scroll to explore the full page. Press Escape to return.</p>
+      <div id="zoom-content"></div>
+    </dialog>
+    <noscript
+      ><p class="noscript-message">
+        Please enable JavaScript to use the book reader.
+      </p></noscript
+    >
+  </body>
+</html>
