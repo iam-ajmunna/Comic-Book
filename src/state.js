@@ -26,6 +26,8 @@ export function spreadForPage(n, count = PAGE_COUNT) {
 }
 export function turnPage(n, dir, single = false, count = PAGE_COUNT) {
   const pages = single ? [n] : spreadForPage(n, count);
+  if (dir > 0 && pages.at(-1) === count - 1) return n;
+  if (dir < 0 && pages[0] === 0) return n;
   return Math.max(0, Math.min(count - 1, dir > 0 ? pages.at(-1) + 1 : pages[0] - 1));
 }
 export function pageFromHash(hash, count = PAGE_COUNT) {
