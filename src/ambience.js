@@ -334,17 +334,9 @@ export function initAmbience() {
     score.setVolume(+volume.value / 100);
     $("volume-value").textContent = `${volume.value}%`;
   });
-  $("glow-button").addEventListener("click", () => {
-    const on = $("glow-button").getAttribute("aria-pressed") !== "true";
-    $("glow-button").setAttribute("aria-pressed", String(on));
-    $("glow-button").textContent = on
-      ? "Ambient light on"
-      : "Ambient light off";
-    document.body.classList.toggle("no-glow", !on);
-  });
-  let inReader = true;
+  let inReader = false;
   const sync = () =>
-    score.setActive(inReader && document.visibilityState === "visible");
+    score.setActive(inReader && !$("reading-view").hidden && document.visibilityState === "visible");
   new IntersectionObserver(
     (entries) => {
       inReader = entries[0].isIntersecting;
@@ -354,9 +346,11 @@ export function initAmbience() {
   ).observe($("book-stage"));
   document.addEventListener("visibilitychange", sync);
   window.addEventListener("pagehide", () => score.stop());
-  return (page) => {
-    const cue = cueForPage(page);
-    document.body.dataset.mood = cue;
+  window.addEventListener("pageshow", () => { score.active = false; sync(); });
+  const update = (page, requestedCue) => {
+    const cue = requestedCue && CUES[requestedCue] ? requestedCue : cueForPage(page);
     score.setCue(cue);
   };
+  update.setActive = (active) => { inReader = active; sync(); };
+  return update;
 }

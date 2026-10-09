@@ -1,5 +1,6 @@
 import { config } from "./config.js";
-export function makeReviewUrl(text) {
+const markerFor = (book) => !book || book.id === "multiversal-love" ? config.reviewMarker : `<!-- comic-review:${book.id}:${book.edition} -->`;
+export function makeReviewUrl(text, book) {
   const value = text.trim();
   if (value.length < 3 || value.length > config.commentLimit)
     throw new Error("Write between 3 and 600 characters.");
@@ -8,18 +9,18 @@ export function makeReviewUrl(text) {
     "title",
     `${config.reviewPrefix}${value.replace(/\s+/g, " ").slice(0, 65)}`,
   );
-  url.searchParams.set("body", `${value}\n\n${config.reviewMarker}`);
+  url.searchParams.set("body", `${value}\n\n${markerFor(book)}`);
   return url.href;
 }
-export const isBookReview = (issue) =>
+export const isBookReview = (issue, book) =>
   !issue.pull_request &&
   issue.state === "open" &&
   typeof issue.body === "string" &&
-  issue.body.includes(config.reviewMarker) &&
+  issue.body.includes(markerFor(book)) &&
   issue.title?.startsWith(config.reviewPrefix);
-export const reviewText = (issue) =>
-  issue.body.replaceAll(config.reviewMarker, "").trim();
-export function initComments(canComment) {
+export const reviewText = (issue, book) =>
+  issue.body.replaceAll(markerFor(book), "").trim();
+export function initComments(canComment, getBook = () => null) {
   const $ = (id) => document.getElementById(id),
     field = $("comment");
   let busy = false,
@@ -44,7 +45,7 @@ export function initComments(canComment) {
     event.preventDefault();
     if (!canComment()) return;
     try {
-      const href = makeReviewUrl(field.value);
+      const href = makeReviewUrl(field.value, getBook());
       error("");
       const link = document.createElement("a");
       link.href = href;
@@ -80,7 +81,7 @@ export function initComments(canComment) {
       : new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(d);
     header.append(author, date);
     const text = document.createElement("p");
-    text.textContent = reviewText(issue);
+    text.textContent = reviewText(issue, getBook());
     const link = document.createElement("a");
     link.href = `https://github.com/${config.repository}/issues/${Number(issue.number)}`;
     link.target = "_blank";
@@ -126,7 +127,7 @@ export function initComments(canComment) {
         $("comment-list").replaceChildren();
         rendered = new Set();
       }
-      issues.filter(isBookReview).forEach(appendComment);
+      issues.filter((issue) => isBookReview(issue, getBook())).forEach(appendComment);
       const more = /<[^>]+>;\s*rel="next"/.test(
         response.headers.get("link") || "",
       );
@@ -155,5 +156,21 @@ export function initComments(canComment) {
   }
   $("refresh-comments").addEventListener("click", () => load(true));
   $("more-comments").addEventListener("click", () => load());
-  load(true);
+  const drafts = new Map();
+  let draftBook = null;
+  return {
+    refresh: () => load(true),
+    reset: () => {
+      aborter?.abort(); generation++; busy = false; pageNumber = 1; rendered = new Set();
+      if (draftBook) drafts.set(draftBook, field.value);
+      draftBook = getBook()?.id;
+      field.value = drafts.get(draftBook) || "";
+      $("comment-count").textContent = `${field.value.length}/600`;
+      error("");
+      $("comment-list").replaceChildren(); $("comments-status").textContent = "";
+      $("comment-status").replaceChildren();
+      $("refresh-comments").disabled = false; $("more-comments").hidden = true;
+      $("comment-list").setAttribute("aria-busy", "false");
+    },
+  };
 }

@@ -31,5 +31,5 @@ createServer((req, res) => {
     res.end("Page not found");
   }
 }).listen(Number(process.env.PORT || 4173), "0.0.0.0", () =>
-  console.log("Reader: http://localhost:4173"),
+  console.log(`Reader: http://localhost:${Number(process.env.PORT || 4173)}`),
 );

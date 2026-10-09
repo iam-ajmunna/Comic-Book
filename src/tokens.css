@@ -1,20 +1,20 @@
 /* Generated from DESIGN.md. Do not edit directly. */
 :root {
-  --color-background: #151923;
+  --color-background: #101322;
   --color-surface: #202632;
   --color-text: #eee9e4;
   --color-muted: #a6aab6;
   --color-primary: #e5b7b8;
   --color-primary-hover: #f1ccca;
-  --color-border: #363d4b;
+  --color-border: #7a8599;
   --color-danger: #ffafa4;
   --color-paper: #f8f3e9;
   --color-ink: #20202b;
-  --color-book-accent: #a94762;
+  --color-book-accent: #7e3248;
   --color-paper-muted: #5e5960;
   --radius-control: 4px;
   --space-section: 60px;
   --space-page-max: 1300px;
   --font-sans: Arial, Helvetica, sans-serif;
-  --font-display: Georgia, Times New Roman, serif;
+  --font-display: Impact, 'Arial Narrow', Arial, sans-serif;
 }

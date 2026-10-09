@@ -11,6 +11,7 @@
     "dev": "node scripts/serve.mjs",
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check src/app.js && node --check src/ambience.js && node --check src/comments.js && npm test && npm run build"
+    "check": "node scripts/check.mjs && npm test && npm run build",
+    "validate:assets": "node scripts/validate-assets.mjs"
   }
 }

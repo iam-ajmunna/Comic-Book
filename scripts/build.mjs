@@ -5,6 +5,6 @@ import "./validate-assets.mjs";
 const root = fileURLToPath(new URL("../", import.meta.url));
 rmSync(`${root}dist`, { recursive: true, force: true });
 mkdirSync(`${root}dist`);
-for (const path of ["index.html", "src", "assets", "comics.json", ".nojekyll"])
+for (const path of ["index.html", "src", "assets", "comics.json", "sw.js", ".nojekyll"])
   cpSync(`${root}${path}`, `${root}dist/${path}`, { recursive: true });
 console.log("Built data-driven comic reading room.");
