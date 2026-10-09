@@ -1,6 +1,7 @@
 /* Network-first app shell; cached artwork; explicit, bounded offline download. */
-const RELEASE = '20261009-2';
-const PREFIX = `comic-room-${RELEASE}`;
+const RELEASE = '20261009-3';
+// Keep downloaded books across UI releases. Bump only for a cache-schema change.
+const PREFIX = 'comic-room-20261009-2';
 const SHELL = `${PREFIX}-shell`, ART = `${PREFIX}-art`;
 const root = new URL('./', self.location.href);
 const shell = ['.', 'index.html', 'comics.json', 'assets/favicon.svg',

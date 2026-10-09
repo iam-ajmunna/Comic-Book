@@ -1,13 +1,13 @@
-import { validateCatalog, fetchJson } from './catalog.js?v=20261009-2';
-import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261009-2';
-import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261009-2';
-import { PageImages } from './images.js?v=20261009-2';
-import { AmbientLight } from './lighting.js?v=20261009-2';
-import { flipSpread, cancelFlip } from './flip.js?v=20261009-2';
-import { initZoom } from './zoom.js?v=20261009-2';
-import { initComments } from './comments.js?v=20261009-2';
-import { initAmbience } from './ambience.js?v=20261009-2';
-import { initOffline } from './offline.js?v=20261009-2';
+import { validateCatalog, fetchJson } from './catalog.js?v=20261009-3';
+import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261009-3';
+import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261009-3';
+import { PageImages } from './images.js?v=20261009-3';
+import { AmbientLight } from './lighting.js?v=20261009-3';
+import { flipSpread, cancelFlip } from './flip.js?v=20261009-3';
+import { initZoom } from './zoom.js?v=20261009-3';
+import { initComments } from './comments.js?v=20261009-3';
+import { initAmbience } from './ambience.js?v=20261009-3';
+import { initOffline } from './offline.js?v=20261009-3';
 
 let storage = null;
 try { storage = window.localStorage; } catch { /* Reading works with memory-only progress. */ }
@@ -26,6 +26,8 @@ if (Number.isFinite(preferences.volume)) {
 }
 $('volume').addEventListener('input', () => { preferences.volume = Number($('volume').value); savePreferences(storage, preferences); });
 const offline = initOffline();
+// Keep active download state when search or cross-tab progress rebuilds the shelf.
+const downloads = new Map();
 const transcripts = new Map();
 let comics = [], book = null, current = 0, state = { page: 0, visited: [] };
 let textMode = false, layoutOverride = null, generation = 0, turning = false;
@@ -246,9 +248,17 @@ function renderLibrary() {
     const actions = el('div', 'cover-actions'), hasProgress = saved.visited.length > 0 || saved.page > 0;
     const read = el('button', 'button primary', hasProgress ? 'Continue reading →' : 'Open the book →'); read.type = 'button'; read.addEventListener('click', () => openBook(comic)); actions.append(read);
     if (hasProgress) { const start = el('button', 'text-button', 'Read from cover'); start.type = 'button'; start.addEventListener('click', () => openBook(comic, 0)); actions.append(start); }
-    const status = el('p', 'offline-status'); status.setAttribute('role', 'status');
+    if (!downloads.has(comic.id)) downloads.set(comic.id, { busy: false, message: '', status: null, button: null });
+    const job = downloads.get(comic.id);
+    const status = el('p', 'offline-status', job.message); status.setAttribute('role', 'status'); job.status = status;
     const download = el('button', 'text-button', 'Download for offline'); download.type = 'button';
-    download.addEventListener('click', async () => { download.disabled = true; try { await offline.download(comic, status); } finally { download.disabled = false; } });
+    download.disabled = job.busy; job.button = download;
+    download.addEventListener('click', async () => {
+      if (job.busy) return;
+      job.busy = true; job.button.disabled = true;
+      try { await offline.download(comic, (message) => { job.message = message; job.status.textContent = message; }); }
+      finally { job.busy = false; job.button.disabled = false; }
+    });
     if (offline.available) actions.append(download);
     copy.append(actions);
     const progress = el('div', 'cover-progress', `${saved.visited.length} / ${comic.pages.length} pages opened${saved.page ? ` · Saved at page ${comic.pages[saved.page].label}` : ''}`);

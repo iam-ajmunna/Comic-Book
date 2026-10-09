@@ -241,7 +241,8 @@ button:active:not(:disabled) {
   font:34px/1.05 var(--font-display);
   text-transform:uppercase;
   letter-spacing:-.02em;
-  margin:10px 0
+  margin:10px 0;
+  overflow-wrap:anywhere
 }
 .cover-description {
   color:var(--color-muted);
@@ -1019,8 +1020,8 @@ body:has(dialog[open]) {
     margin:20px auto 40px
   }
   .cover-card:only-child .cover-copy h2 {
-    font-size:60px;
-    max-width:7ch
+    font-size:clamp(40px,10.5vw,60px);
+    max-width:100%
   }
   .reader {
     padding:max(4px,env(safe-area-inset-top)) 4px max(4px,env(safe-area-inset-bottom))

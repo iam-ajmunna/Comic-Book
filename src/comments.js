@@ -1,4 +1,4 @@
-import { config } from "./config.js?v=20261009-2";
+import { config } from "./config.js?v=20261009-3";
 const markerFor = (book) => !book || book.id === "multiversal-love" ? config.reviewMarker : `<!-- comic-review:${book.id}:${book.edition} -->`;
 export function makeReviewUrl(text, book) {
   const value = text.trim();

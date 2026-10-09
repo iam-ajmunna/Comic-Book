@@ -7,9 +7,9 @@
   <meta name="description" content="Read Multiversal Love by AJ. An immersive comic library with facing pages, artwork lighting, and a quiet cinematic soundtrack.">
   <title>Multiversal Love — AJ's comic reading room</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="src/tokens.css?v=20261009-2">
-  <link rel="stylesheet" href="src/styles.css?v=20261009-2">
-  <script type="module" src="src/app.js?v=20261009-2"></script>
+  <link rel="stylesheet" href="src/tokens.css?v=20261009-3">
+  <link rel="stylesheet" href="src/styles.css?v=20261009-3">
+  <script type="module" src="src/app.js?v=20261009-3"></script>
 </head>
 <body data-sound="quiet">
   <a class="skip-link" id="skip-link" href="#library-title">Skip to the library</a>
@@ -52,7 +52,7 @@
             <div class="scrubber"><label for="page-scrubber" id="page-label">Cover</label><input id="page-scrubber" type="range" min="0" max="79" value="0" aria-describedby="scrubber-help"><span class="sr-only" id="scrubber-help">Jump to a page. Thumbnails and jumps do not mark skipped pages as opened.</span></div>
             <button class="icon-button" id="next" type="button" aria-label="Next page" disabled><svg class="icon arrow" aria-hidden="true"><use href="#icon-right"/></svg></button>
           </nav>
-          <div class="reader-options"><button class="text-button" id="glow-button" type="button" aria-pressed="true">Ambient light on</button><span class="option-divider" aria-hidden="true"></span><div class="sound-control"><button class="text-button" id="sound-button" type="button" aria-pressed="false">Turn sound on</button><span id="sound-label" role="status">Soundtrack off</span></div><div class="volume-control"><label for="volume">Volume</label><input id="volume" type="range" min="0" max="35" value="15"><output id="volume-value" for="volume">15%</output></div><button class="text-button" id="help-button" type="button" aria-haspopup="dialog" aria-label="Reading controls and keyboard shortcuts">Help</button></div>
+          <div class="reader-options"><button class="text-button" id="glow-button" type="button" aria-pressed="true">Ambient light on</button><span class="option-divider" aria-hidden="true"></span><div class="sound-control"><button class="text-button" id="sound-button" type="button" aria-pressed="false">Turn sound on</button><span id="sound-label" role="status">Soundtrack off</span></div><div class="volume-control"><label for="volume">Volume</label><input id="volume" type="range" min="0" max="35" value="15" aria-label="Volume"><output id="volume-value" for="volume">15%</output></div><button class="text-button" id="help-button" type="button" aria-haspopup="dialog" aria-label="Reading controls and keyboard shortcuts">Help</button></div>
           <div class="reading-progress"><span id="progress-label">0 pages opened</span><progress id="progress" value="0" max="80" aria-labelledby="progress-label"></progress><button class="text-button" id="next-unread" type="button">Next unread</button><button class="text-button" id="discussion-button" type="button">Comments ↓</button></div>
         </div>
         <p class="status-toast" id="reader-status" role="status" aria-atomic="true"></p>
