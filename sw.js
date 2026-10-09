@@ -1,4 +1,4 @@
-/* Network-first app shell; cached artwork; explicit, bounded offline download. */
+/* Revalidated documents; cached versioned modules/art; explicit offline download. */
 const RELEASE = '20261009-3';
 // Keep downloaded books across UI releases. Bump only for a cache-schema change.
 const PREFIX = 'comic-room-20261009-2';
@@ -9,7 +9,9 @@ const shell = ['.', 'index.html', 'comics.json', 'assets/favicon.svg',
   'src/catalog.js', 'src/ui.js', 'src/images.js', 'src/lighting.js', 'src/flip.js',
   'src/zoom.js', 'src/offline.js', 'src/comments.js', 'src/config.js', 'src/ambience.js'];
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(SHELL).then((cache) => cache.addAll(shell.map((path) => new URL(path.startsWith('src/') ? `${path}?v=${RELEASE}` : path, root).href))));
+  event.waitUntil(caches.open(SHELL)
+    .then((cache) => cache.addAll(shell.map((path) => new Request(new URL(path.startsWith('src/') ? `${path}?v=${RELEASE}` : path, root), { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
@@ -21,11 +23,14 @@ self.addEventListener('fetch', (event) => {
   const request = event.request, url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== root.origin || !url.pathname.startsWith(root.pathname)) return;
   const artwork = /\.(webp|avif|png|jpe?g)$/i.test(url.pathname);
+  const versionedModule = url.searchParams.has('v') && /\.(css|js)$/i.test(url.pathname);
   event.respondWith((async () => {
     const cache = await caches.open(artwork ? ART : SHELL);
-    if (artwork) { const hit = await cache.match(request); if (hit) return hit; }
+    if (artwork || versionedModule) { const hit = await cache.match(request); if (hit) return hit; }
     try {
-      const response = await fetch(request);
+      // The HTTP cache can otherwise return an older HTML entry point on normal
+      // navigation, even while newer modules have been deployed.
+      const response = await fetch(request, { cache: artwork || versionedModule ? 'default' : 'no-cache' });
       if (response.ok) {
         try { await cache.put(request, response.clone()); } catch { /* Storage pressure must not block online reading. */ }
       }

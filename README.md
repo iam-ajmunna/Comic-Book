@@ -93,7 +93,7 @@ Transcript pages may contain `kind: "cover"`, `kind: "story"` with `text`, or `k
 
 Use a new edition and **versioned asset URLs** when replacing artwork. This preserves explicit progress boundaries and avoids serving older offline-cached images under an unchanged URL.
 
-The reader's CSS and ES modules also carry a release query (`?v=20261009-3`). When changing runtime files, update that release consistently in `index.html`, local module imports and `sw.js`'s `RELEASE`. This prevents returning browsers from mixing an older reader with new HTML. The service worker precaches those exact versioned URLs. Its cache prefix stays stable across UI releases so downloaded books survive; change it only when the cache format changes.
+The reader's CSS and ES modules also carry a release query (`?v=20261009-3`). When changing runtime files, update that release consistently in `index.html`, local module imports and `sw.js`'s `RELEASE`. This prevents returning browsers from mixing an older reader with new HTML. The service worker precaches those exact versioned URLs, revalidates documents and metadata, and activates updates without requiring every reader tab to close. Its cache prefix stays stable across UI releases so downloaded books survive; change it only when the cache format changes.
 
 ## Progress and comments
 
