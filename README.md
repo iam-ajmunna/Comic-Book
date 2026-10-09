@@ -1,140 +1,138 @@
-# Multiversal Love
+# Multiversal Love · AJ / Comics
 
-An immersive web reader for the complete 80-page illustrated sci-fi romance. Facing pages keep every comic scene beside its companion prose. Scene-colored light and an original, quiet soundtrack support the story.
+An immersive, dependency-free comic reading room for **Multiversal Love**, the complete 80-page sci-fi romance by Assaduzzaman Munna (AJ).
 
-![Multiversal Love cover](assets/pages/000-small.webp)
+**Read:** https://iam-ajmunna.github.io/Comic-Book/
+**Author:** https://github.com/iam-ajmunna
 
-## Reader features
+## Reader
 
-- Desktop: two pages side by side. Phones: one legible page, with a two-page switch.
-- Correct pairings: cover + introductory endpaper, 01–02 through 77–78, then 79 + closing endpaper.
-- Illustrated contents, previous/next controls, arrow-key navigation, deep links such as `#page=23`, and full-resolution zoom.
-- Selectable text mode with panel descriptions and attributed dialogue.
-- Saved reading position and unique opened-page progress on the same device.
-- Scene-aware ambient light, independent on/off switch, and reduced-motion support.
-- Optional quiet music: piano-like melody, harmonic pads, cinematic passages and deliberate silence.
-- Comments below the book, unlocked only after all 80 real book pages have opened.
-- Introduction to **AJ — Assaduzzaman Munna**, AI engineer, full-stack systems specialist and the creator of this story, with [@iam-ajmunna](https://github.com/iam-ajmunna).
+- Full-viewport, uncropped artwork: cover alone on the right, then facing pages, with an unmatched final page alone. RTL mirrors the layout.
+- Automatic single-page layout below 681px, updated on rotation; manual layout override.
+- Shaded CSS 3D page turns; immediate changes when reduced motion is preferred.
+- Page-edge taps, swipe, arrow keys, Home/End, page scrubber and lazy thumbnail drawer.
+- Fullscreen (`F`) with actual API state and recoverable failure messages.
+- Global artwork-colour lighting, cached 32 × 48 canvas sampling, ink/paper filtering, saturation boost, neutral CORS fallback, and 1.2-second crossfades.
+- Quiet controls that reappear on movement, touch or keyboard use and remain visible while focused.
+- Searchable cover library and per-comic saved place; existing Multiversal Love progress migrates automatically.
+- Page enlargement with pinch zoom, pointer pan, keyboard pan and explicit zoom/reset buttons.
+- Optional original procedural soundtrack: soft piano, reflection, wonder, cinematic scenes and intentional silence. Off by default; starts only after a user gesture; default volume 15%, maximum 35%.
+- Opt-in offline download of smaller artwork, thumbnails and transcripts. No full-book download occurs unless requested.
+- Selectable dialogue and descriptive transcripts; comments unlock only after every actual page is opened.
 
-## Run locally
+## Stack and local use
 
-Requires Node.js 20 or newer. No production dependencies or package installation.
+Vanilla HTML, CSS and native ES modules. **No npm packages, framework, bundler, external font service or build dependency.** Node 20+ supports the supplied server and checks.
 
-```sh
+```bash
 git clone https://github.com/iam-ajmunna/Comic-Book.git
 cd Comic-Book
 npm run dev
 ```
 
-Open **http://localhost:4173**. Serve over HTTP; opening `index.html` through `file://` can block modules and the book manifest.
+Open `http://localhost:4173`. Do not open `index.html` with `file://`; fetching JSON and registering a service worker require an HTTP origin.
 
-```sh
-npm test                       # Core behavior tests
-npm run check                  # Syntax, tests and production build
-npm run build                  # Creates self-contained dist/
-node scripts/serve.mjs --dist   # Preview the production files
+```bash
+npm run check             # Syntax, unit tests, assets and static export
+npm test                  # Navigation, progress, catalog, palette and review tests
+npm run validate:assets   # Catalog and local WebP container integrity
+npm run build             # Optional: regenerate tokens and copy files into dist/
+node scripts/serve.mjs --dist
 ```
 
-## Publish on GitHub Pages
+`PORT=8080 npm run dev` selects another port. GitHub Pages can serve the committed root directly; a build is optional.
 
-1. Push this project to a **public repository**, keeping **Issues enabled**.
-2. Open **Settings → Pages → Build and deployment**.
-3. Select **Deploy from a branch**, **main**, **/(root)**, then **Save**.
-4. Wait for the Pages deployment; its settings screen displays the live URL.
+## Add a comic without changing code
 
-The repository root is ready to serve. It includes `.nojekyll` and the generated `src/tokens.css`. Relative assets work under a GitHub project path. Any static host can serve `dist/` instead.
+1. Put its cover, pages and thumbnails in a versioned folder such as `assets/my-comic/v1/`. Use WebP or AVIF when practical; preserve aspect ratio. An optional smaller variant should be at most 800px wide.
+2. Append one entry to `comics.json`. The cover must also be the first entry of `pages[]`; every array index is an actual page for progress tracking.
+3. Set a unique lowercase `id`, an `edition`, image dimensions and `readingDirection` (`ltr` or `rtl`). Supply every page in reading order. Do not reverse the array for manga.
+4. Optionally provide a transcript JSON with the same number and order of pages. Add a per-page `cue`: `soft`, `memory`, `wonder`, `cinematic`, or `silence`.
+5. Run `npm run check`, then commit and push. The library, search, navigation, drawer, progress and offline download discover the new entry automatically.
 
-Alternatively, an authenticated GitHub CLI can enable Pages for this repository:
+Example entry (replace asset paths with your own files):
 
-```sh
-gh auth login
-bash scripts/enable-pages.sh
+```json
+{
+  "id": "my-comic",
+  "title": "My Comic",
+  "issue": "Issue 1",
+  "edition": "v1",
+  "author": "Your name",
+  "genre": "Sci-fi / Romance",
+  "description": "A short introduction to the book.",
+  "cover": "assets/my-comic/v1/cover.webp",
+  "width": 1600,
+  "height": 2476,
+  "readingDirection": "ltr",
+  "transcript": "assets/my-comic/v1/text.json",
+  "pages": [
+    {
+      "src": "assets/my-comic/v1/cover.webp",
+      "small": "assets/my-comic/v1/cover-small.webp",
+      "thumbnail": "assets/my-comic/v1/cover-thumb.webp",
+      "label": "Cover",
+      "title": "My Comic",
+      "cue": "soft"
+    },
+    {
+      "src": "assets/my-comic/v1/001.webp",
+      "small": "assets/my-comic/v1/001-small.webp",
+      "thumbnail": "assets/my-comic/v1/001-thumb.webp",
+      "label": "01",
+      "title": "The first scene",
+      "cue": "wonder"
+    }
+  ]
+}
 ```
 
-The script preserves an existing Pages configuration. Never put credentials, tokens or passwords in the frontend. After future edits, run `npm run check`, commit your changes and push `main`; branch publishing will update the site automatically.
+The top-level format is `{ "version": 1, "comics": [...] }`. `small`, `thumbnail`, `description`, `genre`, `author`, `issue` and `transcript` are optional. `src`, `cover`, dimensions, `id`, `title`, `edition` and direction are required. Local paths are relative to the site root. HTTPS images are supported; remote artwork must allow CORS for colour sampling. Otherwise it still displays with neutral lighting. Offline downloads require same-origin assets.
 
-## Shared comments and the reading gate
+Transcript pages may contain `kind: "cover"`, `kind: "story"` with `text`, or `kind: "comic"` with `panels[]`. Each panel contains `description` and `dialogue[]` entries with `speaker` and `text`. All transcript and comment content is rendered as plain text.
 
-Only a successfully loaded page that is visible in the reading area counts as opened. Its visible text alternative also counts. Thumbnails, prefetches and failed image loads do not count. All **80 unique PDF pages**, including the cover, are required; jumping to 79 does not unlock comments. The two decorative endpapers are not additional pages.
+Use a new edition and **versioned asset URLs** when replacing artwork. This preserves explicit progress boundaries and avoids serving older offline-cached images under an unchanged URL.
 
-After completion, a reader writes a 3–600-character comment beneath the book. **Continue on GitHub** opens a prefilled public issue draft. The reader signs in and confirms the post on GitHub, then returns and selects **Refresh**. Reviews are shared across visitors. Replies and edits remain available through **Read or reply on GitHub**.
+## Progress and comments
 
-This is a real shared store using GitHub Issues, not browser-local comments. It requires a GitHub account to post, but no paid backend, API key, or third-party GitHub app. The reader never claims a draft has been posted. Draft text stays in the current tab and is not written to local storage.
+Progress is local to this browser, keyed by comic id and edition. Unique valid pages are merged across tabs. Images count only after decoding and becoming visible in the active reader; visible transcripts also count. Failed images, thumbnails, background tabs, preloading and skipped pages do not unlock comments. This is a reading affordance, not server authorization.
 
-### Configuration and moderation
+The comment form retains a separate in-memory draft per book. Posting opens a prefilled GitHub Issue for the reader to review and submit using their own account. No credentials or access tokens are embedded. The public feed uses the unauthenticated Issues API, with retry, pagination, rate-limit messaging and cancellation of stale requests. It may be unavailable offline or rate-limited; reading remains available.
 
-- `src/config.js` owns the repository name, `[Book review] ` title prefix, and `<!-- multiversal-love:review:v1 -->` body marker.
-- When forking, update the repository name and visible GitHub links in `index.html` and this README.
-- Keep the marker when editing a review. Only open marked review issues appear in the feed.
-- Close a review issue to hide it. GitHub also provides normal report, lock and deletion controls.
-- The feed requests 30 issues per page, with **Load more** and manual refresh. Rate-limit, timeout and offline failures show recoverable messages.
-- All review text uses `textContent`; user HTML and scripts are never executed.
+The author introduction appears after the book and discussion. Only the verified GitHub handle is linked; add other verified profiles in `index.html` when supplied.
 
-**The completion requirement is a reading-experience gate, not server authorization.** Public issues are accessible directly and browser state can be edited or cleared. It does not prove every word was read. Strict enforcement would require an authenticated backend and an agreed verification policy.
+## Offline and storage
 
-## Ambient soundtrack and light
+The service worker requires HTTPS or localhost. It keeps the application shell and encountered artwork, while **Download for offline** explicitly fetches smaller page variants, thumbnails, the catalog and the selected transcript with three concurrent requests. A failed download is reported and can be retried. Browser storage quotas and eviction still apply. Clear site data in browser settings to remove offline copies and saved progress.
 
-`src/ambience.js` synthesizes an original instrumental score locally with Web Audio: sparse piano-like notes, soft pads, spacious reverb and a restrained low register in cinematic scenes. No commercial recordings, external music services, audio downloads or tracking players are used.
+Music is synthesized locally and needs no download. Network comments require connectivity. Remote-hosted comic assets are not included in offline downloads.
 
-Sound starts **off** on a fresh page load and requires a reader gesture. Volume begins at 15%, with a quiet 35% cap. System volume still affects loudness. Music fades with scene changes and stops in silent scenes, hidden tabs, or when the book leaves the viewport.
+## Deploy
 
-| Passage | Treatment |
+For this repository, GitHub Pages serves **`main` → `/ (root)`**. Push the verified source, `comics.json`, generated `src/tokens.css`, artwork and `sw.js` to main. Keep `.nojekyll`. The existing Pages deployment then publishes automatically.
+
+For another static host, either publish the repository root or upload `dist/` after `npm run build`. Deploy under HTTPS, preserve relative paths, and serve `.js`, `.css`, `.json`, `.webp` and `.avif` with their correct MIME types. No backend or environment variables are required.
+
+## Project structure
+
+| Path | Responsibility |
 |---|---|
-| Everyday conversations | Soft piano |
-| Happiness and memory | Warm, slower reflection |
-| The anomaly and linked worlds | Sparse suspended harmony |
-| The breach and second crisis | Soft cinematic chords and low tones |
-| Breakup, loss, grief and final quiet exchanges | Silence |
-| The final page | Gentle unresolved reflection |
+| `comics.json` | Catalog, image paths, reading direction and audio cues |
+| `assets/book.json` | Preserved approved story and panel transcripts |
+| `src/app.js` | Library, reader orchestration and route handling |
+| `src/state.js` | Spread boundaries, progress, migration and persistence |
+| `src/images.js` | Matching-resolution loading, alternate fallback and bounded cache |
+| `src/lighting.js`, `src/flip.js` | Colour extraction and transform/opacity page turns |
+| `src/ui.js`, `src/zoom.js` | Focus-safe controls, native dialogs, feedback and page detail |
+| `src/ambience.js`, `src/comments.js` | Existing score and GitHub review integration |
+| `src/offline.js`, `sw.js` | Opt-in downloads and offline serving |
+| `DESIGN.md`, `src/tokens.css` | Design source and generated runtime tokens |
+| `scripts/`, `tests/` | Optional export/server, validation and meaningful tests |
 
-`SCENE_CUES` maps the cover plus all 40 scenes. Odd/even companion pages share a cue. Music follows page selection, never an assumed reading speed. Ambient washes sit behind the paper and change gently. The separate light switch and `prefers-reduced-motion` support reduce sensory load. There are no flashing effects.
+`scripts/export_book.py` reproduces this specific approved 80-page PDF and its 40-scene screenplay; it is not required to add another comic. Its optional PyMuPDF/Pillow tools are not site dependencies. Do not regenerate the comic from an earlier draft.
 
-## Customize or update
+## Quality and verification
 
-- **Author:** edit `.author-section` in `index.html`. Only verified links and approved biography should be added; no Instagram, Facebook or other handles are guessed.
-- **Design:** edit `DESIGN.md`, then `npm run build` to regenerate `src/tokens.css`.
-- **Navigation/completion:** edit `src/state.js` and run tests. Never replace the unique-page set with the highest page number reached.
-- **New edition:** update the edition key and page-count invariants deliberately so old progress cannot unlock another book.
+See [TEST_CHECKLIST.md](TEST_CHECKLIST.md) for Chrome, Safari, Firefox, iOS and Android coverage and [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for actual release evidence. Lighthouse goals are Performance 90+, Accessibility 95+ and Best Practices 95+; only measured results should be recorded as scores. CSS 3D page turns target 60fps, subject to device capability. Reduced motion bypasses the animation.
 
-The approved source PDF and production archive are not included in the public repository. To regenerate assets from your copies:
-
-```sh
-python3 -m venv .venv
-. .venv/bin/activate
-pip install PyMuPDF Pillow
-python scripts/export_book.py /path/to/approved-book.pdf /path/to/revised_pages.json
-npm run check
-```
-
-The exporter requires the approved 80-page PDF and matching 40-scene screenplay. It reproduces the PDF as 1600px/800px WebP pages, small thumbnails and accessible text; it does not redraw the illustrations.
-
-## Structure
-
-| Path | Purpose |
-|---|---|
-| `index.html` | Reader, comment area and author section |
-| `src/app.js` | Rendering, navigation, dialogs and visibility tracking |
-| `src/state.js` | Validated progress and persistence |
-| `src/comments.js` | Public review feed and GitHub draft handoff |
-| `src/ambience.js` | Scene cues and original instrumental synthesis |
-| `src/styles.css` | Responsive reading layout and light |
-| `src/tokens.css` | Generated design tokens |
-| `assets/book.json` | Metadata, prose and described panels |
-| `assets/pages/`, `assets/thumbs/` | Approved book images |
-| `scripts/` | Export, build, local server and publishing |
-| `tests/` | Meaningful behavior checks |
-
-## Accessibility, privacy and limitations
-
-Named controls, visible focus, skip navigation, native modal behavior, real progress semantics, text alternatives and reduced motion support accessible reading. Progress stays in local storage on that browser. No third-party request is needed to read or play the score. The public GitHub API is contacted only after completion; posting is a separate, explicit action.
-
-GitHub API rate limits can affect comment loading. Readers can retry, and already loaded comments remain visible. Images are responsive and only current/adjacent pages load; the entire book is not decoded at once. Text mode avoids image decoding entirely.
-
-See the repository’s existing `LICENSE` for licensing.
-
-## Official references
-
-- [GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site)
-- [Prefilled issue URLs](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-an-issue)
-- [Issues API](https://docs.github.com/en/rest/issues/issues)
-- [Web Audio best practices](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Best_practices)
+All original comic content and the existing MIT license are retained. No illustration or character face was regenerated for this reader upgrade.
