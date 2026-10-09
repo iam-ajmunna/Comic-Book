@@ -93,6 +93,8 @@ Transcript pages may contain `kind: "cover"`, `kind: "story"` with `text`, or `k
 
 Use a new edition and **versioned asset URLs** when replacing artwork. This preserves explicit progress boundaries and avoids serving older offline-cached images under an unchanged URL.
 
+The reader's CSS and ES modules also carry a release query (`?v=20261009-2`). When changing runtime files, update that release consistently in `index.html`, local module imports and `sw.js`'s `RELEASE`. This prevents returning browsers from mixing an older reader with new HTML. The service worker precaches those exact versioned URLs.
+
 ## Progress and comments
 
 Progress is local to this browser, keyed by comic id and edition. Unique valid pages are merged across tabs. Images count only after decoding and becoming visible in the active reader; visible transcripts also count. Failed images, thumbnails, background tabs, preloading and skipped pages do not unlock comments. This is a reading affordance, not server authorization.
@@ -134,5 +136,7 @@ For another static host, either publish the repository root or upload `dist/` af
 ## Quality and verification
 
 See [TEST_CHECKLIST.md](TEST_CHECKLIST.md) for Chrome, Safari, Firefox, iOS and Android coverage and [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for actual release evidence. Lighthouse goals are Performance 90+, Accessibility 95+ and Best Practices 95+; only measured results should be recorded as scores. CSS 3D page turns target 60fps, subject to device capability. Reduced motion bypasses the animation.
+
+Open `/tests/responsive.html` on the local server or root GitHub Pages deployment to check 360, 768, 1440 and 2560px CSS viewports. This uses an iframe and does not replace testing a real mobile device or another browser.
 
 All original comic content and the existing MIT license are retained. No illustration or character face was regenerated for this reader upgrade.

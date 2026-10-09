@@ -33,7 +33,7 @@ export async function fetchJson(url, timeout = 15000, signal) {
   if (signal?.aborted) controller.abort();
   const timer = setTimeout(abort, timeout);
   try {
-    const response = await fetch(url, { signal: controller.signal });
+    const response = await fetch(url, { signal: controller.signal, cache: "no-cache" });
     if (!response.ok) throw new Error(`Could not load ${url}.`);
     return await response.json();
   } finally { clearTimeout(timer); signal?.removeEventListener("abort", abort); }

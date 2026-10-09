@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Comic reader viewport check</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px; color: #eef0f6; background: #101322; font: 15px/1.5 system-ui, sans-serif; }
+    h1 { margin: 0; font-size: 20px; }
+    p { color: #b8c1d5; }
+    nav { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+    button { min-height: 44px; padding: 8px 16px; border: 1px solid #7a8599; border-radius: 8px; background: #191e2b; color: inherit; font: inherit; cursor: pointer; }
+    button[aria-pressed=true] { background: #eda7b8; color: #101322; }
+    :focus-visible { outline: 3px solid #eda7b8; outline-offset: 3px; }
+    #preview { position: relative; margin: 0 auto; }
+    iframe { display: block; border: 1px solid #7a8599; transform-origin: top left; }
+  </style>
+</head>
+<body>
+  <h1>Comic reader viewport check</h1>
+  <p>Test actual CSS viewport sizes in the embedded reader. This helper does not emulate a device, touch input, or a different browser.</p>
+  <nav aria-label="Preview width">
+    <button type="button" data-width="360" aria-pressed="true">360 px</button>
+    <button type="button" data-width="768" aria-pressed="false">768 px</button>
+    <button type="button" data-width="1440" aria-pressed="false">1440 px</button>
+    <button type="button" data-width="2560" aria-pressed="false">2560 px</button>
+  </nav>
+  <p id="size" role="status"></p>
+  <div id="preview"><iframe id="reader-preview" title="Comic reader preview" src="../index.html#read=multiversal-love&amp;page=1" allow="fullscreen" width="360" height="800"></iframe></div>
+  <script>
+    const frame = document.getElementById('reader-preview');
+    const preview = document.getElementById('preview');
+    let width = 360;
+    function fit() {
+      const height = width <= 680 ? 800 : 900;
+      const scale = Math.min(1, (document.documentElement.clientWidth - 40) / width);
+      frame.style.width = `${width}px`; frame.style.height = `${height}px`;
+      frame.style.transform = `scale(${scale})`;
+      preview.style.width = `${width * scale}px`; preview.style.height = `${height * scale}px`;
+      document.getElementById('size').textContent = `${width} × ${height} CSS pixels${scale < 1 ? ' · scaled to fit this window' : ''}`;
+    }
+    for (const button of document.querySelectorAll('[data-width]')) button.addEventListener('click', () => {
+      width = Number(button.dataset.width);
+      for (const option of document.querySelectorAll('[data-width]')) option.setAttribute('aria-pressed', String(option === button));
+      fit();
+    });
+    window.addEventListener('resize', fit); fit();
+  </script>
+</body>
+</html>

@@ -17,7 +17,7 @@
       "pages": [
         {
           "src": "assets/pages/000.webp",
-          "small": "assets/pages/000-small.webp",
+          "small": "assets/pages/000-small.webp?v=20261009-2",
           "thumbnail": "assets/thumbs/000.webp",
           "label": "Cover",
           "title": "Multiversal Love",
@@ -65,7 +65,7 @@
         },
         {
           "src": "assets/pages/006.webp",
-          "small": "assets/pages/006-small.webp",
+          "small": "assets/pages/006-small.webp?v=20261009-2",
           "thumbnail": "assets/thumbs/006.webp",
           "label": "06",
           "title": "Someone willing to listen",
@@ -113,7 +113,7 @@
         },
         {
           "src": "assets/pages/012.webp",
-          "small": "assets/pages/012-small.webp",
+          "small": "assets/pages/012-small.webp?v=20261009-2",
           "thumbnail": "assets/thumbs/012.webp",
           "label": "12",
           "title": "Words that arrive too quickly",
@@ -136,9 +136,9 @@
           "cue": "memory"
         },
         {
-          "src": "assets/pages/015.webp",
+          "src": "assets/pages/015.webp?v=20261009-2",
           "small": "assets/pages/015-small.webp",
-          "thumbnail": "assets/thumbs/015.webp",
+          "thumbnail": "assets/thumbs/015.webp?v=20261009-2",
           "label": "15",
           "title": "What silence allowed",
           "cue": "memory"
@@ -233,7 +233,7 @@
         },
         {
           "src": "assets/pages/027.webp",
-          "small": "assets/pages/027-small.webp",
+          "small": "assets/pages/027-small.webp?v=20261009-2",
           "thumbnail": "assets/thumbs/027.webp",
           "label": "27",
           "title": "Only Moon can see it",
@@ -281,7 +281,7 @@
         },
         {
           "src": "assets/pages/033.webp",
-          "small": "assets/pages/033-small.webp",
+          "small": "assets/pages/033-small.webp?v=20261009-2",
           "thumbnail": "assets/thumbs/033.webp",
           "label": "33",
           "title": "Two views of one corner",
@@ -352,9 +352,9 @@
           "cue": "wonder"
         },
         {
-          "src": "assets/pages/042.webp",
+          "src": "assets/pages/042.webp?v=20261009-2",
           "small": "assets/pages/042-small.webp",
-          "thumbnail": "assets/thumbs/042.webp",
+          "thumbnail": "assets/thumbs/042.webp?v=20261009-2",
           "label": "42",
           "title": "The other half of the pattern",
           "cue": "wonder"
@@ -376,9 +376,9 @@
           "cue": "cinematic"
         },
         {
-          "src": "assets/pages/045.webp",
+          "src": "assets/pages/045.webp?v=20261009-2",
           "small": "assets/pages/045-small.webp",
-          "thumbnail": "assets/thumbs/045.webp",
+          "thumbnail": "assets/thumbs/045.webp?v=20261009-2",
           "label": "45",
           "title": "Two impossible truths",
           "cue": "cinematic"
@@ -465,7 +465,7 @@
         },
         {
           "src": "assets/pages/056.webp",
-          "small": "assets/pages/056-small.webp",
+          "small": "assets/pages/056-small.webp?v=20261009-2",
           "thumbnail": "assets/thumbs/056.webp",
           "label": "56",
           "title": "The road home",
@@ -488,9 +488,9 @@
           "cue": "silence"
         },
         {
-          "src": "assets/pages/059.webp",
+          "src": "assets/pages/059.webp?v=20261009-2",
           "small": "assets/pages/059-small.webp",
-          "thumbnail": "assets/thumbs/059.webp",
+          "thumbnail": "assets/thumbs/059.webp?v=20261009-2",
           "label": "59",
           "title": "One moment, two worlds",
           "cue": "wonder"
@@ -560,9 +560,9 @@
           "cue": "cinematic"
         },
         {
-          "src": "assets/pages/068.webp",
+          "src": "assets/pages/068.webp?v=20261009-2",
           "small": "assets/pages/068-small.webp",
-          "thumbnail": "assets/thumbs/068.webp",
+          "thumbnail": "assets/thumbs/068.webp?v=20261009-2",
           "label": "68",
           "title": "Maybe",
           "cue": "cinematic"
@@ -608,9 +608,9 @@
           "cue": "memory"
         },
         {
-          "src": "assets/pages/074.webp",
+          "src": "assets/pages/074.webp?v=20261009-2",
           "small": "assets/pages/074-small.webp",
-          "thumbnail": "assets/thumbs/074.webp",
+          "thumbnail": "assets/thumbs/074.webp?v=20261009-2",
           "label": "74",
           "title": "With everything",
           "cue": "memory"

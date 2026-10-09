@@ -1,5 +1,6 @@
 /* Network-first app shell; cached artwork; explicit, bounded offline download. */
-const PREFIX = 'comic-room-v2';
+const RELEASE = '20261009-2';
+const PREFIX = `comic-room-${RELEASE}`;
 const SHELL = `${PREFIX}-shell`, ART = `${PREFIX}-art`;
 const root = new URL('./', self.location.href);
 const shell = ['.', 'index.html', 'comics.json', 'assets/favicon.svg',
@@ -7,7 +8,7 @@ const shell = ['.', 'index.html', 'comics.json', 'assets/favicon.svg',
   'src/catalog.js', 'src/ui.js', 'src/images.js', 'src/lighting.js', 'src/flip.js',
   'src/zoom.js', 'src/offline.js', 'src/comments.js', 'src/config.js', 'src/ambience.js'];
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(SHELL).then((cache) => cache.addAll(shell.map((path) => new URL(path, root).href))));
+  event.waitUntil(caches.open(SHELL).then((cache) => cache.addAll(shell.map((path) => new URL(path.startsWith('src/') ? `${path}?v=${RELEASE}` : path, root).href))));
 });
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {

@@ -13,9 +13,10 @@ for (const comic of comics) {
     if (checked.has(url) || /^https?:/.test(url)) continue;
     if (url.startsWith("/") || url.split("/").includes("..")) throw new Error(`Use a project-relative asset path: ${url}`);
     checked.add(url);
-    const data = readFileSync(`${root}${url}`);
+    const path = decodeURIComponent(new URL(url, "https://comic.invalid/").pathname.slice(1));
+    const data = readFileSync(`${root}${path}`);
     if (data.length < 24) throw new Error(`Empty or truncated image: ${url}`);
-    if (url.endsWith(".webp") && (data.toString("ascii", 0, 4) !== "RIFF" || data.toString("ascii", 8, 12) !== "WEBP" || data.readUInt32LE(4) + 8 !== data.length))
+    if (path.endsWith(".webp") && (data.toString("ascii", 0, 4) !== "RIFF" || data.toString("ascii", 8, 12) !== "WEBP" || data.readUInt32LE(4) + 8 !== data.length))
       throw new Error(`Invalid WebP container: ${url}`);
   }
 }

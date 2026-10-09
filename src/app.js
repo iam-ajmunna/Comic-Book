@@ -1,13 +1,13 @@
-import { validateCatalog, fetchJson } from './catalog.js';
-import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js';
-import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js';
-import { PageImages } from './images.js';
-import { AmbientLight } from './lighting.js';
-import { flipSpread, cancelFlip } from './flip.js';
-import { initZoom } from './zoom.js';
-import { initComments } from './comments.js';
-import { initAmbience } from './ambience.js';
-import { initOffline } from './offline.js';
+import { validateCatalog, fetchJson } from './catalog.js?v=20261009-2';
+import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261009-2';
+import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261009-2';
+import { PageImages } from './images.js?v=20261009-2';
+import { AmbientLight } from './lighting.js?v=20261009-2';
+import { flipSpread, cancelFlip } from './flip.js?v=20261009-2';
+import { initZoom } from './zoom.js?v=20261009-2';
+import { initComments } from './comments.js?v=20261009-2';
+import { initAmbience } from './ambience.js?v=20261009-2';
+import { initOffline } from './offline.js?v=20261009-2';
 
 let storage = null;
 try { storage = window.localStorage; } catch { /* Reading works with memory-only progress. */ }

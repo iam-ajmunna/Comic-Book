@@ -1,4 +1,4 @@
-import { $, openDialog, el } from "./ui.js";
+import { $, openDialog, el } from "./ui.js?v=20261009-2";
 export function initZoom(images) {
   const dialog = $("zoom-dialog"), viewport = $("zoom-viewport");
   let image, scale = 1, x = 0, y = 0, baseWidth = 0, baseHeight = 0;
