@@ -7,7 +7,7 @@ Run shared checks on current Chrome, Safari and Firefox desktop, Safari on iOS, 
 | Chrome desktop | Fullscreen enter/exit/F/Escape; rapid flips; keyboard navigation; Lighthouse on a cold profile |
 | Safari desktop | Web Audio gesture/resume, native dialog focus, canvas sampling, 3D backfaces |
 | Firefox desktop | Focus outlines, global scrollbar styling, fullscreen state, RTL arrow mapping |
-| iOS Safari | 360px width, safe areas, portrait/landscape, swipe/pinch, unsupported-fullscreen message, audio activation |
+| iOS Safari | 360px width, safe areas, portrait/landscape, swipe/pinch, expanded-layout fallback when Fullscreen API is absent, audio activation |
 | Android Chrome | Touch edge targets, swipe versus vertical scroll, zoom/pan, rotation, memory during rapid navigation |
 
 ## Shared flows
@@ -16,6 +16,9 @@ Run shared checks on current Chrome, Safari and Firefox desktop, Safari on iOS, 
 - Open the book; cover occupies only the right slot in LTR. Check 01–02, terminal spread, one-page book and odd/even content counts. RTL mirrors slots without mirroring artwork.
 - At 360, 768, 1440 and 2560px, artwork stays proportional and uncropped, controls remain reachable, and the document has no horizontal overflow. Rotate and check automatic single-page mode.
 - Buttons, edge taps, swipe, arrows, Home/End, scrubber and thumbnail selection reach the intended page and respect boundaries. Rapid inputs do not allow stale pages or colours to overwrite the newest spread.
+- Drag from the artwork: one gesture turns one spread and never opens zoom afterward. A tap still enlarges the artwork; vertical scrolling, a second finger and cancelled gestures do not turn. Test LTR and RTL.
+- Confirm local Bangers/Anton/Comic Neue fonts load, the title wraps between words at 360px, and the new theme remains available offline. POW appears at most once per tab session, never on a direct reading link or with reduced motion.
+- Check native/WebKit fullscreen state and rejected requests. Where the API is absent, Escape, the fullscreen button and Library all leave expanded layout without losing progress.
 - Controls hide only when idle/unfocused; movement/touch/Tab restores them. Focus and open dialogs prevent hiding. Escape restores the triggering control.
 - Ambient lighting changes with artwork over about 1.2s; ink and paper do not dominate. Toggle persists. CORS sampling failure falls back without hiding artwork.
 - Enable sound with a gesture. Check soft, cinematic and silent cues, zero volume, hidden tab, library navigation and Back/Forward restoration. No sound starts automatically.

@@ -50,8 +50,10 @@ test('versioned modules and artwork remain usable without network requests', asy
   const reader = worker(() => { throw new Error('offline'); });
   await reader.cache('comic-room-20261009-2-shell').put(`${root}src/app.js?v=older`, new Response('older coherent module'));
   await reader.cache('comic-room-20261009-2-art').put(`${root}assets/pages/001.webp`, new Response('artwork'));
+  await reader.cache('comic-room-20261009-2-shell').put(`${root}assets/fonts/bangers-latin-400.woff2`, new Response('local font'));
   assert.equal(await (await reader.request('src/app.js?v=older')).text(), 'older coherent module');
   assert.equal(await (await reader.request('assets/pages/001.webp')).text(), 'artwork');
+  assert.equal(await (await reader.request('assets/fonts/bangers-latin-400.woff2')).text(), 'local font');
   assert.equal(reader.calls.length, 0);
 });
 

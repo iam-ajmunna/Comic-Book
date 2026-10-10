@@ -1,5 +1,16 @@
 # Immersive reader release status
 
+## October 10 supplied-theme update
+
+- Integrated the supplied yellow/ink printed-comic theme with halftone library backgrounds, square actions, offset shadows, themed dialogs and a once-per-session POW intro.
+- Added all four requested local WOFF2 fonts and their original licenses. Font/theme assets are included in the offline shell. No dependency or build tooling was added.
+- Fitted the supplied swipe logic to artwork buttons and existing LTR/RTL navigation; one drag turns once, suppresses accidental zoom, and respects vertical scrolling, cancellation, pinch and reduced motion.
+- Reused the existing fullscreen control/F shortcut through one native/WebKit controller. An absent API gets an announced expanded layout that Escape, the button and Library can leave; rejected requests retain honest state/messages.
+- Preserved all 80 pages, existing reader features, progress/review rules and the revised spoiler-free synopsis.
+- Updated runtime release URLs to `20261010-1` while retaining the offline cache schema and downloaded books.
+- Source syntax, 25 unit tests, catalog/240-image validation, static build and strict UI audit passed. DESIGN frontmatter and generated-token mapping agree; the optional official DESIGN lint CLI is not installed/cached, so no package was added to run it.
+- Live browser verification of this release is recorded below after deployment; prior platform limitations remain applicable.
+
 ## Completed
 
 - Restored twelve empty image variants; retained all 80 actual pages and transcripts.

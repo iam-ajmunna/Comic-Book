@@ -93,7 +93,7 @@ Transcript pages may contain `kind: "cover"`, `kind: "story"` with `text`, or `k
 
 Use a new edition and **versioned asset URLs** when replacing artwork. This preserves explicit progress boundaries and avoids serving older offline-cached images under an unchanged URL.
 
-The reader's CSS and ES modules also carry a release query (`?v=20261009-3`). When changing runtime files, update that release consistently in `index.html`, local module imports and `sw.js`'s `RELEASE`. This prevents returning browsers from mixing an older reader with new HTML. The service worker precaches those exact versioned URLs, revalidates documents and metadata, and activates updates without requiring every reader tab to close. Its cache prefix stays stable across UI releases so downloaded books survive; change it only when the cache format changes.
+The reader's CSS and ES modules also carry a release query (`?v=20261010-1`). When changing runtime files, update that release consistently in `index.html`, local module imports and `sw.js`'s `RELEASE`. This prevents returning browsers from mixing an older reader with new HTML. The service worker precaches those exact versioned URLs, revalidates documents and metadata, and activates updates without requiring every reader tab to close. Its cache prefix stays stable across UI releases so downloaded books survive; change it only when the cache format changes.
 
 ## Progress and comments
 
@@ -117,6 +117,10 @@ For another static host, either publish the repository root or upload `dist/` af
 
 ## Project structure
 
+The October 10 printed-comic theme adapts the supplied `comic-theme.css` and enhancement scripts to the existing reader. `DESIGN.md` still owns the palette and font tokens. Bangers, Anton and Comic Neue are served locally from `assets/fonts/`; their original SIL OFL licenses are included there. The font files come from [Fontsource's font-files repository](https://github.com/fontsource/font-files/tree/main/fonts/google). No font CDN, npm dependency or new build tooling is required.
+
+The one-shot POW intro respects reduced motion and does not appear on direct reading links. Swipe uses one handler for drag-follow, touch flicks, artwork taps and RTL mapping. Fullscreen keeps the existing button/F shortcut, supports WebKit and offers an escapable expanded layout when the browser has no Fullscreen API. A denied native request reports failure without falsely changing the icon.
+
 | Path | Responsibility |
 |---|---|
 | `comics.json` | Catalog, image paths, reading direction and audio cues |
@@ -126,6 +130,8 @@ For another static host, either publish the repository root or upload `dist/` af
 | `src/images.js` | Matching-resolution loading, alternate fallback and bounded cache |
 | `src/lighting.js`, `src/flip.js` | Colour extraction and transform/opacity page turns |
 | `src/ui.js`, `src/zoom.js` | Focus-safe controls, native dialogs, feedback and page detail |
+| `src/comic-theme.css`, `src/comic-enhance.js` | Supplied printed-comic styling and session intro |
+| `src/swipe.js`, `src/fullscreen.js` | Single-owner gestures and native/expanded fullscreen |
 | `src/ambience.js`, `src/comments.js` | Existing score and GitHub review integration |
 | `src/offline.js`, `sw.js` | Opt-in downloads and offline serving |
 | `DESIGN.md`, `src/tokens.css` | Design source and generated runtime tokens |
