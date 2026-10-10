@@ -69,3 +69,18 @@ Lighthouse and measured 60fps results are not yet recorded; no score or universa
 ## Continuing work
 
 Use the current `main` code and this checklist; do not repeat the original audit. Changes should remain small, pass `npm run check`, and preserve the approved artwork and reading-progress semantics.
+
+## Redesign Preview v2 — October 10, 2026
+
+The supplied HTML defines the layout, not just its palette. The reading room now has a persistent AJ badge header, yellow-accented heading, 230px cover shelf, embedded book, floating navigation/scrubber, native Options dialog, completion bar, GitHub feedback carousel and modal composer, then the improved creator card. The brief, spoiler-free synopsis remains above the book. `authorDisplayName` provides the supplied compact AJ shelf credit. Comic images and transcripts are unchanged.
+
+Published implementation: `874ba61` and compact-cover/focus refinement `719b80b`, runtime release `20261010-6`. The downloaded-book cache prefix is unchanged. The subsequent documentation commit records verification only.
+
+- `npm run check`: source syntax, all **28 tests**, validation of **240 local images**, and static export passed. Two new feedback integration tests cover locked requests/submission, plain text, safe avatar hosts/initials, scroll bounds, per-book drafts and stale response rejection.
+- Strict premium static audit: zero findings. Design frontmatter/token regeneration checks passed. Text contrast ratios: text/background 16.64:1, muted/surface 8.43:1, ink/yellow 13.68:1, muted text/paper 6.18:1 and error/surface 5.39:1. No dependency or build tool was added. The optional external DESIGN.md CLI was not installed; local frontmatter and generated-token validation were used.
+- Live cloud Chrome: Library/Feedback/Creator anchors retain the mounted reader. Cover resume, arrow/Home navigation, thumbnails, transcripts, help and Options work; Escape restores focus to their triggers. Artwork zoom reaches 150%. A shaded flip leaf is instantiated with 2200px perspective; frame rate was not measured.
+- Sound starts only by choice, pauses when scrolling to Creator and remains off after reload. Ambient on/off and saved preferences work. Native fullscreen is refused by this cloud browser; its failure message and inactive icon remain correct. Unit tests cover successful native state, denied requests and expanded fallback.
+- The ending jump stayed locked. All 80 real pages were then visibly opened through the reader/transcripts, with their actual opened markers checked; feedback enabled at 80/80. The modal enforces its 600-character limit, focuses an invalid empty field, retains a draft and restores focus on Escape. The actual empty GitHub feed disables both carousel arrows. No public test review was posted; no fake review was inserted.
+- Responsive helper widths 360, 768, 1440 and 2560px (iframe borders reduce the actual content viewport by 2px) have no document overflow. Settled phone layout is single-page; tablet/desktop/ultrawide are facing pages. Paper remains proportional and fitted. At the narrowest width, Options and feedback dialogs are 334px wide with no internal horizontal overflow; primary control heights are at least 44px.
+
+Safari, Firefox, physical iOS/Android, successful native fullscreen and measured Lighthouse/frame-rate scores remain platform checks in TEST_CHECKLIST.md. The responsive helper tests real CSS widths, not device emulation. Prior offline tests and cache preservation continue to pass; disconnected browsing was not simulated in this release.
