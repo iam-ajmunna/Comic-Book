@@ -7,14 +7,14 @@
   <meta name="description" content="Read Multiversal Love by AJ. An immersive comic library with facing pages, artwork lighting, and a quiet cinematic soundtrack.">
   <title>Multiversal Love — AJ's comic reading room</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="src/tokens.css?v=20261010-6">
-  <link rel="stylesheet" href="src/styles.css?v=20261010-6">
-  <link rel="stylesheet" href="src/comic-theme.css?v=20261010-6">
-  <link rel="stylesheet" href="src/author-card.css?v=20261010-6">
+  <link rel="stylesheet" href="src/tokens.css?v=20261010-7">
+  <link rel="stylesheet" href="src/styles.css?v=20261010-7">
+  <link rel="stylesheet" href="src/comic-theme.css?v=20261010-7">
+  <link rel="stylesheet" href="src/author-card.css?v=20261010-7">
   <link rel="preload" href="assets/fonts/bangers-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/anton-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/comic-neue-latin-400.woff2" as="font" type="font/woff2" crossorigin>
-  <script type="module" src="src/app.js?v=20261010-6"></script>
+  <script type="module" src="src/app.js?v=20261010-7"></script>
 </head>
 <body data-sound="quiet">
   <a class="skip-link" id="skip-link" href="#library-title">Skip to the library</a>
@@ -68,7 +68,7 @@
           <h2 id="discussion-title">Reader feedback</h2>
           <p id="progress-label" role="status">0 / 80 pages opened</p>
           <button class="text-button" id="next-unread" type="button">Next unread</button>
-          <button class="button primary" id="leave-feedback" type="button" aria-haspopup="dialog" aria-describedby="progress-label" disabled>Leave feedback</button>
+          <button class="button primary" id="leave-feedback" type="button" aria-controls="comment-form" aria-describedby="progress-label" disabled>Leave feedback</button>
           <progress id="progress" value="0" max="80" aria-labelledby="progress-label"></progress>
         </div>
         <div class="feedback-carousel">
@@ -78,6 +78,33 @@
             <button class="button ghost" id="finish-reading" type="button">Keep reading →</button>
           </div>
           <div id="comments-open" hidden>
+            <form class="feedback-composer" id="comment-form" novalidate aria-labelledby="feedback-title">
+              <h3 id="feedback-title">What stayed with you?</h3>
+              <p class="composer-intro">Leave a note for AJ and the next reader. No account needed.</p>
+              <fieldset id="comment-fields">
+                <legend class="sr-only">Your public feedback</legend>
+                <div class="feedback-identity">
+                  <div class="feedback-field">
+                    <label for="reader-name">Your name <span class="field-requirement">(required)</span></label>
+                    <input id="reader-name" name="name" type="text" autocomplete="name" maxlength="80" required aria-describedby="name-error" placeholder="How should we call you?">
+                    <p class="error-text field-error" id="name-error" hidden></p>
+                  </div>
+                  <div class="feedback-field">
+                    <label for="reader-photo">Your picture <span class="field-requirement">(optional)</span></label>
+                    <input id="reader-photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="photo-help photo-error">
+                    <p class="field-help" id="photo-help">JPG, PNG or WebP · up to 5 MB. We make a small square profile picture.</p>
+                    <div class="photo-selection" id="photo-selection" hidden><img id="photo-preview" width="64" height="64" alt="Your selected profile picture"><span id="photo-name"></span><button class="text-button" id="remove-photo" type="button">Remove picture</button></div>
+                    <p class="error-text field-error" id="photo-error" hidden></p>
+                  </div>
+                </div>
+                <label for="comment">Your feedback <span class="field-requirement">(required)</span></label>
+                <textarea id="comment" name="comment" rows="5" maxlength="600" required aria-describedby="comment-help comment-error" placeholder="A moment, a feeling, a question…" style="resize: none"></textarea>
+                <div class="field-meta"><p id="comment-help">Your name, feedback and optional picture will be public. Pictures stay on this page; no profile or account is created.</p><span id="comment-count">0/600</span></div>
+                <p class="error-text field-error" id="comment-error" hidden></p>
+              </fieldset>
+              <div class="feedback-submit"><button class="button primary" id="post-feedback" type="submit">Post feedback</button><button class="text-button" id="cancel-feedback" type="button" hidden>Cancel</button></div>
+              <p class="form-status" id="comment-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            </form>
             <div class="comments-toolbar"><p class="unlocked" id="completion-message" role="status">All 80 pages opened. What stayed with you?</p><button class="text-button" id="refresh-comments" type="button">Refresh</button></div>
             <p id="comments-status" role="status"></p>
             <div class="comment-list" id="comment-list" role="region" aria-label="Reader feedback carousel" tabindex="0"></div>
@@ -123,15 +150,6 @@
           <button class="button ghost" id="download-button" type="button" hidden>Download for offline</button><p class="offline-status" id="offline-status" role="status"></p>
           <div class="option-links"><button class="text-button" id="help-button" type="button" aria-haspopup="dialog" aria-label="Reading controls and keyboard shortcuts">Help</button><button class="text-button" id="discussion-button" type="button">Feedback ↓</button><button class="text-button" id="library-button" type="button">← Library</button></div>
         </div>
-      </dialog>
-      <dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-title">
-        <div class="dialog-heading"><h2 id="feedback-title">What stayed with you?</h2><button class="icon-button" type="button" data-close="feedback-dialog" aria-label="Close feedback form">×</button></div>
-        <form id="comment-form" novalidate>
-          <p class="dialog-note">Leave a note for AJ and the next reader. Your name and picture come from your GitHub profile.</p>
-          <label for="comment">Your feedback</label><textarea id="comment" name="comment" rows="5" maxlength="600" required aria-describedby="comment-help comment-error"></textarea>
-          <div class="field-meta"><p id="comment-help">Public feedback · Review and post on GitHub with your own account.</p><span id="comment-count">0/600</span></div>
-          <p class="error-text" id="comment-error" hidden></p><button class="button primary" type="submit">Continue on GitHub ↗</button><p class="form-status" id="comment-status" role="status"></p>
-        </form>
       </dialog>
       <dialog class="drawer" id="contents-dialog" aria-labelledby="contents-title"><div class="dialog-heading"><h2 id="contents-title">Pages</h2><button class="icon-button" type="button" data-close="contents-dialog" aria-label="Close pages">×</button></div><p class="dialog-note">Select a page. A check marks a page you have opened.</p><div class="contents-grid" id="contents-grid"></div></dialog>
       <dialog class="zoom-dialog" id="zoom-dialog" aria-labelledby="zoom-title"><div class="dialog-heading"><h2 id="zoom-title">Page detail</h2><div class="zoom-tools"><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">−</button><output id="zoom-level" aria-live="polite">100%</output><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">+</button><button class="text-button" id="zoom-reset" type="button">Reset</button><button class="icon-button" type="button" data-close="zoom-dialog" aria-label="Close page detail">×</button></div></div><p class="dialog-note">Pinch or use + / − to zoom. Drag or use arrow keys to pan.</p><div class="zoom-viewport" id="zoom-viewport" tabindex="0" aria-label="Enlarged page. Use plus and minus to zoom, arrows to pan."></div></dialog>

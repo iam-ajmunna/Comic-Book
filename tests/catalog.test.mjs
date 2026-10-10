@@ -4,7 +4,6 @@ import { readFileSync } from 'node:fs';
 import { validateCatalog, assetUrl } from '../src/catalog.js';
 import { spreadForPage, turnPage, isComplete, normalizeState, readSaved, persist, storageKey, STORAGE_KEY } from '../src/state.js';
 import { paletteFromPixels, NEUTRAL_PALETTE } from '../src/lighting.js';
-import { makeReviewUrl, isBookReview } from '../src/comments.js';
 
 const catalog = JSON.parse(readFileSync(new URL('../comics.json', import.meta.url), 'utf8'));
 const comics = validateCatalog(catalog);
@@ -64,11 +63,4 @@ test('ambient sampling ignores ink and paper and preserves saturated artwork hue
   const colors = paletteFromPixels(redArt);
   assert.ok(colors[0].startsWith('hsl(35') || colors[0].startsWith('hsl(34'));
   assert.ok(!colors.includes(NEUTRAL_PALETTE[0]));
-});
-test('reviews and drafts are associated with the selected comic', () => {
-  const book = { id: 'another-world', edition: 'v1' };
-  const body = new URL(makeReviewUrl('A remarkable ending.', book)).searchParams.get('body');
-  const review = { state: 'open', title: '[Book review] Thought', body };
-  assert.equal(isBookReview(review, book), true);
-  assert.equal(isBookReview(review, comics[0]), false);
 });

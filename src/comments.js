@@ -1,203 +1,200 @@
-import { config } from "./config.js?v=20261010-6";
-const markerFor = (book) => !book || book.id === "multiversal-love" ? config.reviewMarker : `<!-- comic-review:${book.id}:${book.edition} -->`;
-export function makeReviewUrl(text, book) {
-  const value = text.trim();
-  if (value.length < 3 || value.length > config.commentLimit)
-    throw new Error("Write between 3 and 600 characters.");
-  const url = new URL(`https://github.com/${config.repository}/issues/new`);
-  url.searchParams.set(
-    "title",
-    `${config.reviewPrefix}${value.replace(/\s+/g, " ").slice(0, 65)}`,
-  );
-  url.searchParams.set("body", `${value}\n\n${markerFor(book)}`);
-  return url.href;
-}
-export const isBookReview = (issue, book) =>
-  !issue.pull_request &&
-  issue.state === "open" &&
-  typeof issue.body === "string" &&
-  issue.body.includes(markerFor(book)) &&
-  issue.title?.startsWith(config.reviewPrefix);
-export const reviewText = (issue, book) =>
-  issue.body.replaceAll(markerFor(book), "").trim();
-export function initComments(canComment, getBook = () => null) {
-  const $ = (id) => document.getElementById(id),
-    field = $("comment");
-  let busy = false,
-    pageNumber = 1,
-    generation = 0,
-    aborter,
-    rendered = new Set();
-  const error = (message) => {
-    $("comment-error").textContent = message;
-    $("comment-error").hidden = !message;
-    field.setAttribute("aria-invalid", String(Boolean(message)));
-  };
-  field.addEventListener("input", () => {
-    $("comment-count").textContent = `${field.value.length}/600`;
-    if (
-      field.getAttribute("aria-invalid") === "true" &&
-      field.value.trim().length >= 3
-    )
-      error("");
-  });
-  $("comment-form").addEventListener("submit", (event) => {
-    event.preventDefault();
-    if (!canComment()) return;
-    try {
-      const href = makeReviewUrl(field.value, getBook());
-      error("");
-      const link = document.createElement("a");
-      link.href = href;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.click();
-      $("comment-status").replaceChildren(
-        document.createTextNode(
-          "Finish posting in the GitHub tab, then refresh here. Nothing is posted until you confirm there. ",
-        ),
-      );
-      const fallback = link.cloneNode();
-      fallback.textContent = "Open your GitHub draft";
-      $("comment-status").append(fallback);
-    } catch (e) {
-      error(e.message);
-      field.focus();
-    }
-  });
-  function appendComment(issue) {
-    if (rendered.has(issue.id)) return;
-    rendered.add(issue.id);
-    const card = document.createElement("article");
-    card.className = "comment-card";
-    const header = document.createElement("header"),
-      author = document.createElement("strong"),
-      date = document.createElement("time");
-    author.textContent = issue.user?.login || "Reader";
-    date.dateTime = issue.created_at;
-    const d = new Date(issue.created_at);
-    date.textContent = Number.isNaN(d.valueOf())
-      ? ""
-      : new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(d);
-    const byline = document.createElement('div'); byline.className = 'comment-byline';
-    byline.append(author, date);
-    const avatar = document.createElement('span'); avatar.className = 'comment-avatar'; avatar.setAttribute('aria-hidden', 'true');
-    avatar.textContent = author.textContent.slice(0, 1).toUpperCase();
-    // Only GitHub's avatar host is allowed; reader text remains plain text.
-    try {
-      const url = new URL(issue.user?.avatar_url);
-      if (url.protocol === 'https:' && url.hostname === 'avatars.githubusercontent.com') {
-        url.searchParams.set('s', '96');
-        const image = new Image(); image.className = 'comment-avatar'; image.alt = '';
-        image.width = 48; image.height = 48; image.loading = 'lazy'; image.decoding = 'async'; image.referrerPolicy = 'no-referrer'; image.src = url.href;
-        image.addEventListener('error', () => image.replaceWith(avatar)); header.append(image);
-      } else header.append(avatar);
-    } catch { header.append(avatar); }
-    header.append(byline);
-    const text = document.createElement("p");
-    text.textContent = reviewText(issue, getBook());
-    const link = document.createElement("a");
-    link.href = `https://github.com/${config.repository}/issues/${Number(issue.number)}`;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = "Read or reply on GitHub ↗";
-    card.append(header, text, link);
-    $("comment-list").append(card);
-  }
-  // Scrolling stays native (touch, trackpad and keyboard); buttons use the same track.
-  const track = $('comment-list');
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const syncCarousel = () => {
-    $('feedback-previous').disabled = track.scrollLeft <= 2;
-    $('feedback-next').disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
-  };
-  track.addEventListener('scroll', syncCarousel, { passive: true });
-  new ResizeObserver(syncCarousel).observe(track);
-  for (const [id, direction] of [['feedback-previous', -1], ['feedback-next', 1]]) {
-    $(id).addEventListener('click', () => track.scrollBy({ left: direction * (track.firstElementChild?.getBoundingClientRect().width + 16 || track.clientWidth), behavior: reduced.matches ? 'instant' : 'smooth' }));
-  }
-  async function load(reset = false) {
-    if (!canComment() || (busy && !reset)) return;
-    aborter?.abort();
-    aborter = new AbortController();
-    const ownAborter = aborter,
-      request = ++generation,
-      requestedPage = reset ? 1 : pageNumber;
-    busy = true;
-    $("refresh-comments").disabled = true;
-    $("more-comments").disabled = true;
-    $("comments-status").textContent = "Loading reader comments…";
-    $("comment-list").setAttribute("aria-busy", "true");
-    const timer = setTimeout(() => ownAborter.abort(), 15000);
-    try {
-      const response = await fetch(
-        `https://api.github.com/repos/${config.repository}/issues?state=open&sort=created&direction=desc&per_page=30&page=${requestedPage}`,
-        {
-          signal: ownAborter.signal,
-          headers: { Accept: "application/vnd.github+json" },
-        },
-      );
-      if (!response.ok)
-        throw new Error(
-          response.status === 403 || response.status === 429
-            ? "GitHub is limiting requests. Wait a little, then refresh."
-            : response.status === 404
-              ? "The public comment repository isn’t available yet. Try again after publication."
-              : "Comments couldn’t load. Check your connection and refresh.",
-        );
-      const issues = await response.json();
-      if (!Array.isArray(issues))
-        throw new Error("Comments couldn’t load. Please refresh.");
-      if (request !== generation) return;
-      if (reset) {
-        $("comment-list").replaceChildren();
-        rendered = new Set(); track.scrollLeft = 0;
-      }
-      issues.filter((issue) => isBookReview(issue, getBook())).forEach(appendComment);
-      const more = /<[^>]+>;\s*rel="next"/.test(
-        response.headers.get("link") || "",
-      );
-      $("more-comments").hidden = !more;
-      pageNumber = requestedPage + 1;
-      $("comments-status").textContent = rendered.size
-        ? `${rendered.size} reader ${rendered.size === 1 ? "comment" : "comments"} loaded.`
-        : more
-          ? "No reader comments in this batch. Load more to keep looking."
-          : "No comments yet. Leave the first thought.";
-    } catch (e) {
-      if (request === generation)
-        $("comments-status").textContent =
-          e.name === "AbortError"
-            ? "Comments took too long. Refresh to try again."
-            : e.message;
-    } finally {
-      clearTimeout(timer);
-      if (request === generation) {
-        busy = false;
-        $("refresh-comments").disabled = false;
-        $("more-comments").disabled = false;
-        $("comment-list").setAttribute("aria-busy", "false");
-        syncCarousel();
-      }
-    }
-  }
-  $("refresh-comments").addEventListener("click", () => load(true));
-  $("more-comments").addEventListener("click", () => load());
+import { config } from './config.js?v=20261010-7';
+import { createFeedbackClient, validateDraft, validPhotoData } from './feedback-api.js?v=20261010-7';
+import { preparePhoto } from './feedback-photo.js?v=20261010-7';
+
+// One owner for the inline composer, per-book drafts and the shared feed.
+// Nothing is "posted" until the server confirms the same submission ID.
+export function initComments(canComment, getBook, { client = createFeedbackClient(), preparePicture = preparePhoto } = {}) {
+  const $ = id => document.getElementById(id);
+  const name = $('reader-name'), field = $('comment'), file = $('reader-photo');
+  const form = $('comment-form'), track = $('comment-list');
+  const fieldIds = { name: 'reader-name', text: 'comment', photo: 'reader-photo' };
+  const errorIds = { name: 'name-error', text: 'comment-error', photo: 'photo-error' };
+  let busy = false, cursor = null, hasMore = false, viewGeneration = 0, loadGeneration = 0;
+  let feedAborter, submitAborter, submitting = false, pictureGeneration = 0, photoPending = false;
+  let photo = null, photoLabel = '', pictureError = '', submissionId = null, rendered = new Set();
+  let composing = false;
   const drafts = new Map();
   let draftBook = null;
+
+  function error(key, message = '') {
+    const node = $(errorIds[key]); node.textContent = message; node.hidden = !message;
+    $(fieldIds[key]).setAttribute('aria-invalid', String(Boolean(message)));
+  }
+  function clearErrors() { for (const key of Object.keys(fieldIds)) error(key); }
+  function count() {
+    $('comment-count').textContent = `${field.value.length}/${config.commentLimit}`;
+    field.style.height = 'auto';
+    field.style.height = `${Math.min(360, Math.max(130, field.scrollHeight || 130))}px`;
+  }
+  function syncSubmit() {
+    $('post-feedback').disabled = submitting || photoPending;
+    $('post-feedback').textContent = submitting ? 'Posting…' : 'Post feedback';
+    $('comment-fields').disabled = submitting;
+    $('cancel-feedback').hidden = !submitting;
+    form.setAttribute('aria-busy', String(submitting || photoPending));
+  }
+  function preview() {
+    $('photo-selection').hidden = !(photo || pictureError || photoPending);
+    $('photo-preview').hidden = !photo;
+    // Removing an image source avoids an unnecessary request for the document.
+    if (photo) $('photo-preview').src = photo;
+    else $('photo-preview').removeAttribute('src');
+    $('photo-name').textContent = photoLabel;
+  }
+  function edited() { submissionId = null; $('comment-status').textContent = ''; }
+  for (const input of [name, field]) {
+    input.addEventListener('compositionstart', () => { composing = true; });
+    input.addEventListener('compositionend', () => { composing = false; });
+  }
+  name.addEventListener('input', () => { edited(); if (name.value.trim()) error('name'); });
+  field.addEventListener('input', () => { edited(); count(); if (field.value.trim().length >= 3) error('text'); });
+  file.addEventListener('change', async () => {
+    const selected = file.files?.[0];
+    if (!selected) return;
+    const request = ++pictureGeneration;
+    photoPending = true; pictureError = ''; error('photo'); edited(); syncSubmit();
+    preview();
+    $('comment-status').textContent = 'Preparing your picture…';
+    try {
+      const result = await preparePicture(selected);
+      if (request !== pictureGeneration) return;
+      if (!validPhotoData(result)) throw new Error('This picture couldn’t be prepared. Choose another.');
+      photo = result; photoLabel = `${selected.name} · ${(selected.size / 1024).toFixed(0)} KB`;
+      preview(); $('comment-status').textContent = 'Picture ready. It will be shared when you post feedback.';
+    } catch (e) {
+      if (request !== pictureGeneration) return;
+      pictureError = e.message; error('photo', pictureError);
+      if (!photo) photoLabel = selected.name;
+      preview();
+      $('comment-status').textContent = '';
+    } finally {
+      if (request === pictureGeneration) { photoPending = false; file.value = ''; preview(); syncSubmit(); }
+    }
+  });
+  $('remove-photo').addEventListener('click', () => {
+    pictureGeneration++; photoPending = false; pictureError = ''; photo = null; photoLabel = '';
+    file.value = ''; error('photo'); edited(); preview(); syncSubmit(); file.focus();
+  });
+  $('cancel-feedback').addEventListener('click', () => submitAborter?.abort());
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!canComment() || submitting || photoPending || composing || !getBook()) return;
+    clearErrors();
+    let values;
+    try {
+      values = validateDraft(name.value, field.value);
+      if (pictureError) { error('photo', pictureError); file.focus(); return; }
+    } catch (e) { error(e.field || 'text', e.message); $(fieldIds[e.field || 'text']).focus(); return; }
+    if (!submissionId)
+      submissionId = `${Date.now()}-${crypto.randomUUID()}`;
+    const draft = { ...values, id: submissionId, photo };
+    const book = getBook(), ownView = viewGeneration;
+    submitting = true; submitAborter = new AbortController();
+    const ownAborter = submitAborter;
+    syncSubmit(); $('comment-status').textContent = 'Posting your feedback…';
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; ownAborter.abort(); }, 20_000);
+    try {
+      const review = await client.post(book, draft, ownAborter.signal);
+      if (ownView !== viewGeneration) return;
+      field.value = ''; submissionId = null; count();
+      submitting = false; syncSubmit();
+      $('comment-status').textContent = 'Your feedback is posted. Thank you for reading.';
+      await load(true);
+      if (ownView === viewGeneration && !rendered.has(review.id)) appendComment(review);
+    } catch (e) {
+      if (ownView !== viewGeneration) return;
+      submitting = false; syncSubmit();
+      if (e.field && fieldIds[e.field]) { error(e.field, e.message); $(fieldIds[e.field]).focus(); }
+      $('comment-status').textContent = e.name === 'AbortError'
+        ? `${timedOut ? 'Couldn’t confirm the post in time.' : 'Stopped waiting for the post.'} Your draft is kept. Retry this unchanged draft safely; it won’t post twice.`
+        : e.message;
+    } finally {
+      clearTimeout(timer);
+      if (ownView === viewGeneration && ownAborter === submitAborter) { submitting = false; syncSubmit(); }
+    }
+  });
+
+  function syncCarousel() {
+    const max = Math.max(0, track.scrollWidth - track.clientWidth);
+    $('feedback-previous').disabled = !track.children.length || track.scrollLeft <= 1;
+    $('feedback-next').disabled = !track.children.length || track.scrollLeft >= max - 1;
+  }
+  function moveCarousel(direction) {
+    const width = track.firstElementChild?.getBoundingClientRect().width || 300;
+    track.scrollBy({ left: direction * (width + 16), behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'instant' : 'smooth' });
+  }
+  track.addEventListener('scroll', syncCarousel, { passive: true });
+  new ResizeObserver(syncCarousel).observe(track);
+  $('feedback-previous').addEventListener('click', () => moveCarousel(-1));
+  $('feedback-next').addEventListener('click', () => moveCarousel(1));
+
+  function appendComment(review) {
+    if (!review?.id || rendered.has(review.id)) return;
+    rendered.add(review.id);
+    const card = document.createElement('article'); card.className = 'comment-card';
+    const header = document.createElement('header'), author = document.createElement('strong'), date = document.createElement('time');
+    author.textContent = review.name;
+    const d = new Date(review.created_at);
+    if (!Number.isNaN(d.valueOf())) { date.dateTime = d.toISOString(); date.textContent = new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(d); }
+    const byline = document.createElement('div'); byline.className = 'comment-byline'; byline.append(author, date);
+    const initials = document.createElement('span'); initials.className = 'comment-avatar'; initials.setAttribute('aria-hidden', 'true');
+    initials.textContent = Array.from(review.name || '?')[0].toUpperCase();
+    if (validPhotoData(review.photo)) {
+      const image = new Image(); image.className = 'comment-avatar'; image.alt = ''; image.width = image.height = 48;
+      image.loading = 'lazy'; image.decoding = 'async'; image.addEventListener('error', () => image.replaceWith(initials), { once: true });
+      image.src = review.photo; header.append(image);
+    } else header.append(initials);
+    header.append(byline);
+    const text = document.createElement('p'); text.textContent = review.text;
+    card.append(header, text); track.append(card); syncCarousel();
+  }
+  async function load(reset = false) {
+    if (!canComment() || !getBook() || (busy && !reset)) return;
+    feedAborter?.abort(); feedAborter = new AbortController();
+    const ownAborter = feedAborter, request = ++loadGeneration, ownView = viewGeneration;
+    busy = true; $('refresh-comments').disabled = true; $('more-comments').disabled = true;
+    $('comments-status').textContent = 'Loading reader feedback…'; track.setAttribute('aria-busy', 'true');
+    const timer = setTimeout(() => ownAborter.abort(), 15_000);
+    try {
+      const data = await client.list(getBook(), reset ? null : cursor, ownAborter.signal);
+      if (request !== loadGeneration || ownView !== viewGeneration) return;
+      if (reset) { track.replaceChildren(); track.scrollLeft = 0; rendered = new Set(); }
+      data.reviews.forEach(appendComment);
+      cursor = data.cursor || null; hasMore = Boolean(cursor); $('more-comments').hidden = !hasMore;
+      $('comments-status').textContent = rendered.size
+        ? `${rendered.size} reader ${rendered.size === 1 ? 'comment' : 'comments'} loaded.`
+        : 'No feedback yet. Leave the first thought.';
+    } catch (e) {
+      if (request === loadGeneration && ownView === viewGeneration)
+        $('comments-status').textContent = e.name === 'AbortError' ? 'Feedback took too long. Refresh to try again.' : e.message;
+    } finally {
+      clearTimeout(timer);
+      if (request === loadGeneration && ownView === viewGeneration) {
+        busy = false; $('refresh-comments').disabled = false; $('more-comments').disabled = false;
+        track.setAttribute('aria-busy', 'false'); syncCarousel();
+      }
+    }
+  }
+  $('refresh-comments').addEventListener('click', () => load(true));
+  $('more-comments').addEventListener('click', () => { if (hasMore) return load(); });
   return {
     refresh: () => load(true),
-    reset: () => {
-      aborter?.abort(); generation++; busy = false; pageNumber = 1; rendered = new Set();
-      if (draftBook) drafts.set(draftBook, field.value);
-      draftBook = getBook()?.id;
-      field.value = drafts.get(draftBook) || "";
-      $("comment-count").textContent = `${field.value.length}/600`;
-      error("");
-      $("comment-list").replaceChildren(); $("comments-status").textContent = "";
-      $("comment-status").replaceChildren();
-      $("refresh-comments").disabled = false; $("more-comments").hidden = true;
-      $("comment-list").setAttribute("aria-busy", "false");
+    reset() {
+      if (draftBook) drafts.set(draftBook, { name: name.value, text: field.value, photo, photoLabel, submissionId, pictureError });
+      viewGeneration++; loadGeneration++; pictureGeneration++;
+      feedAborter?.abort(); submitAborter?.abort(); busy = submitting = photoPending = false;
+      cursor = null; hasMore = false; rendered = new Set();
+      draftBook = getBook() ? `${getBook().id}:${getBook().edition}` : null;
+      const draft = drafts.get(draftBook) || {};
+      name.value = draft.name || ''; field.value = draft.text || ''; photo = draft.photo || null; photoLabel = draft.photoLabel || '';
+      submissionId = draft.submissionId || null; pictureError = draft.pictureError || ''; file.value = '';
+      clearErrors(); if (pictureError) error('photo', pictureError);
+      count(); preview(); syncSubmit();
+      track.replaceChildren(); track.scrollLeft = 0; track.setAttribute('aria-busy', 'false');
+      $('comments-status').textContent = ''; $('comment-status').textContent = '';
+      $('refresh-comments').disabled = false; $('more-comments').hidden = true; $('more-comments').disabled = false;
       syncCarousel();
     },
   };

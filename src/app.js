@@ -1,15 +1,15 @@
-import { validateCatalog, fetchJson } from './catalog.js?v=20261010-6';
-import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261010-6';
-import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261010-6';
-import { PageImages } from './images.js?v=20261010-6';
-import { AmbientLight } from './lighting.js?v=20261010-6';
-import { flipSpread, cancelFlip } from './flip.js?v=20261010-6';
-import { initZoom } from './zoom.js?v=20261010-6';
-import { initComments } from './comments.js?v=20261010-6';
-import { initAmbience } from './ambience.js?v=20261010-6';
-import { initOffline } from './offline.js?v=20261010-6';
-import { attachSwipe } from './swipe.js?v=20261010-6';
-import { initFullscreen } from './fullscreen.js?v=20261010-6';
+import { validateCatalog, fetchJson } from './catalog.js?v=20261010-7';
+import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261010-7';
+import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261010-7';
+import { PageImages } from './images.js?v=20261010-7';
+import { AmbientLight } from './lighting.js?v=20261010-7';
+import { flipSpread, cancelFlip } from './flip.js?v=20261010-7';
+import { initZoom } from './zoom.js?v=20261010-7';
+import { initComments } from './comments.js?v=20261010-7';
+import { initAmbience } from './ambience.js?v=20261010-7';
+import { initOffline } from './offline.js?v=20261010-7';
+import { attachSwipe } from './swipe.js?v=20261010-7';
+import { initFullscreen } from './fullscreen.js?v=20261010-7';
 
 let storage = null;
 try { storage = window.localStorage; } catch { /* Reading works with memory-only progress. */ }
@@ -309,7 +309,11 @@ function buildContents() {
 $('contents-button').addEventListener('click', () => { buildContents(); openDialog($('contents-dialog'), $('contents-button')); });
 $('options-button').addEventListener('click', () => openDialog($('options-dialog'), $('options-button')));
 $('help-button').addEventListener('click', () => { $('options-dialog').close(); openDialog($('help-dialog'), $('options-button')); });
-$('leave-feedback').addEventListener('click', () => { if (book && isComplete(state.visited, book.pages.length)) openDialog($('feedback-dialog'), $('leave-feedback')); });
+$('leave-feedback').addEventListener('click', () => {
+  if (!book || !isComplete(state.visited, book.pages.length)) return;
+  $('comment-form').scrollIntoView({ behavior: reduced.matches ? 'instant' : 'smooth', block: 'start' });
+  $('reader-name').focus({ preventScroll: true });
+});
 $('previous').addEventListener('click', () => turn(-1)); $('next').addEventListener('click', () => turn(1));
 $('edge-left').addEventListener('click', () => turn(book.readingDirection === 'rtl' ? 1 : -1));
 $('edge-right').addEventListener('click', () => turn(book.readingDirection === 'rtl' ? -1 : 1));

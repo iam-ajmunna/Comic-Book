@@ -453,11 +453,31 @@ progress::-moz-progress-bar {
 .comment-card a:hover { color:var(--color-paper-muted) }
 .carousel-navigation { display:flex; justify-content:flex-end; align-items:center; gap:8px; margin-top:8px }
 #more-comments { margin-right:auto }
-#comment-form { padding:16px }
+#comment-form { padding:20px; margin:0 0 24px; border:3px solid var(--color-border); border-top:6px solid var(--color-primary); background:var(--color-background); scroll-margin-top:85px }
+#comment-form h3 { margin:0; font:400 1.8rem/1.2 var(--font-heading); color:var(--color-primary) }
+.composer-intro { margin:6px 0 20px; color:var(--color-muted) }
+#comment-fields { border:0; padding:0; margin:0; min-width:0 }
+.feedback-identity { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; margin-bottom:16px }
+.feedback-field { min-width:0 }
+.field-requirement { font-weight:400; font-size:.85em; color:var(--color-muted) }
+#reader-name { width:100%; min-height:48px; padding:10px 12px; border-radius:0 }
+#reader-photo { width:100%; min-width:0; min-height:48px; padding:0; color:var(--color-muted); font-size:.9rem }
+#reader-photo::file-selector-button { min-height:44px; padding:8px 12px; margin-right:10px; border:3px solid var(--color-border); border-radius:0; color:var(--color-ink); background:var(--color-primary); font:400 1rem var(--font-display); cursor:pointer }
+#reader-photo::file-selector-button:hover { background:var(--color-primary-hover) }
+.field-help { color:var(--color-muted); margin:6px 0 0; font-size:.85rem }
+.photo-selection { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-top:12px }
+.photo-selection img { width:64px; height:64px; object-fit:cover; border:3px solid var(--color-border) }
+#photo-name { flex:1; min-width:0; overflow-wrap:anywhere; font-size:.85rem; color:var(--color-muted) }
+.field-error { margin:6px 0 0; font-size:.9rem }
+.feedback-submit { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-top:16px }
+#post-feedback { min-width:170px }
+.feedback-composer[aria-busy="true"] #post-feedback { opacity:.75 }
+#comment { resize:none; max-height:360px; overflow-y:auto }
+@media(max-width:640px) { .feedback-identity { grid-template-columns:minmax(0,1fr); gap:16px } #comment-form { padding:16px 12px } }
 #comment-form label { display:block; font-weight:700; margin-bottom:8px }
 #comment-form .dialog-note { padding:0; margin-top:0 }
 textarea { width:100%; min-height:130px; padding:12px; border-radius:var(--radius-control); resize:vertical }
-textarea[aria-invalid="true"] { border-color:var(--color-danger) }
+textarea[aria-invalid="true"], #reader-name[aria-invalid="true"] { border-color:var(--color-danger) }
 .field-meta { display:flex; gap:16px; align-items:baseline; justify-content:space-between; font-size:.85rem; color:var(--color-muted) }
 #comment-count { white-space:nowrap }
 .error-text { color:var(--color-danger) }

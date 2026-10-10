@@ -93,13 +93,17 @@ Transcript pages may contain `kind: "cover"`, `kind: "story"` with `text`, or `k
 
 Use a new edition and **versioned asset URLs** when replacing artwork. This preserves explicit progress boundaries and avoids serving older offline-cached images under an unchanged URL.
 
-The reader's CSS and ES modules also carry a release query (`?v=20261010-4`). When changing runtime files, update that release consistently in `index.html`, local module imports and `sw.js`'s `RELEASE`. This prevents returning browsers from mixing an older reader with new HTML. The service worker precaches those exact versioned URLs, revalidates documents and metadata, and activates updates without requiring every reader tab to close. Its cache prefix stays stable across UI releases so downloaded books survive; change it only when the cache format changes.
+The reader's CSS and ES modules also carry a release query (`?v=20261010-7`). When changing runtime files, update that release consistently in `index.html`, local module imports and `sw.js`'s `RELEASE`. This prevents returning browsers from mixing an older reader with new HTML. The service worker precaches those exact versioned URLs, revalidates documents and metadata, and activates updates without requiring every reader tab to close. Its cache prefix stays stable across UI releases so downloaded books survive; change it only when the cache format changes.
 
 ## Progress and comments
 
 Progress is local to this browser, keyed by comic id and edition. Unique valid pages are merged across tabs. Images count only after decoding and becoming visible in the active reader; visible transcripts also count. Failed images, thumbnails, background tabs, preloading and skipped pages do not unlock comments. This is a reading affordance, not server authorization.
 
-The comment form retains a separate in-memory draft per book. Posting opens a prefilled GitHub Issue for the reader to review and submit using their own account. No credentials or access tokens are embedded. The public feed uses the unauthenticated Issues API, with retry, pagination, rate-limit messaging and cancellation of stale requests. It may be unavailable offline or rate-limited; reading remains available.
+Feedback is written directly beneath the book. A name is required (1–80 characters); a profile picture is optional; feedback is required (3–600 characters). Readers do not sign in, create accounts or connect GitHub. Names, feedback and supplied pictures are public. Separate in-memory drafts are retained per book and edition; failures preserve them. An unchanged retry uses the same submission identifier to prevent duplicate posts. A comment appears as posted only after shared storage confirms it.
+
+The public feed uses a separate dependency-free Worker service with private R2 storage, hosted through Sites. It is shared between readers and survives browser and frontend reloads. Each batch contains at most 12 comments, with explicit Load more, cancellation of stale requests, and honest loading/empty/error states. The form accepts JPG, PNG and WebP up to 5 MB; it creates a 160px square JPEG preview, strips image metadata, and uploads only that small picture with the feedback. Initials appear when a reader omits a picture. Reading remains available when feedback is offline.
+
+The service checks names/text, picture bytes/dimensions, body size, origins and duplicate submissions. A one-minute cooldown reduces anonymous spam. It exposes no public update/delete or raw storage access. See [feedback-service/README.md](feedback-service/README.md) for the API, storage, deployment, secrets and owner moderation guidance.
 
 The supplied creator card appears after the book and discussion, with AJ's biography, role chips, and a profile portrait. Only the verified GitHub handle is linked; add other verified profiles in `index.html` when supplied. The 1254 × 1254 WebP portrait loads lazily and is cached with the offline shell. Its original 320px input, edit prompt and provenance are retained alongside it; see [assets/avatar.README.md](assets/avatar.README.md). Change the biography/link in `index.html` and card styles in `src/author-card.css`; replace portrait assets under a new filename so cached copies can update.
 
@@ -113,13 +117,13 @@ Music is synthesized locally and needs no download. Network comments require con
 
 For this repository, GitHub Pages serves **`main` → `/ (root)`**. Push the verified source, `comics.json`, generated `src/tokens.css`, artwork and `sw.js` to main. Keep `.nojekyll`. The existing Pages deployment then publishes automatically.
 
-For another static host, either publish the repository root or upload `dist/` after `npm run build`. Deploy under HTTPS, preserve relative paths, and serve `.js`, `.css`, `.json`, `.webp` and `.avif` with their correct MIME types. No backend or environment variables are required.
+For another static host, either publish the repository root or upload `dist/` after `npm run build`. Deploy under HTTPS, preserve relative paths, and serve `.js`, `.css`, `.json`, `.webp` and `.avif` with their correct MIME types. The reader needs no backend configuration for reading. Shared feedback uses the already deployed endpoint in `src/config.js`; forks must configure their own feedback service and allowed origin. Never embed server credentials in the frontend.
 
 ## Project structure
 
 The October 10 printed-comic theme adapts the supplied `comic-theme.css` and enhancement scripts to the existing reader. `DESIGN.md` still owns the palette and font tokens. Bangers, Anton and Comic Neue are served locally from `assets/fonts/`; their original SIL OFL licenses are included there. The font files come from [Fontsource's font-files repository](https://github.com/fontsource/font-files/tree/main/fonts/google). No font CDN, npm dependency or new build tooling is required.
 
-Redesign Preview v2 supplies the full layout: a sticky AJ badge header, small cover tiles, an embedded reader with floating navigation, a completion bar, horizontal GitHub feedback cards and the creator card. Library, Feedback and Creator anchors work on the same scrolling page. The spoiler-free synopsis sits above the active book. Extra reading controls live in Options; the unlocked feedback composer opens in a native dialog. The quiet halftone library has no coloured wash or POW intro. Reader ambient lighting remains independently switchable. Swipe uses one handler for drag-follow, touch flicks, artwork taps and RTL mapping. Fullscreen keeps the existing button/F shortcut, supports WebKit and offers an escapable expanded layout when the browser has no Fullscreen API. A denied native request reports failure without falsely changing the icon.
+Redesign Preview v2 supplies the full layout: a sticky AJ badge header, small cover tiles, an embedded reader with floating navigation, a completion bar, horizontal reader feedback cards and the creator card. Library, Feedback and Creator anchors work on the same scrolling page. The spoiler-free synopsis sits above the active book. Extra reading controls live in Options; the unlocked feedback composer appears directly on the page. The quiet halftone library has no coloured wash or POW intro. Reader ambient lighting remains independently switchable. Swipe uses one handler for drag-follow, touch flicks, artwork taps and RTL mapping. Fullscreen keeps the existing button/F shortcut, supports WebKit and offers an escapable expanded layout when the browser has no Fullscreen API. A denied native request reports failure without falsely changing the icon.
 
 | Path | Responsibility |
 |---|---|
@@ -134,7 +138,9 @@ Redesign Preview v2 supplies the full layout: a sticky AJ badge header, small co
 | `src/ui.js`, `src/zoom.js` | Focus-safe controls, native dialogs, feedback and page detail |
 | `src/styles.css`, `src/comic-theme.css` | Preview v2 layout and shared printed-comic styling |
 | `src/swipe.js`, `src/fullscreen.js` | Single-owner gestures and native/expanded fullscreen |
-| `src/ambience.js`, `src/comments.js` | Existing score and GitHub review integration |
+| `src/ambience.js` | Existing scene-aware score |
+| `src/comments.js`, `src/feedback-api.js`, `src/feedback-photo.js` | Inline anonymous feedback, shared feed and picture preparation |
+| `feedback-service/` | Dependency-free public Worker API and durable R2 storage |
 | `src/offline.js`, `sw.js` | Opt-in downloads and offline serving |
 | `DESIGN.md`, `src/tokens.css` | Design source and generated runtime tokens |
 | `scripts/`, `tests/` | Optional export/server, validation and meaningful tests |
@@ -151,4 +157,4 @@ All original comic content and the existing MIT license are retained. No comic i
 
 Optional `authorDisplayName` supplies a compact shelf credit (AJ for this book); the full author name stays in `author`.
 
-The feedback carousel uses real public GitHub Issues. Names and pictures come from GitHub profiles; arbitrary avatar hosts fall back to initials. The preview’s local demo reviews, image upload and jump-to-end unlock are intentionally absent: opening the final page does not count skipped pages.
+The feedback carousel uses actual shared reader submissions. Readers enter a required name and may supply a picture directly on the page; no account is involved. Empty feedback remains honestly empty. Opening the final page does not count skipped pages or unlock feedback.

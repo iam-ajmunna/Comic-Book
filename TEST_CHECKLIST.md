@@ -27,7 +27,7 @@ Run shared checks on current Chrome, Safari and Firefox desktop, Safari on iOS, 
 - Read text; speaker attribution and all prose remain available. Check long text and internal scrolling.
 - Reload and resume; verify separate book/edition progress and cross-tab merging. Block localStorage; reading remains functional with honest messaging.
 - Jump to the ending; comments remain locked. Prefetch and thumbnails do not count. Failed pages do not count. Open all actual pages/transcripts; comments unlock.
-- Review draft validation preserves text and does not claim a post was submitted. Do not submit a public test review. Check failed/rate-limited feed recovery.
+- Inline feedback: blank/whitespace names must fail with focus and an associated error; a name and 3–600-character feedback can be posted without a picture or any account. Test shared create/read-back, duplicates and failure recovery in isolated tests; do not publish fabricated public reviews. Confirm original drafts survive an offline or failed submission.
 - Download offline, disconnect, reopen and navigate the entire book, including transcripts. Failed/partial download offers retry. Verify comments remain network-dependent.
 - Keyboard-only: skip link, every action, drawer, enlargement, forms; no traps outside dialogs. Check reduced motion, 200% zoom and forced colours.
 
@@ -41,4 +41,6 @@ Use a cold profile without extensions and run Lighthouse desktop and mobile. Rec
 - Search for a missing title and clear it. Open/resume from the shelf; resize at 360, 768, 1440 and 2560px and confirm paper is uncropped and the document has no horizontal overflow.
 - Check floating navigation, scrubber, edge taps, swipe, thumbnails, zoom and Options. Escape restores focus after Options/Help/Pages; focused controls never hide.
 - Enable sound, then scroll away from the book: it must pause. Return to resume; off/silence/reduced-motion preferences must remain correct. Test light on/off and fullscreen without losing the mounted book.
-- Feedback stays locked after a jump to End. After every page is opened, test the modal label, 600-character limit, validation and per-book draft retention without posting a test review. Check actual feed empty/error/loading states and carousel button bounds; GitHub handoff must never claim a review was posted.
+- Feedback stays locked after a jump to End. After every page is opened, Leave feedback scrolls/focuses the inline required-name field. No dialog, account or GitHub handoff appears. Check empty/error/loading states and carousel bounds.
+- Choose a valid picture, check its square preview, then remove it and post without a picture in isolated tests. Reject SVG, empty, corrupt and over-5-MB selections with a correction hint and reachable removal. Test PNG transparency, portrait/landscape crops, mobile picker cancellation and duplicate submit clicks.
+- Confirm feedback from another reader persists on reload; optional-photo comments use initials. Test a long Unicode name, plain-text HTML-like input, server cooldown, cancelled/uncertain requests, unchanged retry deduplication and stale book/edition responses. Browser identity must not appear in requests; drafts must not be silently queued offline.

@@ -43,7 +43,7 @@ components:
 
 ## Overview
 
-Printed-comic chrome around a calm reading room; the artwork stays untouched. The supplied October 10 theme establishes yellow action labels, ink outlines, offset shadows and a halftone library. The supplied Redesign Preview v2 establishes the complete scrolling layout: a persistent AJ badge header, small cover shelf, embedded book, compact feedback bar and horizontal cards, then the portrait creator card. Its placeholder artwork, tab-only reviews and jump-to-end completion shortcut are replaced with the approved comic and existing real progress/GitHub review flows. The approved comic remains the centerpiece; translucent reader controls stay outside the paper and hide only when idle and unfocused. This is an English-language sci-fi romance reader. The library shows only real books from comics.json. No continuously animated background or automatic page turns.
+Printed-comic chrome around a calm reading room; the artwork stays untouched. The supplied October 10 theme establishes yellow action labels, ink outlines, offset shadows and a halftone library. The supplied Redesign Preview v2 establishes the complete scrolling layout: a persistent AJ badge header, small cover shelf, embedded book, compact feedback bar and horizontal cards, then the portrait creator card. Its placeholder artwork, tab-only reviews and jump-to-end completion shortcut are replaced with the approved comic and existing real progress and shared anonymous feedback flows. The approved comic remains the centerpiece; translucent reader controls stay outside the paper and hide only when idle and unfocused. This is an English-language sci-fi romance reader. The library shows only real books from comics.json. No continuously animated background or automatic page turns.
 
 Token ownership: this file generates `src/tokens.css` through `scripts/design-tokens.mjs`; `npm run build` regenerates the CSS. `src/styles.css` owns reader geometry and shared behaviour; `src/comic-theme.css` adapts the supplied theme to those components and consumes generated variables. `src/author-card.css` uses the same tokens and shared button styles for the supplied creator card. The source PDF's lettering and colors are unchanged.
 
@@ -73,7 +73,7 @@ The creator card follows the supplied square portrait, yellow folded corner, rol
 
 | Capability | Canonical owner | Source of truth | Allowed variants | Verification |
 |---|---|---|---|---|
-| Form | `src/comments.js`, semantic HTML | README comment contract | GitHub draft handoff | state and integration tests |
+| Form | `src/comments.js`, semantic HTML | README comment contract | Inline anonymous feedback with required name / optional picture | validation and integration tests |
 | Scrollbar | `src/styles.css`, themed by `src/comic-theme.css` | DESIGN.md | document / internal scroll | CSS inspection |
 | Toast | `src/ui.js` | reader status contract | recoverable messages | live-region inspection |
 | Swipe | `src/swipe.js`, connected by `src/app.js` | Reader navigation contract | LTR / RTL; drag / flick | gesture tests |
@@ -83,7 +83,7 @@ Buttons use `.button` or `.text-button`. Native dialogs own focus, Escape, inert
 
 Sound is off by default and requires a user gesture. A single reader visibility observer in app.js gates ambient lighting and sound; resize or cue changes outside the book cannot resume the score. Additional layout, transcript, light, sound, volume, offline and help controls live in a native Options dialog. It starts at 15%, capped at 35%. Original procedural piano and pads follow explicit scene cues. Silence, hidden tabs and leaving the reading area stop the score. Volume is a native range input. No audio networks, advertisements or external players.
 
-Reduced motion disables transitions and sound-status animation. No automatic page turns. Comments use plain text, never HTML. The completion bar enables a native feedback dialog only after every real page has been visibly opened. Reviews are actual GitHub Issues in a horizontal, scroll-snap carousel, with safe GitHub profile avatars and initials fallback. Previous/next feedback controls reflect the track’s actual scroll bounds; empty, busy and failed feeds show truthful messages. Identity and photo remain GitHub-owned; there is no local fake posting or new upload backend. Input stays in memory after validation or GitHub handoff and is never represented as posted until GitHub confirms it.
+Reduced motion disables transitions and sound-status animation. No automatic page turns. Comments use plain text, never HTML. The completion bar enables an inline composer only after every real page has been visibly opened. Name and feedback are required; a picture is optional; no account or sign-in is needed. The composer uses the established paper inputs, yellow action and visible field errors, and stacks its identity fields on narrow screens. Selected pictures get a removable 160px square preview. Actual shared reviews come from the separate dependency-free Worker/R2 service, shown in the same horizontal scroll-snap carousel with optional pictures or initials fallback. Previous/next controls reflect actual scroll bounds. Input stays in memory after failure; stale book responses are ignored, pending submissions are guarded and retries keep their ID. Success is claimed only after durable server confirmation. The API and retention/storage contract live in feedback-service/README.md. The client completion gate is a reading affordance, not server authorization.
 
 ## Do's and Don'ts
 
@@ -104,7 +104,7 @@ The supplied `files.zip` authorizes the evolution from rose/system-font chrome t
 | Previous rule / implementation | Supplied preview | Resolution |
 |---|---|---|
 | Oversized cover hero; reader replaced library | Small shelf and book in one scrolling page | Library and selected book remain mounted; explicit opening scrolls to the book. |
-| Full-height toolbars and inline composer | Compact floating navigation and modal feedback | Settings move to the shared native dialog owner; GitHub integration remains authoritative. |
+| Full-height toolbars and inline composer | Compact floating navigation and modal feedback | Settings retain the shared native dialog owner. The October 10 follow-up explicitly moves anonymous feedback onto the page. |
 | Background #0b0b14 / surface #15162a | Background #0e0f1a / surface #171829 | Updated normative tokens and regenerated runtime CSS together. |
 
 The preview's old embedded avatar is superseded by the already approved high-resolution profile. No comic asset or transcript is changed.

@@ -1,4 +1,4 @@
-import { el } from "./ui.js?v=20261010-6";
+import { el } from "./ui.js?v=20261010-7";
 export function cancelFlip(stage) {
   for (const leaf of stage.querySelectorAll(".flip-leaf")) {
     for (const animation of leaf.getAnimations()) animation.cancel();

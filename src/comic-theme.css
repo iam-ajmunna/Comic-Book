@@ -83,14 +83,14 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 400; text-transform:
 }
 .text-button[aria-pressed="true"], .icon-button[aria-pressed="true"] { color: var(--color-primary); }
 .eyebrow { color: var(--color-primary); font: 400 1rem/1.4 var(--font-display); letter-spacing: .3em; margin: 0 0 .4rem; }
-.search-field input, textarea {
+.search-field input, #reader-name, textarea {
   color-scheme: light;
   color: var(--color-ink);
   background: #fff;
   border: 3px solid var(--color-border);
   font-weight: 700;
 }
-.search-field input::placeholder { color: var(--color-paper-muted); opacity: 1; }
+.search-field input::placeholder, #reader-name::placeholder, textarea::placeholder { color: var(--color-paper-muted); opacity: 1; }
 .search-field .icon-button { color: var(--color-ink); }
 .search-field .icon-button:hover { color: var(--color-ink); background: var(--color-primary); }
 progress::-webkit-progress-bar { background: var(--color-ink); }
@@ -132,9 +132,7 @@ dialog::backdrop {
 .contents-item img { height: auto; }
 .contents-item span { font-size: 12px; }
 
-.options-dialog, .feedback-dialog { width: min(520px, calc(100vw - 24px)); }
-.feedback-dialog .dialog-heading { color: var(--color-ink); background: var(--color-primary); border-bottom: 3px solid var(--color-border); }
-.feedback-dialog .dialog-heading .icon-button { color: var(--color-primary); background: var(--color-ink); }
+.options-dialog { width: min(520px, calc(100vw - 24px)); }
 @media(prefers-reduced-motion: reduce) {
   .book-stage { transform: none; }
   .button:hover:not(:disabled), .button:active:not(:disabled) { transform: none; }
@@ -145,5 +143,5 @@ dialog::backdrop {
   :focus-visible { outline-color: Highlight; }
   .wordmark { text-shadow: none; }
   .button, .cover-card, .comment-card, dialog { box-shadow: none; border-color: ButtonText; }
-  .search-field input, textarea { border-color: ButtonText; }
+  .search-field input, #reader-name, textarea { border-color: ButtonText; }
 }

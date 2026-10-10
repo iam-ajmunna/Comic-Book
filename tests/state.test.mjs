@@ -12,9 +12,7 @@ import {
   persist,
   STORAGE_KEY,
 } from "../src/state.js";
-import { makeReviewUrl, isBookReview, reviewText } from "../src/comments.js";
 import { SCENE_CUES, cueForPage } from "../src/ambience.js";
-import { config } from "../src/config.js";
 test("only all 80 unique valid pages unlock comments", () => {
   assert.equal(isComplete([0, 79]), false);
   assert.equal(isComplete(Array(80).fill(79)), false);
@@ -68,30 +66,6 @@ test("deep links validate page range without granting progress", () => {
   assert.equal(pageFromHash("#page=79"), 79);
   for (const hash of ["#page=80", "#page=-1", "#discussion"])
     assert.equal(pageFromHash(hash), null);
-});
-test("comment handoff preserves content safely and rejects invalid drafts", () => {
-  const text = "Love & grief — <script>just text</script>",
-    url = new URL(makeReviewUrl(text));
-  assert.equal(url.origin, "https://github.com");
-  assert.equal(
-    url.searchParams.get("body"),
-    `${text}\n\n${config.reviewMarker}`,
-  );
-  assert.throws(() => makeReviewUrl(" "));
-  assert.throws(() => makeReviewUrl("x".repeat(601)));
-  assert.ok(makeReviewUrl("🕊".repeat(300)).length < 8000);
-});
-test("review feed excludes PRs, closed reviews and unrelated issues", () => {
-  const issue = {
-    state: "open",
-    title: "[Book review] Lovely",
-    body: `Hello\n${config.reviewMarker}`,
-  };
-  assert.equal(isBookReview(issue), true);
-  assert.equal(reviewText(issue), "Hello");
-  assert.equal(isBookReview({ ...issue, state: "closed" }), false);
-  assert.equal(isBookReview({ ...issue, pull_request: {} }), false);
-  assert.equal(isBookReview({ ...issue, body: "Bug report" }), false);
 });
 test("every scene has a cue and loss/final quiet beats stay silent", () => {
   assert.equal(SCENE_CUES.length, 41);
