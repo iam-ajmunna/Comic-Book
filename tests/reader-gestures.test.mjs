@@ -51,6 +51,9 @@ function gestures({ reduced = false } = {}) {
 
 test('dragging artwork turns once and suppresses the follow-up zoom click', () => {
   const reader = gestures();
+  let nativeDragBlocked = false;
+  reader.stage.emit('dragstart', { preventDefault: () => { nativeDragBlocked = true; } });
+  assert.equal(nativeDragBlocked, true);
   reader.emit('pointerdown', 200); reader.emit('pointermove', 60); reader.emit('pointerup', 60);
   assert.deepEqual(reader.turns, [1]);
   let cancelled = false, stopped = false;

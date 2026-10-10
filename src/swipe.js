@@ -10,6 +10,8 @@ export function swipeDirection({ dx, dy, elapsed, width }, { minDistance = 60, m
 
 export function attachSwipe(stage, { onTurn, isBlocked = () => false, reducedMotion = () => false } = {}) {
   let gesture = null, swallowClickUntil = 0;
+  // Native image dragging cancels pointer events before the turn can finish.
+  stage.addEventListener('dragstart', (event) => event.preventDefault());
   const reset = () => {
     const previous = gesture;
     gesture = null;
