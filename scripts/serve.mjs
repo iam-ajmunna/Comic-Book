@@ -9,6 +9,7 @@ const root = resolve(process.argv.includes("--dist") ? "dist" : "."),
     ".json": "application/json; charset=utf-8",
     ".svg": "image/svg+xml",
     ".webp": "image/webp",
+    ".woff2": "font/woff2",
   };
 createServer((req, res) => {
   try {

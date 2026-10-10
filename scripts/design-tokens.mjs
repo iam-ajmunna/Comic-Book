@@ -18,7 +18,7 @@ for (const m of section("typography").matchAll(
   /^  ([\w-]+):\n    fontFamily: "([^"]+)"$/gm,
 ))
   lines.push(`  --font-${m[1]}: ${m[2]};`);
-if (lines.length !== 17) throw new Error("Design token mapping is incomplete.");
+if (lines.length !== 20) throw new Error("Design token mapping is incomplete.");
 writeFileSync(
   `${root}src/tokens.css`,
   `/* Generated from DESIGN.md. Do not edit directly. */\n:root {\n${lines.join("\n")}\n}\n`,

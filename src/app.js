@@ -1,13 +1,15 @@
-import { validateCatalog, fetchJson } from './catalog.js?v=20261009-3';
-import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261009-3';
-import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261009-3';
-import { PageImages } from './images.js?v=20261009-3';
-import { AmbientLight } from './lighting.js?v=20261009-3';
-import { flipSpread, cancelFlip } from './flip.js?v=20261009-3';
-import { initZoom } from './zoom.js?v=20261009-3';
-import { initComments } from './comments.js?v=20261009-3';
-import { initAmbience } from './ambience.js?v=20261009-3';
-import { initOffline } from './offline.js?v=20261009-3';
+import { validateCatalog, fetchJson } from './catalog.js?v=20261010-1';
+import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261010-1';
+import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261010-1';
+import { PageImages } from './images.js?v=20261010-1';
+import { AmbientLight } from './lighting.js?v=20261010-1';
+import { flipSpread, cancelFlip } from './flip.js?v=20261010-1';
+import { initZoom } from './zoom.js?v=20261010-1';
+import { initComments } from './comments.js?v=20261010-1';
+import { initAmbience } from './ambience.js?v=20261010-1';
+import { initOffline } from './offline.js?v=20261010-1';
+import { attachSwipe } from './swipe.js?v=20261010-1';
+import { initFullscreen } from './fullscreen.js?v=20261010-1';
 
 let storage = null;
 try { storage = window.localStorage; } catch { /* Reading works with memory-only progress. */ }
@@ -18,6 +20,7 @@ const narrow = matchMedia('(max-width:680px)');
 const reduced = matchMedia('(prefers-reduced-motion:reduce)');
 const stage = $('book-stage');
 const revealControls = idleControls($('reader'));
+const fullscreen = initFullscreen($('reading-view'), $('fullscreen-button'), $('fullscreen-icon'), { announce, reveal: revealControls });
 const zoom = initZoom(images);
 const setAmbience = initAmbience();
 if (Number.isFinite(preferences.volume)) {
@@ -219,7 +222,7 @@ function openBook(comic, page, push = true) {
   if (!reduced.matches) $('reader').animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 400, easing: 'ease-out' });
 }
 async function showLibrary(push = true) {
-  if (document.fullscreenElement) try { await document.exitFullscreen(); } catch { /* Keep navigation available. */ }
+  try { await fullscreen.exit(); } catch { /* Keep navigation available. */ }
   ++generation; turning = false; observer.disconnect(); cancelFlip(stage);
   $('reading-view').hidden = true; $('library').hidden = false;
   setAmbience.setActive?.(false);
@@ -294,44 +297,18 @@ $('page-scrubber').addEventListener('input', () => { const page = book.pages[Num
 $('page-scrubber').addEventListener('change', () => go(Number($('page-scrubber').value)));
 $('discussion-button').addEventListener('click', () => { $('discussion').scrollIntoView({ behavior: reduced.matches ? 'instant' : 'smooth' }); });
 
-let swipe;
-$('book-host').addEventListener('pointerdown', (event) => { if (!event.isPrimary) { swipe = null; return; } if (event.pointerType !== 'mouse') swipe = { x: event.clientX, y: event.clientY, time: performance.now() }; }, { passive: true });
-$('book-host').addEventListener('pointerup', (event) => {
-  if (!swipe) return;
-  const dx = event.clientX - swipe.x, dy = event.clientY - swipe.y, elapsed = performance.now() - swipe.time; swipe = null;
-  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5 && elapsed < 1000) {
-    event.preventDefault(); const direction = dx < 0 ? 1 : -1;
-    turn(book.readingDirection === 'rtl' ? -direction : direction);
-  }
+attachSwipe($('book-host'), {
+  onTurn: (direction) => turn(book.readingDirection === 'rtl' ? -direction : direction),
+  isBlocked: () => !inReader() || textMode || turning,
+  reducedMotion: () => reduced.matches,
 });
-$('book-host').addEventListener('pointercancel', () => { swipe = null; });
-$('book-host').addEventListener('click', (event) => { if (event.target.closest('.page-art') && performance.now() - lastSwipe < 450) { event.preventDefault(); event.stopImmediatePropagation(); } }, true);
-let lastSwipe = -1000;
-$('book-host').addEventListener('pointerup', (event) => { if (event.defaultPrevented) lastSwipe = performance.now(); });
-
-async function fullscreen() {
-  try {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else if ($('reading-view').requestFullscreen) await $('reading-view').requestFullscreen();
-    else announce('Fullscreen isn’t available in this browser. The reader still fits your screen.');
-  } catch { announce('Fullscreen couldn’t start. Keep reading here or try again.'); }
-}
-function syncFullscreen() {
-  const active = document.fullscreenElement === $('reading-view');
-  $('fullscreen-button').setAttribute('aria-pressed', String(active));
-  $('fullscreen-button').setAttribute('aria-label', active ? 'Exit fullscreen' : 'Enter fullscreen');
-  $('fullscreen-button').title = `${active ? 'Exit' : 'Enter'} fullscreen (F)`;
-  $('fullscreen-icon').setAttribute('href', active ? '#icon-collapse' : '#icon-expand'); revealControls();
-}
-$('fullscreen-button').addEventListener('click', fullscreen); document.addEventListener('fullscreenchange', syncFullscreen);
- document.addEventListener('fullscreenerror', () => announce('Fullscreen is unavailable. You can keep reading here.'));
 document.addEventListener('keydown', (event) => {
   if (!inReader() || event.isComposing || event.ctrlKey || event.altKey || event.metaKey || event.shiftKey || document.querySelector('dialog[open]')) return;
   if (event.target.closest('input,textarea,select,[contenteditable=true],.transcript')) return;
   if (event.target !== document.body && !event.target.closest('#reader')) return;
   if (['ArrowLeft', 'ArrowRight', 'Home', 'End', 'f', 'F', 'c', 'C'].includes(event.key)) event.preventDefault(); else return;
   if (event.key === 'Home') go(0); else if (event.key === 'End') go(book.pages.length - 1);
-  else if (event.key.toLowerCase() === 'f') fullscreen();
+  else if (event.key.toLowerCase() === 'f') fullscreen.toggle();
   else if (event.key.toLowerCase() === 'c') $('contents-button').click();
   else turn((event.key === 'ArrowRight' ? 1 : -1) * (book.readingDirection === 'rtl' ? -1 : 1));
 });

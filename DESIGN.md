@@ -1,27 +1,31 @@
 ---
 version: alpha
 name: Multiversal Love
-description: An illuminated open book in a quiet cinematic reading room.
+description: Printed-comic chrome around a calm, illuminated reading room.
 colors:
-  background: "#101322"
-  surface: "#202632"
-  text: "#eee9e4"
-  muted: "#a6aab6"
-  primary: "#e5b7b8"
-  primary-hover: "#f1ccca"
-  border: "#7a8599"
-  danger: "#ffafa4"
+  background: "#0b0b14"
+  surface: "#15162a"
+  text: "#f7f2e8"
+  muted: "#b4b2c4"
+  primary: "#ffd400"
+  primary-hover: "#ffe55c"
+  border: "#000000"
+  danger: "#ff4d5a"
   paper: "#f8f3e9"
-  ink: "#20202b"
-  book-accent: "#7e3248"
+  ink: "#0b0b14"
+  book-accent: "#e63946"
   paper-muted: "#5e5960"
+  focus: "#00c2e0"
+  magenta: "#ff2e88"
 typography:
   sans:
-    fontFamily: "Arial, Helvetica, sans-serif"
+    fontFamily: "'Comic Neue', 'Segoe UI', Arial, sans-serif"
   display:
-    fontFamily: "Impact, 'Arial Narrow', Arial, sans-serif"
+    fontFamily: "'Bangers', Impact, 'Arial Narrow', Arial, sans-serif"
+  heading:
+    fontFamily: "'Anton', Impact, 'Arial Narrow', Arial, sans-serif"
 rounded:
-  control: "4px"
+  control: "0px"
 spacing:
   section: "60px"
   page-max: "1300px"
@@ -39,17 +43,17 @@ components:
 
 ## Overview
 
-An illuminated open book in a quiet room. The approved comic is the centerpiece; translucent controls stay outside the paper and hide only when idle and unfocused. This is a reading application for an English-language sci-fi romance, with an author introduction below it. Its signature is two real facing pages with restrained colored light around them. The library shows only real books from comics.json. Avoid marketing cards, dashboards, neon and continuously animated backgrounds.
+Printed-comic chrome around a calm reading room; the artwork stays untouched. The supplied October 10 theme establishes yellow action labels, ink outlines, offset shadows and a halftone library. The approved comic remains the centerpiece; translucent reader controls stay outside the paper and hide only when idle and unfocused. This is an English-language sci-fi romance reader with an author introduction below it. The library shows only real books from comics.json. No continuously animated background or automatic page turns.
 
-Token ownership: this file generates `src/tokens.css` through `scripts/design-tokens.mjs`; `npm run build` regenerates the CSS. All components use those variables. The source PDF's lettering and colors are unchanged.
+Token ownership: this file generates `src/tokens.css` through `scripts/design-tokens.mjs`; `npm run build` regenerates the CSS. `src/styles.css` owns reader geometry and shared behaviour; `src/comic-theme.css` adapts the supplied theme to those components and consumes generated variables. The source PDF's lettering and colors are unchanged.
 
 ## Colors
 
-Charcoal blue surrounds cream paper. Rose identifies actions on dark chrome; paper controls use dark ink focus rings. Border contrast is at least 3:1 against dark surfaces. Ambient colour comes from visible artwork sampled at 32 × 48 pixels. Ink and flat paper are excluded, saturation is boosted, and two background layers crossfade over 1.2 seconds. Failed or CORS-blocked sampling uses a neutral blue-violet palette. Light fills the viewport behind the pages and can be disabled independently of music.
+Near-black ink surrounds cream paper. Yellow identifies actions and progress; cyan identifies focus. Red and magenta are restrained library accents. Black borders frame yellow or white surfaces; muted borders distinguish functional boundaries on dark surfaces. Ambient colour comes from visible artwork sampled at 32 × 48 pixels. Ink and flat paper are excluded, saturation is boosted, and only the active background layer glows, crossfading over 1.2 seconds. Failed or CORS-blocked sampling uses a neutral blue-violet palette. Light fills the viewport behind the pages and can be disabled independently of music.
 
 ## Typography
 
-Impact and condensed system fallbacks carry comic titles; Arial carries UI and the author introduction. Arial supports controls and secondary copy. Native comic lettering remains untouched. The selectable transcript provides panel descriptions and attributed dialogue. English is the interface language; no nationality is inferred from the author's name.
+Bangers carries book titles, the wordmark and action labels; Anton carries section headings; Comic Neue carries UI and body copy. Four Latin WOFF2 files are self-hosted with their original SIL OFL notices in `assets/fonts/`. The cover title wraps between words instead of splitting character names or title words. Native comic lettering remains untouched. The selectable transcript provides panel descriptions and attributed dialogue. English is the interface language; no nationality is inferred from the author's name.
 
 ## Layout
 
@@ -57,19 +61,21 @@ Pair comic 01 with context 02, continuing through 77–78. The cover occupies th
 
 ## Elevation & Depth
 
-Only the paper casts a soft shadow. A shaded spine joins facing pages. CSS 3D front/back leaves turn with transform and shading opacity only; reduced motion changes spreads immediately. Ambient washes crossfade without pulsing or flashing. Dialog backdrops isolate the task without changing the page width.
+Library actions and dialogs use the supplied offset ink shadows; paper keeps its soft shadow and shaded spine. CSS 3D front/back leaves turn with transform and shading opacity only. A horizontal drag moves the book as one unit without overriding a leaf's rotation. Reduced motion changes spreads immediately and disables drag-follow, title tilt and the intro. Ambient washes crossfade without pulsing. A single short, non-interactive POW intro appears once per tab session when opening the library; direct reading links never show it. Dialog backdrops isolate the task without changing page width.
 
 ## Shapes
 
-Square paper edges, 4px controls, visible focus rings and at least 44px control height. Avoid rounded decorative cards.
+Square paper edges and controls, visible cyan focus rings and at least 44px primary control height. Speech-bubble framing is reserved for discussion and transient messages.
 
 ## Components
 
 | Capability | Canonical owner | Source of truth | Allowed variants | Verification |
 |---|---|---|---|---|
 | Form | `src/comments.js`, semantic HTML | README comment contract | GitHub draft handoff | state and integration tests |
-| Scrollbar | `src/styles.css` | DESIGN.md | document / internal scroll | CSS inspection |
+| Scrollbar | `src/styles.css`, themed by `src/comic-theme.css` | DESIGN.md | document / internal scroll | CSS inspection |
 | Toast | `src/ui.js` | reader status contract | recoverable messages | live-region inspection |
+| Swipe | `src/swipe.js`, connected by `src/app.js` | Reader navigation contract | LTR / RTL; drag / flick | gesture tests |
+| Fullscreen | `src/fullscreen.js` | Reader navigation contract | native / expanded layout | state and error tests |
 
 Buttons use `.button` or `.text-button`. Native dialogs own focus, Escape, inert background and restoration. Contents are finite real buttons with current and opened state. The progress element reports unique pages actually opened. Loading and failed images reserve paper geometry; failed loads offer retry and do not count. Text mode is an accessible alternative.
 
@@ -87,6 +93,6 @@ Reduced motion disables transitions and sound-status animation. No automatic pag
 
 ## Reader implementation contract
 
-Canonical navigation and per-comic progress live in src/state.js; comic metadata in comics.json; responsive image loading in src/images.js; shared overlays and status in src/ui.js. Search is local, IME-safe, clearable and restored in the library URL. Native range sliders and dialog focus behaviour are intentionally platform-owned. Fullscreen icons follow fullscreenchange, not requested state. Visible controls never auto-hide with focus.
+Canonical navigation and per-comic progress live in src/state.js; comic metadata in comics.json; responsive image loading in src/images.js; shared overlays and status in src/ui.js. Search is local, IME-safe, clearable and restored in the library URL. Native range sliders and dialog focus behaviour are intentionally platform-owned. Fullscreen icons follow actual fullscreen state, with an explicitly announced expanded-layout fallback only when the API is absent. Denied requests retain graceful messages and correct state. Escape and Library exit the fallback. Visible controls never auto-hide with focus.
 
-The current-task brief authorizes this durable evolution: serif document reader → condensed comic library and viewport reader. Runtime values still flow DESIGN.md → scripts/design-tokens.mjs → src/tokens.css → shared styles. No new font network or package is required.
+The supplied `files.zip` authorizes the evolution from rose/system-font chrome to the printed-comic theme. Its generic swipe/fullscreen scripts are fitted to the existing reader, preserving a single navigation handler and the existing zoom and progress rules. Runtime values still flow DESIGN.md → scripts/design-tokens.mjs → src/tokens.css → shared styles/theme. No npm dependency or build tool is added; fonts are served locally and precached for offline reading.

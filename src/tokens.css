@@ -1,20 +1,23 @@
 /* Generated from DESIGN.md. Do not edit directly. */
 :root {
-  --color-background: #101322;
-  --color-surface: #202632;
-  --color-text: #eee9e4;
-  --color-muted: #a6aab6;
-  --color-primary: #e5b7b8;
-  --color-primary-hover: #f1ccca;
-  --color-border: #7a8599;
-  --color-danger: #ffafa4;
+  --color-background: #0b0b14;
+  --color-surface: #15162a;
+  --color-text: #f7f2e8;
+  --color-muted: #b4b2c4;
+  --color-primary: #ffd400;
+  --color-primary-hover: #ffe55c;
+  --color-border: #000000;
+  --color-danger: #ff4d5a;
   --color-paper: #f8f3e9;
-  --color-ink: #20202b;
-  --color-book-accent: #7e3248;
+  --color-ink: #0b0b14;
+  --color-book-accent: #e63946;
   --color-paper-muted: #5e5960;
-  --radius-control: 4px;
+  --color-focus: #00c2e0;
+  --color-magenta: #ff2e88;
+  --radius-control: 0px;
   --space-section: 60px;
   --space-page-max: 1300px;
-  --font-sans: Arial, Helvetica, sans-serif;
-  --font-display: Impact, 'Arial Narrow', Arial, sans-serif;
+  --font-sans: 'Comic Neue', 'Segoe UI', Arial, sans-serif;
+  --font-display: 'Bangers', Impact, 'Arial Narrow', Arial, sans-serif;
+  --font-heading: 'Anton', Impact, 'Arial Narrow', Arial, sans-serif;
 }
