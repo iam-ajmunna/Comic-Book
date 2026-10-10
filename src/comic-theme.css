@@ -205,6 +205,7 @@ dialog::backdrop {
 .dialog-heading h2 { font: 400 24px/1.1 var(--font-heading); }
 .drawer .dialog-heading { background: var(--color-surface); }
 .contents-item[aria-current="page"] { background: var(--color-background); }
+.contents-item img { height: auto; }
 .contents-item span { font-size: 12px; }
 
 /* Non-interactive, one-shot intro. JS cleans up even if motion is disabled mid-run. */

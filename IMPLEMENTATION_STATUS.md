@@ -7,9 +7,12 @@
 - Fitted the supplied swipe logic to artwork buttons and existing LTR/RTL navigation; one drag turns once, suppresses accidental zoom, and respects vertical scrolling, cancellation, pinch and reduced motion.
 - Reused the existing fullscreen control/F shortcut through one native/WebKit controller. An absent API gets an announced expanded layout that Escape, the button and Library can leave; rejected requests retain honest state/messages.
 - Preserved all 80 pages, existing reader features, progress/review rules and the revised spoiler-free synopsis.
-- Updated runtime release URLs to `20261010-2` while retaining the offline cache schema and downloaded books.
+- Updated runtime release URLs to `20261010-3` while retaining the offline cache schema and downloaded books.
 - Source syntax, 25 unit tests, catalog/240-image validation, static build and strict UI audit passed. DESIGN frontmatter and generated-token mapping agree; the optional official DESIGN lint CLI is not installed/cached, so no package was added to run it.
-- Live browser verification of this release is recorded below after deployment; prior platform limitations remain applicable.
+- Live cloud Chrome verification on October 10 confirmed the new fonts/title, search/empty/clear, spread navigation, artwork tap-to-enlarge, thumbnail drawer, ambient off/on, saved progress and the locked review form after an ending jump. Fullscreen denial showed the correct message and inactive icon.
+- A real mouse drag exposed native browser image dragging cancelling the gesture. The fix was verified on the live site: one drag advanced 01–02 to 03–04, with no zoom dialog and no second turn. Touch/device verification remains pending.
+- Library and reader checks at 360, 768, 1440 and 2560px CSS viewports showed equal client/scroll widths, titles wrapping within their column, and proportionate uncropped pages. The phone reader selected single-page mode; wider readers selected spreads. These are iframe viewport checks, not mobile-device passes.
+- Tightened thumbnail geometry so the intrinsic image height does not create empty vertical bands in the drawer. Prior platform, offline-disconnection and performance-measurement limitations remain applicable.
 
 ## Completed
 
