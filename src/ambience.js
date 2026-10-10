@@ -337,13 +337,6 @@ export function initAmbience() {
   let inReader = false;
   const sync = () =>
     score.setActive(inReader && !$("reading-view").hidden && document.visibilityState === "visible");
-  new IntersectionObserver(
-    (entries) => {
-      inReader = entries[0].isIntersecting;
-      sync();
-    },
-    { threshold: 0 },
-  ).observe($("book-stage"));
   document.addEventListener("visibilitychange", sync);
   window.addEventListener("pagehide", () => score.stop());
   window.addEventListener("pageshow", () => { score.active = false; sync(); });

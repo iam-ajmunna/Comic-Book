@@ -7,7 +7,7 @@ An immersive, dependency-free comic reading room for **Multiversal Love**, the c
 
 ## Reader
 
-- Full-viewport, uncropped artwork: cover alone on the right, then facing pages, with an unmatched final page alone. RTL mirrors the layout.
+- Embedded, uncropped artwork with a full-viewport fullscreen mode: cover alone on the right, then facing pages, with an unmatched final page alone. RTL mirrors the layout.
 - Automatic single-page layout below 681px, updated on rotation; manual layout override.
 - Shaded CSS 3D page turns; immediate changes when reduced motion is preferred.
 - Page-edge taps, swipe, arrow keys, Home/End, page scrubber and lazy thumbnail drawer.
@@ -107,7 +107,7 @@ The supplied creator card appears after the book and discussion, with AJ's biogr
 
 The service worker requires HTTPS or localhost. It keeps the application shell and encountered artwork, while **Download for offline** explicitly fetches smaller page variants, thumbnails, the catalog and the selected transcript with three concurrent requests. A failed download is reported and can be retried. Browser storage quotas and eviction still apply. Clear site data in browser settings to remove offline copies and saved progress.
 
-Music is synthesized locally and needs no download. Network comments require connectivity. Remote-hosted comic assets are not included in offline downloads.
+Music is synthesized locally and needs no download. Network comments require connectivity. Remote-hosted comic assets are not included in offline downloads. Open Options → Download for offline for the selected book.
 
 ## Deploy
 
@@ -119,7 +119,7 @@ For another static host, either publish the repository root or upload `dist/` af
 
 The October 10 printed-comic theme adapts the supplied `comic-theme.css` and enhancement scripts to the existing reader. `DESIGN.md` still owns the palette and font tokens. Bangers, Anton and Comic Neue are served locally from `assets/fonts/`; their original SIL OFL licenses are included there. The font files come from [Fontsource's font-files repository](https://github.com/fontsource/font-files/tree/main/fonts/google). No font CDN, npm dependency or new build tooling is required.
 
-The final supplied theme uses a quiet halftone background without coloured library washes or a POW intro. Reader ambient lighting remains independently switchable. Swipe uses one handler for drag-follow, touch flicks, artwork taps and RTL mapping. Fullscreen keeps the existing button/F shortcut, supports WebKit and offers an escapable expanded layout when the browser has no Fullscreen API. A denied native request reports failure without falsely changing the icon.
+Redesign Preview v2 supplies the full layout: a sticky AJ badge header, small cover tiles, an embedded reader with floating navigation, a completion bar, horizontal GitHub feedback cards and the creator card. Library, Feedback and Creator anchors work on the same scrolling page. The spoiler-free synopsis sits above the active book. Extra reading controls live in Options; the unlocked feedback composer opens in a native dialog. The quiet halftone library has no coloured wash or POW intro. Reader ambient lighting remains independently switchable. Swipe uses one handler for drag-follow, touch flicks, artwork taps and RTL mapping. Fullscreen keeps the existing button/F shortcut, supports WebKit and offers an escapable expanded layout when the browser has no Fullscreen API. A denied native request reports failure without falsely changing the icon.
 
 | Path | Responsibility |
 |---|---|
@@ -132,7 +132,7 @@ The final supplied theme uses a quiet halftone background without coloured libra
 | `src/images.js` | Matching-resolution loading, alternate fallback and bounded cache |
 | `src/lighting.js`, `src/flip.js` | Colour extraction and transform/opacity page turns |
 | `src/ui.js`, `src/zoom.js` | Focus-safe controls, native dialogs, feedback and page detail |
-| `src/comic-theme.css`, `src/comic-enhance.js` | Supplied printed-comic styling and session intro |
+| `src/styles.css`, `src/comic-theme.css` | Preview v2 layout and shared printed-comic styling |
 | `src/swipe.js`, `src/fullscreen.js` | Single-owner gestures and native/expanded fullscreen |
 | `src/ambience.js`, `src/comments.js` | Existing score and GitHub review integration |
 | `src/offline.js`, `sw.js` | Opt-in downloads and offline serving |
@@ -148,3 +148,5 @@ See [TEST_CHECKLIST.md](TEST_CHECKLIST.md) for Chrome, Safari, Firefox, iOS and 
 Open `/tests/responsive.html` on the local server or root GitHub Pages deployment to check 360, 768, 1440 and 2560px CSS viewports. This uses an iframe and does not replace testing a real mobile device or another browser.
 
 All original comic content and the existing MIT license are retained. No comic illustration or character face was regenerated for this reader upgrade. The creator's separate profile portrait was edited from the supplied avatar at the user's request.
+
+The feedback carousel uses real public GitHub Issues. Names and pictures come from GitHub profiles; arbitrary avatar hosts fall back to initials. The preview’s local demo reviews, image upload and jump-to-end unlock are intentionally absent: opening the final page does not count skipped pages.

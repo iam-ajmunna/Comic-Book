@@ -1,5 +1,5 @@
 /* Revalidated documents; cached versioned modules/art; explicit offline download. */
-const RELEASE = '20261010-4';
+const RELEASE = '20261010-5';
 // Keep downloaded books across UI releases. Bump only for a cache-schema change.
 const PREFIX = 'comic-room-20261009-2';
 const SHELL = `${PREFIX}-shell`, ART = `${PREFIX}-art`;
@@ -8,7 +8,7 @@ const shell = ['.', 'index.html', 'comics.json', 'assets/favicon.svg',
   'src/tokens.css', 'src/styles.css', 'src/app.js', 'src/state.js',
   'src/catalog.js', 'src/ui.js', 'src/images.js', 'src/lighting.js', 'src/flip.js',
   'src/zoom.js', 'src/offline.js', 'src/comments.js', 'src/config.js', 'src/ambience.js',
-  'src/comic-theme.css', 'src/author-card.css', 'src/comic-enhance.js', 'src/swipe.js', 'src/fullscreen.js',
+  'src/comic-theme.css', 'src/author-card.css', 'src/swipe.js', 'src/fullscreen.js',
   'assets/avatar-profile.webp',
   'assets/fonts/bangers-latin-400.woff2', 'assets/fonts/anton-latin-400.woff2',
   'assets/fonts/comic-neue-latin-400.woff2', 'assets/fonts/comic-neue-latin-700.woff2'];

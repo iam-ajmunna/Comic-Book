@@ -29,9 +29,9 @@ body {
   background-image: radial-gradient(circle, rgb(255 255 255 / .035) 1.2px, transparent 1.6px);
   background-size: 9px 9px;
   background-repeat: repeat;
-  font-size: 16px;
+  font-size: 1.05rem;
 }
-h1, h2, h3 { font-weight: 400; }
+h1, h2, h3 { font-family: var(--font-heading); font-weight: 400; text-transform: uppercase; letter-spacing: .02em; line-height: 1.08; }
 ::selection { color: var(--color-ink); background: var(--color-primary); }
 :focus-visible { outline-color: var(--color-focus); }
 * { scrollbar-color: var(--color-primary) var(--color-border); scrollbar-width: thin; }
@@ -57,6 +57,10 @@ h1, h2, h3 { font-weight: 400; }
   transition: transform 100ms ease, box-shadow 100ms ease, background 150ms ease;
 }
 .button.primary { border-color: var(--color-border); }
+.button.ghost { color: var(--color-text); background: transparent; border-color: color-mix(in srgb, var(--color-muted) 45%, transparent); box-shadow: none; }
+.button.ghost:hover:not(:disabled) { color: var(--color-primary); background: var(--color-background); box-shadow: none; transform: none; }
+.button.nav-button { padding: 0; }
+.button:disabled { opacity: 1; color: var(--color-muted); background: var(--color-surface); border-color: color-mix(in srgb, var(--color-muted) 30%, transparent); }
 .button:hover:not(:disabled) {
   color: var(--color-ink);
   background: var(--color-primary-hover);
@@ -78,76 +82,21 @@ h1, h2, h3 { font-weight: 400; }
   background: var(--color-surface);
 }
 .text-button[aria-pressed="true"], .icon-button[aria-pressed="true"] { color: var(--color-primary); }
-.eyebrow { color: var(--color-primary); font-size: 12px; }
-
-/* The library header is nested in main; target its actual owner. */
-.library-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  min-height: 72px;
-  padding: 14px 0;
-  margin-bottom: 36px;
-  border-bottom: 4px solid var(--color-border);
-  box-shadow: 0 4px 0 var(--color-primary);
-  background: radial-gradient(circle, rgb(255 255 255 / .08) 1.2px, transparent 1.6px) 0 0 / 8px 8px, var(--color-background);
-}
-.library-header.is-compact { min-height: 60px; }
-.wordmark {
-  display: inline-block;
-  font-size: 40px;
-  letter-spacing: .02em;
-  text-shadow: 3px 3px 0 var(--color-book-accent);
-}
-.wordmark span { font: 400 21px/1 var(--font-display); color: var(--color-text); letter-spacing: .04em; }
-.wordmark:hover { color: var(--color-primary); }
-.library-caption { font-size: 14px; }
-.shelf-heading h1 { font: 400 clamp(36px, 4.5vw, 60px)/1.1 var(--font-heading); letter-spacing: .01em; }
-.library-results { font-size: 14px; }
+.eyebrow { color: var(--color-primary); font: 400 1rem/1.4 var(--font-display); letter-spacing: .3em; margin: 0 0 .4rem; }
 .search-field input, textarea {
   color-scheme: light;
   color: var(--color-ink);
-  background: var(--color-paper);
+  background: #fff;
   border: 3px solid var(--color-border);
-  box-shadow: 5px 5px 0 var(--color-border);
   font-weight: 700;
 }
 .search-field input::placeholder { color: var(--color-paper-muted); opacity: 1; }
-.search-field .icon-button { top: 1px; right: 1px; color: var(--color-ink); }
+.search-field .icon-button { color: var(--color-ink); }
 .search-field .icon-button:hover { color: var(--color-ink); background: var(--color-primary); }
-.cover-copy h2, .cover-card:only-child .cover-copy h2 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  overflow-wrap: normal;
-  word-break: normal;
-  letter-spacing: .02em;
-  line-height: 1.02;
-  color: var(--color-primary);
-  text-shadow: 3px 3px 0 var(--color-border), 5px 5px 0 var(--color-book-accent);
-}
-.cover-card:only-child .cover-copy h2 { font-size: clamp(48px, 6.3vw, 88px); }
-.cover-description { line-height: 1.65; }
-.cover-meta, .cover-progress, .library-footnote { font-size: 14px; }
-.cover-progress progress { height: 7px; background: var(--color-surface); }
-progress::-webkit-progress-bar { background: var(--color-surface); }
-.cover-actions { gap: 12px; }
-.empty-state { border: 2px solid var(--color-muted); background: var(--color-surface); }
-.empty-state h2 { font-family: var(--font-heading); }
-
+progress::-webkit-progress-bar { background: var(--color-ink); }
 /* Reader chrome is quiet, and only the active ambient layer glows. */
 .ambient-layer.active { opacity: .4; }
 .no-glow .ambient-layer { opacity: 0; }
-.reader-top, .reader-bottom {
-  background: color-mix(in srgb, var(--color-background) 92%, transparent);
-  border-color: color-mix(in srgb, var(--color-muted) 35%, transparent);
-  border-radius: var(--radius-control);
-}
-.reader-top { border-top: 3px solid var(--color-primary); }
-.reader-heading h1 { font-weight: 400; font-size: 24px; }
-.reader-bottom .text-button { font-size: 15px; }
-.reading-progress .text-button { font-size: 13px; }
-.tools { border-color: color-mix(in srgb, var(--color-muted) 35%, transparent); }
-.scrubber label { font-size: 14px; }
 .page-edge:hover:not(:disabled), .page-edge:focus-visible { background: rgb(11 11 20 / .7); }
 .book-host { user-select: none; -webkit-user-select: none; }
 .book-stage {
@@ -166,27 +115,6 @@ progress::-webkit-progress-bar { background: var(--color-surface); }
   box-shadow: 4px 4px 0 var(--color-border);
   border-radius: 12px;
 }
-body.cx-pseudo-fs { overflow: hidden; }
-.reading-view.cx-pseudo-fs {
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  overflow-y: auto;
-  background: var(--color-background);
-}
-
-.discussion h2 { font-family: var(--font-heading); letter-spacing: .02em; }
-.discussion { border-top: 3px solid var(--color-border); }
-.locked-note {
-  position: relative;
-  border: 3px solid var(--color-border);
-  background: var(--color-surface);
-  box-shadow: 7px 7px 0 var(--color-border);
-}
-.locked-note h3, .comments-toolbar h3 { font-family: var(--font-heading); letter-spacing: .02em; }
-footer, .comment-card { border-color: var(--color-muted); }
-.notice { border-color: var(--color-muted); }
-.field-meta, .offline-status, .form-status, footer { font-size: 13px; }
 textarea[aria-invalid="true"] { border-color: var(--color-danger); }
 dialog {
   background: var(--color-surface);
@@ -204,31 +132,18 @@ dialog::backdrop {
 .contents-item img { height: auto; }
 .contents-item span { font-size: 12px; }
 
-@media(max-width: 680px) {
-  .library-header { min-height: 64px; margin-bottom: 28px; }
-  .wordmark { font-size: 34px; }
-  .wordmark span { font-size: 18px; }
-  .library-caption { max-width: 100px; text-align: right; font-size: 12px; }
-  .cover-card:only-child .cover-copy h2 { font-size: clamp(42px, 11vw, 66px); }
-  .reader-heading h1 { font-size: 21px; }
-  .reader-top .text-button { font-size: 15px; }
-  .reader-options .text-button { font-size: 12px; }
-  .reading-progress .text-button { font-size: 11px; }
-  .zoom-dialog .dialog-heading h2 { font-size: 18px; }
-}
-@media(hover: hover) and (prefers-reduced-motion: no-preference) {
-  .wordmark { transition: transform 200ms ease; }
-  .wordmark:hover { transform: rotate(-3deg); }
-}
+.options-dialog, .feedback-dialog { width: min(520px, calc(100vw - 24px)); }
+.feedback-dialog .dialog-heading { color: var(--color-ink); background: var(--color-primary); border-bottom: 3px solid var(--color-border); }
+.feedback-dialog .dialog-heading .icon-button { color: var(--color-primary); background: var(--color-ink); }
 @media(prefers-reduced-motion: reduce) {
-  .book-stage, .cover-card:only-child .cover-copy h2 { transform: none; }
+  .book-stage { transform: none; }
   .button:hover:not(:disabled), .button:active:not(:disabled) { transform: none; }
 }
 @media(forced-colors: active) {
   body { background-image: none; }
   * { scrollbar-color: auto; }
   :focus-visible { outline-color: Highlight; }
-  .cover-copy h2, .wordmark { text-shadow: none; }
-  .button, .locked-note, dialog { box-shadow: none; border-color: ButtonText; }
+  .wordmark { text-shadow: none; }
+  .button, .cover-card, .comment-card, dialog { box-shadow: none; border-color: ButtonText; }
   .search-field input, textarea { border-color: ButtonText; }
 }

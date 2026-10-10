@@ -34,3 +34,11 @@ Run shared checks on current Chrome, Safari and Firefox desktop, Safari on iOS, 
 ## Performance
 
 Use a cold profile without extensions and run Lighthouse desktop and mobile. Record real scores against P90+/A95+/BP95+. Check visible images plus only the next spread load normally; full-book downloads require the offline action. During flips, inspect frames for layout/paint work and report tested hardware rather than claiming universal 60fps.
+
+## Redesign Preview v2
+
+- On first visit, confirm the header, compact shelf, embedded reader, locked feedback and creator card are all on one scrolling page. Library / Feedback / Creator anchors, direct links and Back/Forward must scroll to the expected section.
+- Search for a missing title and clear it. Open/resume from the shelf; resize at 360, 768, 1440 and 2560px and confirm paper is uncropped and the document has no horizontal overflow.
+- Check floating navigation, scrubber, edge taps, swipe, thumbnails, zoom and Options. Escape restores focus after Options/Help/Pages; focused controls never hide.
+- Enable sound, then scroll away from the book: it must pause. Return to resume; off/silence/reduced-motion preferences must remain correct. Test light on/off and fullscreen without losing the mounted book.
+- Feedback stays locked after a jump to End. After every page is opened, test the modal label, 600-character limit, validation and per-book draft retention without posting a test review. Check actual feed empty/error/loading states and carousel button bounds; GitHub handoff must never claim a review was posted.

@@ -1,4 +1,4 @@
-import { config } from "./config.js?v=20261010-4";
+import { config } from "./config.js?v=20261010-5";
 const markerFor = (book) => !book || book.id === "multiversal-love" ? config.reviewMarker : `<!-- comic-review:${book.id}:${book.edition} -->`;
 export function makeReviewUrl(text, book) {
   const value = text.trim();
@@ -79,7 +79,21 @@ export function initComments(canComment, getBook = () => null) {
     date.textContent = Number.isNaN(d.valueOf())
       ? ""
       : new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(d);
-    header.append(author, date);
+    const byline = document.createElement('div'); byline.className = 'comment-byline';
+    byline.append(author, date);
+    const avatar = document.createElement('span'); avatar.className = 'comment-avatar'; avatar.setAttribute('aria-hidden', 'true');
+    avatar.textContent = author.textContent.slice(0, 1).toUpperCase();
+    // Only GitHub's avatar host is allowed; reader text remains plain text.
+    try {
+      const url = new URL(issue.user?.avatar_url);
+      if (url.protocol === 'https:' && url.hostname === 'avatars.githubusercontent.com') {
+        url.searchParams.set('s', '96');
+        const image = new Image(); image.className = 'comment-avatar'; image.alt = '';
+        image.width = 48; image.height = 48; image.loading = 'lazy'; image.decoding = 'async'; image.referrerPolicy = 'no-referrer'; image.src = url.href;
+        image.addEventListener('error', () => image.replaceWith(avatar)); header.append(image);
+      } else header.append(avatar);
+    } catch { header.append(avatar); }
+    header.append(byline);
     const text = document.createElement("p");
     text.textContent = reviewText(issue, getBook());
     const link = document.createElement("a");
@@ -89,6 +103,18 @@ export function initComments(canComment, getBook = () => null) {
     link.textContent = "Read or reply on GitHub ↗";
     card.append(header, text, link);
     $("comment-list").append(card);
+  }
+  // Scrolling stays native (touch, trackpad and keyboard); buttons use the same track.
+  const track = $('comment-list');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const syncCarousel = () => {
+    $('feedback-previous').disabled = track.scrollLeft <= 2;
+    $('feedback-next').disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+  };
+  track.addEventListener('scroll', syncCarousel, { passive: true });
+  new ResizeObserver(syncCarousel).observe(track);
+  for (const [id, direction] of [['feedback-previous', -1], ['feedback-next', 1]]) {
+    $(id).addEventListener('click', () => track.scrollBy({ left: direction * (track.firstElementChild?.getBoundingClientRect().width + 16 || track.clientWidth), behavior: reduced.matches ? 'instant' : 'smooth' }));
   }
   async function load(reset = false) {
     if (!canComment() || (busy && !reset)) return;
@@ -125,7 +151,7 @@ export function initComments(canComment, getBook = () => null) {
       if (request !== generation) return;
       if (reset) {
         $("comment-list").replaceChildren();
-        rendered = new Set();
+        rendered = new Set(); track.scrollLeft = 0;
       }
       issues.filter((issue) => isBookReview(issue, getBook())).forEach(appendComment);
       const more = /<[^>]+>;\s*rel="next"/.test(
@@ -151,6 +177,7 @@ export function initComments(canComment, getBook = () => null) {
         $("refresh-comments").disabled = false;
         $("more-comments").disabled = false;
         $("comment-list").setAttribute("aria-busy", "false");
+        syncCarousel();
       }
     }
   }
@@ -171,6 +198,7 @@ export function initComments(canComment, getBook = () => null) {
       $("comment-status").replaceChildren();
       $("refresh-comments").disabled = false; $("more-comments").hidden = true;
       $("comment-list").setAttribute("aria-busy", "false");
+      syncCarousel();
     },
   };
 }
