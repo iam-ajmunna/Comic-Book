@@ -1,0 +1,9 @@
+# Creator profile portrait
+
+- `avatar-original.png`: untouched 320 × 320 illustrated avatar supplied in `final file.zip`.
+- `avatar-profile.webp`: 1254 × 1254 profile portrait edited with the built-in image-generation tool, then encoded as WebP at quality 90 using ImageMagick. Encoding preserves its dimensions and composition; no new site dependency is needed.
+- The profile keeps the supplied face, expression, clothing and comic style, with refined linework and a clean ink-coloured background. It is separate from the comic artwork. The site reserves square geometry and loads it lazily after the discussion.
+
+## Final edit prompt
+
+Use case: identity-preserve. Asset type: author profile picture on a printed-comic reading website. Edit target: the supplied 320px illustrated avatar. Create a polished high-resolution square 1024 x 1024 profile portrait from this exact image, preserving the man's recognizable facial features, warm skin tone, dark curly hair, trimmed beard and moustache, eye shape, slight smile and upward side gaze. Keep the same comic illustration style and grey patterned jacket over a black shirt; refine crisp linework and subtle shading rather than turn him into a different person or a photograph. Frame head and upper shoulders with comfortable space above and beside the hair, suitable for both square and circular profile crops. Replace the pale busy background with a clean deep ink navy (#0b0b14) studio backdrop, with a very subtle soft desaturated teal halo behind the head for separation. Keep small cyan/red ink edge accents restrained. Natural flattering face light, clear facial detail, sharp clean contours, refined editorial comic portrait finish. No text, logos, props, borders, watermarks or extra people. Preserve the identity and expression; change only framing, resolution/polish and background.

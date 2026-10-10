@@ -1,5 +1,14 @@
 # Immersive reader release status
 
+## October 10 final creator-card update
+
+- Applied `final file.zip`: a quieter halftone library, no POW intro, and the supplied creator biography, role chips, speech bubble and GitHub link after the discussion.
+- Refined the supplied 320px illustrated avatar into a 1254px square profile with preserved facial identity/style and a dark backdrop. The WebP is 95,074 bytes; the supplied original and final prompt are retained separately. Comic artwork and the spoiler-free catalog description remain untouched.
+- Adapted card styles to the shared tokens, with explicit image geometry, lazy loading, mobile stacking, visible link focus, reduced-motion and forced-colour treatment.
+- Versioned runtime URLs to `20261010-4`, retained downloaded-book caches, and covered shell-cached branding images with an offline worker test.
+- Source syntax, all 26 tests, 240-image catalog validation, static build and strict UI audit passed. Generated tokens match DESIGN.md. No dependency or build tooling was added.
+- Live browser verification follows publication; platform/performance limitations listed below still apply.
+
 ## October 10 supplied-theme update
 
 - Integrated the supplied yellow/ink printed-comic theme with halftone library backgrounds, square actions, offset shadows, themed dialogs and a once-per-session POW intro.

@@ -7,14 +7,15 @@
   <meta name="description" content="Read Multiversal Love by AJ. An immersive comic library with facing pages, artwork lighting, and a quiet cinematic soundtrack.">
   <title>Multiversal Love — AJ's comic reading room</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="src/tokens.css?v=20261010-3">
-  <link rel="stylesheet" href="src/styles.css?v=20261010-3">
-  <link rel="stylesheet" href="src/comic-theme.css?v=20261010-3">
+  <link rel="stylesheet" href="src/tokens.css?v=20261010-4">
+  <link rel="stylesheet" href="src/styles.css?v=20261010-4">
+  <link rel="stylesheet" href="src/comic-theme.css?v=20261010-4">
+  <link rel="stylesheet" href="src/author-card.css?v=20261010-4">
   <link rel="preload" href="assets/fonts/bangers-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/anton-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/comic-neue-latin-400.woff2" as="font" type="font/woff2" crossorigin>
-  <script type="module" src="src/app.js?v=20261010-3"></script>
-  <script type="module" src="src/comic-enhance.js?v=20261010-3"></script>
+  <script type="module" src="src/app.js?v=20261010-4"></script>
+  <script type="module" src="src/comic-enhance.js?v=20261010-4"></script>
 </head>
 <body data-sound="quiet">
   <a class="skip-link" id="skip-link" href="#library-title">Skip to the library</a>
@@ -145,26 +146,29 @@
           </div>
         </div>
       </section>
-      <section class="author-section" aria-labelledby="author-title">
-        <div class="author-monogram" aria-hidden="true">
-          AJ<span>ENGINEER / STORYTELLER</span>
-        </div>
-        <div class="author-copy">
-          <span class="eyebrow">BEHIND THE STORY</span>
-          <h2 id="author-title">Assaduzzaman Munna <span>AJ</span></h2>
-          <p>
-            AI engineer, full-stack systems specialist, and creator of
-            <em>Multiversal Love</em>. Alongside building intelligent systems,
-            AJ explores love, loss, friendship, and the possibility of another
-            world through this illustrated story.
-          </p>
-          <a
-            class="author-social"
-            href="https://github.com/iam-ajmunna"
-            target="_blank"
-            rel="noopener noreferrer"
-            >GitHub <span>@iam-ajmunna</span> ↗</a
+      <section class="author" id="author" aria-labelledby="author-name">
+        <div class="author-portrait">
+          <img
+            class="author-avatar"
+            src="assets/avatar-profile.webp"
+            width="1254"
+            height="1254"
+            loading="lazy"
+            decoding="async"
+            alt="Illustrated profile portrait of Assaduzzaman Munna AJ"
           >
+          <p class="author-role">ENGINEER / STORYTELLER</p>
+        </div>
+        <div class="author-content">
+          <p class="eyebrow">BEHIND THE STORY</p>
+          <h2 id="author-name">Assaduzzaman Munna AJ</h2>
+          <ul class="author-chips" aria-label="Roles">
+            <li>AI engineer</li>
+            <li>Full-stack systems</li>
+            <li>Creator</li>
+          </ul>
+          <p class="author-quote"><span>Alongside building intelligent systems, I love exploring my other passions and hobbies. Writing my own comic book story in my favourite genre is one of the things that makes me happiest.</span></p>
+          <a class="button" href="https://github.com/iam-ajmunna" target="_blank" rel="noopener noreferrer">GitHub @iam-ajmunna ↗</a>
         </div>
       </section>
 

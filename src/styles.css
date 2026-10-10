@@ -789,48 +789,6 @@ textarea[aria-invalid="true"] {
   white-space:pre-wrap;
   overflow-wrap:anywhere
 }
-.author-section {
-  max-width:1100px;
-  margin:0 auto;
-  padding:60px 40px 100px;
-  display:grid;
-  grid-template-columns:1fr 1.3fr;
-  gap:80px;
-  border-top:1px solid var(--color-border)
-}
-.author-monogram {
-  font:120px/.85 var(--font-display);
-  color:var(--color-primary)
-}
-.author-monogram span {
-  display:block;
-  margin-top:24px;
-  font:10px var(--font-sans);
-  letter-spacing:.15em;
-  color:var(--color-muted)
-}
-.author-copy h2 {
-  font:32px/1.15 var(--font-display);
-  margin:16px 0
-}
-.author-copy h2 span {
-  display:block;
-  color:var(--color-muted);
-  font:14px var(--font-sans);
-  margin-top:6px
-}
-.author-copy p {
-  color:var(--color-muted)
-}
-.author-social {
-  display:inline-block;
-  min-height:44px;
-  padding:8px 0
-}
-.author-social span {
-  color:var(--color-muted);
-  margin-left:10px
-}
 footer {
   max-width:var(--space-page-max);
   margin:auto;
@@ -989,7 +947,7 @@ body:has(dialog[open]) {
   .reader-heading span {
     display:none
   }
-  .discussion,.author-section {
+  .discussion {
     gap:32px
   }
   .reader-options {
@@ -1081,13 +1039,10 @@ body:has(dialog[open]) {
   .reading-progress progress {
     width:50px
   }
-  .discussion,.author-section {
+  .discussion {
     grid-template-columns:1fr;
     padding:64px 24px;
     gap:24px
-  }
-  .author-monogram {
-    font-size:80px
   }
   .dialog-heading {
     gap:4px;

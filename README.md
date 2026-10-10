@@ -93,7 +93,7 @@ Transcript pages may contain `kind: "cover"`, `kind: "story"` with `text`, or `k
 
 Use a new edition and **versioned asset URLs** when replacing artwork. This preserves explicit progress boundaries and avoids serving older offline-cached images under an unchanged URL.
 
-The reader's CSS and ES modules also carry a release query (`?v=20261010-3`). When changing runtime files, update that release consistently in `index.html`, local module imports and `sw.js`'s `RELEASE`. This prevents returning browsers from mixing an older reader with new HTML. The service worker precaches those exact versioned URLs, revalidates documents and metadata, and activates updates without requiring every reader tab to close. Its cache prefix stays stable across UI releases so downloaded books survive; change it only when the cache format changes.
+The reader's CSS and ES modules also carry a release query (`?v=20261010-4`). When changing runtime files, update that release consistently in `index.html`, local module imports and `sw.js`'s `RELEASE`. This prevents returning browsers from mixing an older reader with new HTML. The service worker precaches those exact versioned URLs, revalidates documents and metadata, and activates updates without requiring every reader tab to close. Its cache prefix stays stable across UI releases so downloaded books survive; change it only when the cache format changes.
 
 ## Progress and comments
 
@@ -101,7 +101,7 @@ Progress is local to this browser, keyed by comic id and edition. Unique valid p
 
 The comment form retains a separate in-memory draft per book. Posting opens a prefilled GitHub Issue for the reader to review and submit using their own account. No credentials or access tokens are embedded. The public feed uses the unauthenticated Issues API, with retry, pagination, rate-limit messaging and cancellation of stale requests. It may be unavailable offline or rate-limited; reading remains available.
 
-The author introduction appears after the book and discussion. Only the verified GitHub handle is linked; add other verified profiles in `index.html` when supplied.
+The supplied creator card appears after the book and discussion, with AJ's biography, role chips, and a profile portrait. Only the verified GitHub handle is linked; add other verified profiles in `index.html` when supplied. The 1254 × 1254 WebP portrait loads lazily and is cached with the offline shell. Its original 320px input, edit prompt and provenance are retained alongside it; see [assets/avatar.README.md](assets/avatar.README.md). Change the biography/link in `index.html` and card styles in `src/author-card.css`; replace portrait assets under a new filename so cached copies can update.
 
 ## Offline and storage
 
@@ -119,12 +119,14 @@ For another static host, either publish the repository root or upload `dist/` af
 
 The October 10 printed-comic theme adapts the supplied `comic-theme.css` and enhancement scripts to the existing reader. `DESIGN.md` still owns the palette and font tokens. Bangers, Anton and Comic Neue are served locally from `assets/fonts/`; their original SIL OFL licenses are included there. The font files come from [Fontsource's font-files repository](https://github.com/fontsource/font-files/tree/main/fonts/google). No font CDN, npm dependency or new build tooling is required.
 
-The one-shot POW intro respects reduced motion and does not appear on direct reading links. Swipe uses one handler for drag-follow, touch flicks, artwork taps and RTL mapping. Fullscreen keeps the existing button/F shortcut, supports WebKit and offers an escapable expanded layout when the browser has no Fullscreen API. A denied native request reports failure without falsely changing the icon.
+The final supplied theme uses a quiet halftone background without coloured library washes or a POW intro. Reader ambient lighting remains independently switchable. Swipe uses one handler for drag-follow, touch flicks, artwork taps and RTL mapping. Fullscreen keeps the existing button/F shortcut, supports WebKit and offers an escapable expanded layout when the browser has no Fullscreen API. A denied native request reports failure without falsely changing the icon.
 
 | Path | Responsibility |
 |---|---|
 | `comics.json` | Catalog, image paths, reading direction and audio cues |
 | `assets/book.json` | Preserved approved story and panel transcripts |
+| `assets/avatar-profile.webp`, `assets/avatar-original.png` | Improved creator portrait and preserved supplied original |
+| `src/author-card.css` | Supplied creator card adapted to shared tokens |
 | `src/app.js` | Library, reader orchestration and route handling |
 | `src/state.js` | Spread boundaries, progress, migration and persistence |
 | `src/images.js` | Matching-resolution loading, alternate fallback and bounded cache |
@@ -145,4 +147,4 @@ See [TEST_CHECKLIST.md](TEST_CHECKLIST.md) for Chrome, Safari, Firefox, iOS and 
 
 Open `/tests/responsive.html` on the local server or root GitHub Pages deployment to check 360, 768, 1440 and 2560px CSS viewports. This uses an iframe and does not replace testing a real mobile device or another browser.
 
-All original comic content and the existing MIT license are retained. No illustration or character face was regenerated for this reader upgrade.
+All original comic content and the existing MIT license are retained. No comic illustration or character face was regenerated for this reader upgrade. The creator's separate profile portrait was edited from the supplied avatar at the user's request.

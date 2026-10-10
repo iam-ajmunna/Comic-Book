@@ -29,6 +29,9 @@ function worker(network) {
   });
   return {
     stores, calls, cache,
+    async install() {
+      let result; handlers.get('install')({ waitUntil: (value) => { result = value; } }); await result;
+    },
     async request(path, mode = 'cors') {
       let result;
       handlers.get('fetch')({ request: { url: new URL(path, root).href, method: 'GET', mode }, respondWith: (value) => { result = value; } });
@@ -66,4 +69,13 @@ test('activating a UI update preserves downloaded books and transcripts', async 
   assert.equal(reader.stores.has('comic-room-obsolete-shell'), false);
   assert.equal(await (await reader.request('assets/book.json')).text(), 'saved transcript');
   assert.equal(await (await reader.request('assets/pages/001.webp')).text(), 'saved artwork');
+});
+
+test('installing the shell makes the creator card and portrait available offline', async () => {
+  const reader = worker(() => { throw new Error('offline'); });
+  await reader.install();
+  const release = source.match(/const RELEASE = '([^']+)'/)[1];
+  assert.equal(await (await reader.request(`src/author-card.css?v=${release}`)).text(), 'shell');
+  assert.equal(await (await reader.request('assets/avatar-profile.webp')).text(), 'shell');
+  assert.equal(reader.calls.length, 0);
 });

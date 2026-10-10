@@ -1,5 +1,5 @@
 /* Revalidated documents; cached versioned modules/art; explicit offline download. */
-const RELEASE = '20261010-3';
+const RELEASE = '20261010-4';
 // Keep downloaded books across UI releases. Bump only for a cache-schema change.
 const PREFIX = 'comic-room-20261009-2';
 const SHELL = `${PREFIX}-shell`, ART = `${PREFIX}-art`;
@@ -8,9 +8,11 @@ const shell = ['.', 'index.html', 'comics.json', 'assets/favicon.svg',
   'src/tokens.css', 'src/styles.css', 'src/app.js', 'src/state.js',
   'src/catalog.js', 'src/ui.js', 'src/images.js', 'src/lighting.js', 'src/flip.js',
   'src/zoom.js', 'src/offline.js', 'src/comments.js', 'src/config.js', 'src/ambience.js',
-  'src/comic-theme.css', 'src/comic-enhance.js', 'src/swipe.js', 'src/fullscreen.js',
+  'src/comic-theme.css', 'src/author-card.css', 'src/comic-enhance.js', 'src/swipe.js', 'src/fullscreen.js',
+  'assets/avatar-profile.webp',
   'assets/fonts/bangers-latin-400.woff2', 'assets/fonts/anton-latin-400.woff2',
   'assets/fonts/comic-neue-latin-400.woff2', 'assets/fonts/comic-neue-latin-700.woff2'];
+const shellPaths = new Set(shell.map((path) => new URL(path, root).pathname));
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(SHELL)
     .then((cache) => cache.addAll(shell.map((path) => new Request(new URL(path.startsWith('src/') ? `${path}?v=${RELEASE}` : path, root), { cache: 'reload' }))))
@@ -28,7 +30,8 @@ self.addEventListener('fetch', (event) => {
   const artwork = /\.(webp|avif|png|jpe?g)$/i.test(url.pathname);
   const versionedModule = (url.searchParams.has('v') && /\.(css|js)$/i.test(url.pathname)) || /\.woff2$/i.test(url.pathname);
   event.respondWith((async () => {
-    const cache = await caches.open(artwork ? ART : SHELL);
+    // Branding images are precached with the shell; comic images own ART.
+    const cache = await caches.open(artwork && !shellPaths.has(url.pathname) ? ART : SHELL);
     if (artwork || versionedModule) { const hit = await cache.match(request); if (hit) return hit; }
     try {
       // The HTTP cache can otherwise return an older HTML entry point on normal

@@ -43,13 +43,13 @@ components:
 
 ## Overview
 
-Printed-comic chrome around a calm reading room; the artwork stays untouched. The supplied October 10 theme establishes yellow action labels, ink outlines, offset shadows and a halftone library. The approved comic remains the centerpiece; translucent reader controls stay outside the paper and hide only when idle and unfocused. This is an English-language sci-fi romance reader with an author introduction below it. The library shows only real books from comics.json. No continuously animated background or automatic page turns.
+Printed-comic chrome around a calm reading room; the artwork stays untouched. The supplied October 10 theme establishes yellow action labels, ink outlines, offset shadows and a halftone library. The final supplied ZIP removes the coloured library wash and the POW intro, and adds a portrait creator card after the discussion. The approved comic remains the centerpiece; translucent reader controls stay outside the paper and hide only when idle and unfocused. This is an English-language sci-fi romance reader. The library shows only real books from comics.json. No continuously animated background or automatic page turns.
 
-Token ownership: this file generates `src/tokens.css` through `scripts/design-tokens.mjs`; `npm run build` regenerates the CSS. `src/styles.css` owns reader geometry and shared behaviour; `src/comic-theme.css` adapts the supplied theme to those components and consumes generated variables. The source PDF's lettering and colors are unchanged.
+Token ownership: this file generates `src/tokens.css` through `scripts/design-tokens.mjs`; `npm run build` regenerates the CSS. `src/styles.css` owns reader geometry and shared behaviour; `src/comic-theme.css` adapts the supplied theme to those components and consumes generated variables. `src/author-card.css` uses the same tokens and shared button styles for the supplied creator card. The source PDF's lettering and colors are unchanged.
 
 ## Colors
 
-Near-black ink surrounds cream paper. Yellow identifies actions and progress; cyan identifies focus. Red and magenta are restrained library accents. Black borders frame yellow or white surfaces; muted borders distinguish functional boundaries on dark surfaces. Ambient colour comes from visible artwork sampled at 32 × 48 pixels. Ink and flat paper are excluded, saturation is boosted, and only the active background layer glows, crossfading over 1.2 seconds. Failed or CORS-blocked sampling uses a neutral blue-violet palette. Light fills the viewport behind the pages and can be disabled independently of music.
+Near-black ink surrounds cream paper. Yellow identifies actions and progress; cyan identifies focus. Red accents the library title; the document background uses a quiet halftone without coloured washes. Black borders frame yellow or white surfaces; muted borders distinguish functional boundaries on dark surfaces. Ambient colour comes from visible artwork sampled at 32 × 48 pixels. Ink and flat paper are excluded, saturation is boosted, and only the active background layer glows, crossfading over 1.2 seconds. Failed or CORS-blocked sampling uses a neutral blue-violet palette. Light fills the viewport behind the pages and can be disabled independently of music.
 
 ## Typography
 
@@ -61,11 +61,13 @@ Pair comic 01 with context 02, continuing through 77–78. The cover occupies th
 
 ## Elevation & Depth
 
-Library actions and dialogs use the supplied offset ink shadows; paper keeps its soft shadow and shaded spine. CSS 3D front/back leaves turn with transform and shading opacity only. A horizontal drag moves the book as one unit without overriding a leaf's rotation. Reduced motion changes spreads immediately and disables drag-follow, title tilt and the intro. Ambient washes crossfade without pulsing. A single short, non-interactive POW intro appears once per tab session when opening the library; direct reading links never show it. Dialog backdrops isolate the task without changing page width.
+Library actions, the creator card and dialogs use the supplied offset ink shadows; paper keeps its soft shadow and shaded spine. CSS 3D front/back leaves turn with transform and shading opacity only. A horizontal drag moves the book as one unit without overriding a leaf's rotation. Reduced motion changes spreads immediately and disables drag-follow, title tilt and portrait rotation. Ambient washes crossfade without pulsing. The library opens directly without an intro overlay. Dialog backdrops isolate the task without changing page width.
 
 ## Shapes
 
 Square paper edges and controls, visible cyan focus rings and at least 44px primary control height. Speech-bubble framing is reserved for discussion and transient messages.
+
+The creator card follows the supplied square portrait, yellow folded corner, role chips and cream speech bubble. Its lazy-loaded 1254px square WebP profile preserves the supplied illustrated face, with a dark background and clearer linework. Original input and edit provenance are retained in `assets/avatar-original.png` and `assets/avatar.README.md`. The image has explicit dimensions and meaningful alternative text; narrow screens stack the portrait above the biography, and reduced motion removes its rotation.
 
 ## Components
 
@@ -95,4 +97,4 @@ Reduced motion disables transitions and sound-status animation. No automatic pag
 
 Canonical navigation and per-comic progress live in src/state.js; comic metadata in comics.json; responsive image loading in src/images.js; shared overlays and status in src/ui.js. Search is local, IME-safe, clearable and restored in the library URL. Native range sliders and dialog focus behaviour are intentionally platform-owned. Fullscreen icons follow actual fullscreen state, with an explicitly announced expanded-layout fallback only when the API is absent. Denied requests retain graceful messages and correct state. Escape and Library exit the fallback. Visible controls never auto-hide with focus.
 
-The supplied `files.zip` authorizes the evolution from rose/system-font chrome to the printed-comic theme. Its generic swipe/fullscreen scripts are fitted to the existing reader, preserving a single navigation handler and the existing zoom and progress rules. Runtime values still flow DESIGN.md → scripts/design-tokens.mjs → src/tokens.css → shared styles/theme. No npm dependency or build tool is added; fonts are served locally and precached for offline reading.
+The supplied `files.zip` authorizes the evolution from rose/system-font chrome to the printed-comic theme; `final file.zip` refines the background and supplies the creator card and biography. Its generic swipe/fullscreen scripts are fitted to the existing reader, preserving a single navigation handler and the existing zoom and progress rules. Runtime values still flow DESIGN.md → scripts/design-tokens.mjs → src/tokens.css → shared styles/theme/card. No npm dependency or build tool is added; fonts, card styles and the optimized profile are served locally and precached for offline reading.

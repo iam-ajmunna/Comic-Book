@@ -26,12 +26,9 @@
 }
 
 body {
-  background-image:
-    radial-gradient(circle, rgb(255 255 255 / .07) 1.2px, transparent 1.6px),
-    radial-gradient(ellipse at 85% 0%, color-mix(in srgb, var(--color-magenta) 13%, transparent), transparent 55%),
-    radial-gradient(ellipse at 0% 30%, color-mix(in srgb, var(--color-focus) 10%, transparent), transparent 50%);
-  background-size: 9px 9px, 100% 800px, 100% 1000px;
-  background-repeat: repeat, no-repeat, no-repeat;
+  background-image: radial-gradient(circle, rgb(255 255 255 / .035) 1.2px, transparent 1.6px);
+  background-size: 9px 9px;
+  background-repeat: repeat;
   font-size: 16px;
 }
 h1, h2, h3 { font-weight: 400; }
@@ -178,7 +175,7 @@ body.cx-pseudo-fs { overflow: hidden; }
   background: var(--color-background);
 }
 
-.discussion h2, .author-copy h2 { font-family: var(--font-heading); letter-spacing: .02em; }
+.discussion h2 { font-family: var(--font-heading); letter-spacing: .02em; }
 .discussion { border-top: 3px solid var(--color-border); }
 .locked-note {
   position: relative;
@@ -187,8 +184,7 @@ body.cx-pseudo-fs { overflow: hidden; }
   box-shadow: 7px 7px 0 var(--color-border);
 }
 .locked-note h3, .comments-toolbar h3 { font-family: var(--font-heading); letter-spacing: .02em; }
-.author-monogram { text-shadow: 4px 4px 0 var(--color-book-accent); }
-.author-section, footer, .comment-card { border-color: var(--color-muted); }
+footer, .comment-card { border-color: var(--color-muted); }
 .notice { border-color: var(--color-muted); }
 .field-meta, .offline-status, .form-status, footer { font-size: 13px; }
 textarea[aria-invalid="true"] { border-color: var(--color-danger); }
@@ -208,26 +204,6 @@ dialog::backdrop {
 .contents-item img { height: auto; }
 .contents-item span { font-size: 12px; }
 
-/* Non-interactive, one-shot intro. JS cleans up even if motion is disabled mid-run. */
-.cx-pow {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-  font: 400 clamp(80px, 22vw, 250px)/1 var(--font-display);
-  color: var(--color-primary);
-  -webkit-text-stroke: 4px var(--color-border);
-  text-shadow: 10px 10px 0 var(--color-book-accent);
-  animation: cx-pow 900ms ease-out forwards;
-}
-@keyframes cx-pow {
-  0% { transform: scale(.2) rotate(-12deg); opacity: 0; }
-  35% { transform: scale(1.1) rotate(3deg); opacity: 1; }
-  70% { transform: scale(1) rotate(-2deg); opacity: 1; }
-  100% { transform: scale(1.4); opacity: 0; visibility: hidden; }
-}
 @media(max-width: 680px) {
   .library-header { min-height: 64px; margin-bottom: 28px; }
   .wordmark { font-size: 34px; }
@@ -245,7 +221,6 @@ dialog::backdrop {
   .wordmark:hover { transform: rotate(-3deg); }
 }
 @media(prefers-reduced-motion: reduce) {
-  .cx-pow { display: none; }
   .book-stage, .cover-card:only-child .cover-copy h2 { transform: none; }
   .button:hover:not(:disabled), .button:active:not(:disabled) { transform: none; }
 }
@@ -253,8 +228,7 @@ dialog::backdrop {
   body { background-image: none; }
   * { scrollbar-color: auto; }
   :focus-visible { outline-color: Highlight; }
-  .cover-copy h2, .wordmark, .author-monogram { text-shadow: none; }
+  .cover-copy h2, .wordmark { text-shadow: none; }
   .button, .locked-note, dialog { box-shadow: none; border-color: ButtonText; }
   .search-field input, textarea { border-color: ButtonText; }
-  .cx-pow { display: none; }
 }
