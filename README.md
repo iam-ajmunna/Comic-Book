@@ -149,4 +149,6 @@ Open `/tests/responsive.html` on the local server or root GitHub Pages deploymen
 
 All original comic content and the existing MIT license are retained. No comic illustration or character face was regenerated for this reader upgrade. The creator's separate profile portrait was edited from the supplied avatar at the user's request.
 
+Optional `authorDisplayName` supplies a compact shelf credit (AJ for this book); the full author name stays in `author`.
+
 The feedback carousel uses real public GitHub Issues. Names and pictures come from GitHub profiles; arbitrary avatar hosts fall back to initials. The preview’s local demo reviews, image upload and jump-to-end unlock are intentionally absent: opening the final page does not count skipped pages.

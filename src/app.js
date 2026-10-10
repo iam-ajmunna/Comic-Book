@@ -1,15 +1,15 @@
-import { validateCatalog, fetchJson } from './catalog.js?v=20261010-5';
-import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261010-5';
-import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261010-5';
-import { PageImages } from './images.js?v=20261010-5';
-import { AmbientLight } from './lighting.js?v=20261010-5';
-import { flipSpread, cancelFlip } from './flip.js?v=20261010-5';
-import { initZoom } from './zoom.js?v=20261010-5';
-import { initComments } from './comments.js?v=20261010-5';
-import { initAmbience } from './ambience.js?v=20261010-5';
-import { initOffline } from './offline.js?v=20261010-5';
-import { attachSwipe } from './swipe.js?v=20261010-5';
-import { initFullscreen } from './fullscreen.js?v=20261010-5';
+import { validateCatalog, fetchJson } from './catalog.js?v=20261010-6';
+import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261010-6';
+import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261010-6';
+import { PageImages } from './images.js?v=20261010-6';
+import { AmbientLight } from './lighting.js?v=20261010-6';
+import { flipSpread, cancelFlip } from './flip.js?v=20261010-6';
+import { initZoom } from './zoom.js?v=20261010-6';
+import { initComments } from './comments.js?v=20261010-6';
+import { initAmbience } from './ambience.js?v=20261010-6';
+import { initOffline } from './offline.js?v=20261010-6';
+import { attachSwipe } from './swipe.js?v=20261010-6';
+import { initFullscreen } from './fullscreen.js?v=20261010-6';
 
 let storage = null;
 try { storage = window.localStorage; } catch { /* Reading works with memory-only progress. */ }
@@ -234,13 +234,13 @@ function openBook(comic, page, push = true, { scroll = true } = {}) {
     $('reader').focus({ preventScroll: true }); revealControls();
   }
 }
-async function showLibrary(push = true) {
+async function showLibrary(push = true, { focus = true } = {}) {
   try { await fullscreen.exit(); } catch { /* Keep navigation available. */ }
   for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close();
   setAmbience.setActive?.(false);
   if (push) history.pushState(null, '', libraryHash());
   document.title = 'Comic library — AJ / Comics'; renderLibrary();
-  $('library-title').focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: reduced.matches ? 'instant' : 'smooth' });
+  if (focus) { $('library-title').focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: reduced.matches ? 'instant' : 'smooth' }); }
 }
 function libraryHash() { return `#library${search ? `?q=${encodeURIComponent(search)}` : ''}`; }
 function renderLibrary() {
@@ -263,15 +263,15 @@ function renderLibrary() {
       event.preventDefault(); openBook(comic);
     });
     const copy = el('div', 'cover-copy');
-    copy.append(el('h2', '', comic.title), el('p', 'cover-meta', `by ${comic.author || 'Independent creator'} · ${comic.pages.length} pages`));
-    cover.append(image, copy); card.append(cover);
+    copy.append(el('h2', '', comic.title), el('p', 'cover-meta', `by ${comic.authorDisplayName || comic.author || 'Independent creator'} · ${comic.pages.length} pages`));
     if (hasProgress) {
       const progress = el('div', 'cover-progress');
-      const read = el('button', 'text-button', 'Continue reading →'); read.type = 'button'; read.addEventListener('click', () => openBook(comic));
+      progress.append(el('p', 'cover-resume', `Continue reading → · ${saved.page ? `Page ${comic.pages[saved.page].label}` : 'Cover'}`));
       const bar = el('progress'); bar.value = saved.visited.length; bar.max = comic.pages.length;
       bar.setAttribute('aria-label', `${comic.title}: ${saved.visited.length} of ${comic.pages.length} pages opened`);
-      progress.append(read, el('p', '', `${saved.visited.length} / ${comic.pages.length} pages opened`), bar); card.append(progress);
+      progress.append(bar); copy.append(progress);
     }
+    cover.append(image, copy); card.append(cover);
     return card;
   });
   if (!cards.length) { const empty = el('div', 'empty-state'); empty.append(el('h2', '', 'No books match that search.'), el('p', '', 'Try the title, author, or genre.')); const clear = el('button', 'button', 'Clear search'); clear.type = 'button'; clear.addEventListener('click', clearSearch); empty.append(clear); cards.push(empty); }
@@ -361,7 +361,7 @@ async function showSection(id) {
   section.scrollIntoView({ behavior: reduced.matches ? 'instant' : 'smooth' });
   section.focus({ preventScroll: true });
 }
-function route() {
+function route({ initial = false } = {}) {
   const params = new URLSearchParams(location.hash.slice(1)), id = params.get('read');
   if (id) {
     const comic = comics.find((c) => c.id === id);
@@ -369,7 +369,7 @@ function route() {
     else { showLibrary(false); $('library-status').textContent = 'That book is not in this library. Choose a book below.'; }
   } else if (location.hash.startsWith('#page=')) openBook(comics[0], pageFromHash(location.hash, comics[0].pages.length) ?? 0, false);
   else if (['#author', '#feedback', '#reader'].includes(location.hash)) showSection(location.hash.slice(1));
-  else { search = new URLSearchParams(location.hash.split('?')[1] || '').get('q') || ''; showLibrary(false); }
+  else { search = new URLSearchParams(location.hash.split('?')[1] || '').get('q') || ''; showLibrary(false, { focus: !initial }); }
 }
 window.addEventListener('hashchange', () => { if (comics.length) route(); });
 async function boot() {
@@ -380,7 +380,7 @@ async function boot() {
     renderLibrary();
     const requested = new URLSearchParams(location.hash.slice(1)).get('read');
     if (!comics.some((comic) => comic.id === requested) && !location.hash.startsWith('#page=')) openBook(comics[0], undefined, false, { scroll: false });
-    route();
+    route({ initial: true });
   } catch {
     $('library-status').textContent = 'The library couldn’t open. Check your connection and retry. Your saved place is safe.';
     const retry = el('button', 'button', 'Retry library'); retry.type = 'button'; retry.addEventListener('click', boot); $('library-shelf').replaceChildren(retry);

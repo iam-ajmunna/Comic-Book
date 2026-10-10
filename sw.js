@@ -1,5 +1,5 @@
 /* Revalidated documents; cached versioned modules/art; explicit offline download. */
-const RELEASE = '20261010-5';
+const RELEASE = '20261010-6';
 // Keep downloaded books across UI releases. Bump only for a cache-schema change.
 const PREFIX = 'comic-room-20261009-2';
 const SHELL = `${PREFIX}-shell`, ART = `${PREFIX}-art`;
