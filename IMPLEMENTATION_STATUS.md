@@ -7,7 +7,8 @@
 - Adapted card styles to the shared tokens, with explicit image geometry, lazy loading, mobile stacking, visible link focus, reduced-motion and forced-colour treatment.
 - Versioned runtime URLs to `20261010-4`, retained downloaded-book caches, and covered shell-cached branding images with an offline worker test.
 - Source syntax, all 26 tests, 240-image catalog validation, static build and strict UI audit passed. Generated tokens match DESIGN.md. No dependency or build tooling was added.
-- Live browser verification follows publication; platform/performance limitations listed below still apply.
+- Verified on the published site in cloud Chrome: the new release, quiet library background, absent intro, preserved synopsis, sharp 1254px portrait, supplied biography/roles and visible GitHub-link focus. Card layouts at 360, 768, 1440 and 2560px CSS viewports had equal client/scroll widths; the phone card stacked correctly and every link stayed within the card.
+- Reader navigation, the locked completion gate, full-resolution 1600px page enlargement and settled ambient off/on states still worked. The worker test confirms offline availability of card styles and the portrait; actual disconnected browsing, Safari/Firefox, physical devices and performance measurements remain unverified.
 
 ## October 10 supplied-theme update
 
