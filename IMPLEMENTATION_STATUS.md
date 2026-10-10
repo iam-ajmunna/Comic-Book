@@ -1,5 +1,16 @@
 # Immersive reader release status
 
+## October 10 inline anonymous feedback
+
+- Replaced the GitHub draft handoff and feedback modal with an inline composer beneath the book. Names are required (1–80 characters); pictures are optional; feedback is required (3–600 characters). No reader account, sign-in, email or GitHub connection is needed.
+- Deployed a separate dependency-free public Worker with private durable R2 storage through Sites. The existing GitHub Pages URL, vanilla reader stack, approved artwork, creator portrait, spoiler-free synopsis and offline-book caches remain intact. Service source and maintenance/API guidance are retained in `feedback-service/`.
+- Added 160px profile-picture preparation, preview and removal, metadata stripping, client/server type and size limits, bounded feed pagination, conditional-write deduplication and a private one-minute cooldown. Failure/uncertain requests keep the draft; success requires server confirmation. Public editing, deletion and raw storage access are not exposed.
+- Runtime release `20261010-7` precaches the new feedback modules while preserving the existing cache schema. README, design ownership and the platform checklist describe the new flow.
+- Syntax checks, all 35 tests, the 240-image validation and production build pass. The strict UI audit reports zero findings. Tokens regenerated without drift; no npm dependency or new client build tooling was introduced. The optional official DESIGN lint CLI remains unavailable; no package was installed to run it.
+- Live cloud Chrome verified that a jump to End stays locked, all 80 genuinely opened pages unlock the inline form, and Leave feedback focuses its name field. Empty-name/empty-feedback errors focus the correct field. A supplied PNG prepared into a 160 × 160 JPEG of about 7.5 KB and could be removed. The shared production feed loaded its honest empty state without account credentials.
+- At nominal 360, 768, 1440 and 2560px iframe widths, document client/scroll widths matched, the identity fields stacked on phones, and the submit action remained within the form. These are CSS viewport checks, not physical-device passes. Artwork mode and the opening spread were restored, and all test input was cleared.
+- A direct visit to the service's JSON homepage was blocked by this cloud browser, but the actual reader-to-service request succeeded. Production posting was not used to create fabricated public reviews; isolated tests verify shared create/read-back with and without pictures, retries, validation, pagination and rejected writes. Safari/Firefox, physical iOS/Android, real disconnected browsing and Lighthouse scores remain platform checks in TEST_CHECKLIST.md.
+
 ## October 10 final creator-card update
 
 - Applied `final file.zip`: a quieter halftone library, no POW intro, and the supplied creator biography, role chips, speech bubble and GitHub link after the discussion.

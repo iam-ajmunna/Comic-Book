@@ -91,3 +91,19 @@ test('missing storage or network identity fails honestly without saving feedback
   assert.equal((await worker.fetch(missing, env)).status, 503);
   assert.equal(env.BUCKET.data.size, 0);
 });
+
+// Synthetic one-pixel JPEG fixture; no reader or creator picture is uploaded.
+const tinyJPEG = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDHooor0jgP/9k=';
+test('optional pictures are stored with feedback and oversized frames are rejected', async () => {
+  const env = environment(), value = draft({ photo: tinyJPEG });
+  const result = await worker.fetch(post(value), env);
+  assert.equal(result.status, 201);
+  assert.equal((await result.json()).review.photo, tinyJPEG);
+  const publicFeed = await (await worker.fetch(list(), env)).json();
+  assert.equal(publicFeed.reviews[0].photo, tinyJPEG);
+  const bytes = Buffer.from(tinyJPEG.split(',')[1], 'base64');
+  const frame = bytes.indexOf(Buffer.from([255, 192]));
+  assert.ok(frame > 0);
+  bytes.writeUInt16BE(4096, frame + 7);
+  assert.throws(() => validateFeedback(draft({ photo: 'data:image/jpeg;base64,' + bytes.toString('base64') })), e => e.field === 'photo');
+});
