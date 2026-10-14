@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import worker, { validateFeedback } from '../feedback-service/worker/index.js';
+import worker, { validateFeedback, createWorker } from '../feedback-service/worker/index.js';
 
 // Implements the R2 operations the real service uses, including conditional
 // writes. Integration tests never publish invented reader feedback.
@@ -106,4 +106,74 @@ test('optional pictures are stored with feedback and oversized frames are reject
   assert.ok(frame > 0);
   bytes.writeUInt16BE(4096, frame + 7);
   assert.throws(() => validateFeedback(draft({ photo: 'data:image/jpeg;base64,' + bytes.toString('base64') })), e => e.field === 'photo');
+});
+
+const ownerEmail = 'owner@example.invalid';
+const adminEnv = () => ({...environment(),ADMIN_EMAIL:ownerEmail});
+const adminRequest = (path='/api/admin/feedback',method='GET',body,extra={}) => new Request('https://feedback.example'+path,{
+  method, headers:{'Origin':'https://feedback.example','oai-authenticated-user-id':'verified-owner','oai-authenticated-user-email':ownerEmail,...(body?{'Content-Type':'application/json'}:{}),...extra},...(body?{body:JSON.stringify(body)}:{}),
+});
+const adminPath = value => '/api/admin/feedback/'+encodeURIComponent(value.id)+'?book='+value.book+'&edition='+encodeURIComponent(value.edition);
+async function ownerRow(env) { return (await (await worker.fetch(adminRequest(),env)).json()).reviews[0]; }
+
+test('admin API rejects anonymous visitors, other accounts and frontend role claims',async()=>{
+  const env=adminEnv();
+  assert.equal((await worker.fetch(new Request('https://feedback.example/api/admin/feedback'),env)).status,401);
+  const fake=new Request('https://feedback.example/api/admin/feedback',{headers:{'x-admin-role':'admin','Authorization':'Bearer not-an-admin-session'}});
+  assert.equal((await worker.fetch(fake,env)).status,401);
+  assert.equal((await worker.fetch(adminRequest('/api/admin/session','GET',undefined,{'oai-authenticated-user-email':'someone@example.invalid'}),env)).status,403);
+  assert.equal((await worker.fetch(adminRequest('/api/admin/session'),{...env,ADMIN_EMAIL:''})).status,403);
+  assert.equal((await worker.fetch(adminRequest('/api/admin/session'),{...env,ADMIN_USER_ID:'different-owner'})).status,403);
+  const owner=await worker.fetch(adminRequest('/api/admin/session'),env); assert.equal(owner.status,200); assert.equal((await owner.json()).role,'admin');
+  assert.equal(env.BUCKET.data.size,0,'permission checks never write records');
+});
+
+test('owner dashboard is protected and uses a real platform sign-in link',async()=>{
+  const dashboard=createWorker({html:'<main id="admin-list">Owner controls</main>',css:'.admin-main{}',js:'export const ready=true;'});
+  const anon=await dashboard.fetch(new Request('https://feedback.example/admin'),adminEnv());
+  assert.equal(anon.status,401); const text=await anon.text(); assert.match(text,/signin-with-chatgpt\?return_to=%2Fadmin/); assert.doesNotMatch(text,/admin-list|owner@example/);
+  const wrong=await dashboard.fetch(adminRequest('/admin','GET',undefined,{'oai-authenticated-user-email':'another@example.invalid'}),adminEnv()); assert.equal(wrong.status,403);
+  const owner=await dashboard.fetch(adminRequest('/admin'),adminEnv()); assert.equal(owner.status,200); assert.match(await owner.text(),/Owner controls/);
+  assert.match(owner.headers.get('Content-Security-Policy'),/frame-ancestors 'none'/);
+  assert.equal(owner.headers.get('Cache-Control'),'no-store');
+  assert.equal((await dashboard.fetch(new Request('https://feedback.example/admin/app.js'),adminEnv())).status,401);
+});
+
+test('owner can delete and restore feedback; public retries cannot republish a deleted post',async()=>{
+  const env=adminEnv(),value=draft(); await worker.fetch(post(value),env);
+  const row=await ownerRow(env); assert.equal(row.book,value.book); assert.ok(row.version);
+  const removed=await worker.fetch(adminRequest(adminPath(value),'DELETE',{version:row.version}),env);
+  assert.equal(removed.status,200); const deleted=(await removed.json()).review; assert.ok(deleted.deleted_at);
+  assert.equal((await (await worker.fetch(list(),env)).json()).reviews.length,0);
+  assert.equal((await worker.fetch(post(value),env)).status,410);
+  const active=await (await worker.fetch(adminRequest(),env)).json(); assert.equal(active.reviews.length,0);
+  const trash=await (await worker.fetch(adminRequest('/api/admin/feedback?status=deleted'),env)).json(); assert.equal(trash.reviews[0].text,value.text);
+  assert.equal((await worker.fetch(adminRequest(adminPath(value),'DELETE',{version:row.version}),env)).status,200,'delete retries are idempotent');
+  const restored=await worker.fetch(adminRequest(adminPath(value),'POST',{version:deleted.version,action:'restore'}),env); assert.equal(restored.status,200);
+  assert.equal((await (await worker.fetch(list(),env)).json()).reviews[0].id,value.id);
+});
+
+test('owner can add, replace and remove a picture without changing name/text or breaking reader retries',async()=>{
+  const env=adminEnv(),value=draft(); await worker.fetch(post(value),env); const row=await ownerRow(env);
+  const added=await worker.fetch(adminRequest(adminPath(value),'PATCH',{version:row.version,photo:tinyJPEG}),env);
+  assert.equal(added.status,200); const updated=(await added.json()).review;
+  assert.equal(updated.photo,tinyJPEG); assert.equal(updated.name,value.name); assert.equal(updated.text,value.text);
+  const publicRow=(await (await worker.fetch(list(),env)).json()).reviews[0];
+  assert.equal(publicRow.photo,tinyJPEG); assert.equal(publicRow._moderated_by,undefined); assert.equal(publicRow._submission_hash,undefined); assert.equal(publicRow.version,undefined);
+  assert.equal((await worker.fetch(post(value),env)).status,200,'the original reader submission remains safely retryable');
+  assert.equal((await worker.fetch(adminRequest(adminPath(value),'PATCH',{version:row.version,photo:tinyJPEG}),env)).status,200,'picture retries do not write twice');
+  const stale=await worker.fetch(adminRequest(adminPath(value),'PATCH',{version:row.version,photo:null}),env); assert.equal(stale.status,409);
+  const cleared=await worker.fetch(adminRequest(adminPath(value),'PATCH',{version:updated.version,photo:null}),env); assert.equal(cleared.status,200); assert.equal((await cleared.json()).review.photo,null);
+});
+
+test('moderation checks origin, version, namespace and picture constraints before writes',async()=>{
+  const env=adminEnv(),value=draft(); await worker.fetch(post(value),env); const row=await ownerRow(env);
+  const external=await worker.fetch(adminRequest(adminPath(value),'DELETE',{version:row.version},{Origin:'https://other.example'}),env); assert.equal(external.status,403);
+  const missingOrigin=adminRequest(adminPath(value),'DELETE',{version:row.version}); missingOrigin.headers.delete('origin'); assert.equal((await worker.fetch(missingOrigin,env)).status,403);
+  assert.equal((await worker.fetch(adminRequest(adminPath(value),'DELETE',{version:'stale'}),env)).status,409);
+  assert.equal((await worker.fetch(adminRequest(adminPath(value),'PATCH',{version:row.version}),env)).status,422);
+  const invalid=await worker.fetch(adminRequest(adminPath(value),'PATCH',{version:row.version,photo:'https://other.example/picture.jpg'}),env); assert.equal(invalid.status,422); assert.equal((await invalid.json()).field,'photo');
+  const escaped=adminPath(value).replace('book=multiversal-love','book=../limits'); assert.equal((await worker.fetch(adminRequest(escaped,'DELETE',{version:row.version}),env)).status,422);
+  assert.equal((await (await worker.fetch(list(),env)).json()).reviews[0].photo,null);
+  assert.equal((await ownerRow(env)).version,row.version,'failed mutations leave the stored record unchanged');
 });

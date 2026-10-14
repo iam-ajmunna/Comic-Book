@@ -33,28 +33,16 @@ function bookPrefix(book, edition) {
   return `reviews/${book}/${encodeURIComponent(edition)}/`;
 }
 
-export function validateFeedback(data, now = Date.now()) {
-  if (!data || typeof data !== 'object' || Array.isArray(data))
-    throw new FeedbackError('Enter your name and feedback.');
-  const name = typeof data.name === 'string' ? data.name.trim() : '';
-  const text = typeof data.text === 'string' ? data.text.trim() : '';
-  if (!name || name.length > 80 || /[\u0000-\u001f\u007f]/.test(name))
-    throw new FeedbackError('Enter your name (up to 80 characters).', 422, 'name');
-  if (text.length < 3 || text.length > 600 || /[\u0000\u000b\u000c]/.test(text))
-    throw new FeedbackError('Write between 3 and 600 characters.', 422, 'text');
-  const prefix = bookPrefix(data.book, data.edition);
-  const match = typeof data.id === 'string' && data.id.match(submission);
-  if (!match || Number(match[1]) > now + 300_000 || Number(match[1]) < 1_577_836_800_000)
-    throw new FeedbackError('This submission could not be read. Edit your feedback and try again.', 422);
+export function validatePhoto(value) {
   let photo = null;
-  if (data.photo != null) {
+  if (value != null) {
     // The client redraws selected PNG/JPEG/WebP files onto a small canvas. This
     // accepts only bounded JPEG bytes, not arbitrary URLs, SVG or HTML uploads.
-    if (typeof data.photo !== 'string' || data.photo.length > MAX_PHOTO * 1.4 ||
-        !/^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(data.photo))
+    if (typeof value !== 'string' || value.length > MAX_PHOTO * 1.4 ||
+        !/^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(value))
       throw new FeedbackError('Choose a valid picture or remove it to post.', 422, 'photo');
     let bytes;
-    try { bytes = atob(data.photo.slice('data:image/jpeg;base64,'.length)); } catch {
+    try { bytes = atob(value.slice('data:image/jpeg;base64,'.length)); } catch {
       throw new FeedbackError('This picture could not be read. Choose another.', 422, 'photo');
     }
     if (bytes.length < 16 || bytes.length > MAX_PHOTO ||
@@ -81,8 +69,25 @@ export function validateFeedback(data, now = Date.now()) {
       offset += length;
     }
     if (!sized) throw new FeedbackError('Choose a small profile picture or remove it to post.', 422, 'photo');
-    photo = data.photo;
+    photo = value;
   }
+  return photo;
+}
+
+export function validateFeedback(data, now = Date.now()) {
+  if (!data || typeof data !== 'object' || Array.isArray(data))
+    throw new FeedbackError('Enter your name and feedback.');
+  const name = typeof data.name === 'string' ? data.name.trim() : '';
+  const text = typeof data.text === 'string' ? data.text.trim() : '';
+  if (!name || name.length > 80 || /[\u0000-\u001f\u007f]/.test(name))
+    throw new FeedbackError('Enter your name (up to 80 characters).', 422, 'name');
+  if (text.length < 3 || text.length > 600 || /[\u0000\u000b\u000c]/.test(text))
+    throw new FeedbackError('Write between 3 and 600 characters.', 422, 'text');
+  const prefix = bookPrefix(data.book, data.edition);
+  const match = typeof data.id === 'string' && data.id.match(submission);
+  if (!match || Number(match[1]) > now + 300_000 || Number(match[1]) < 1_577_836_800_000)
+    throw new FeedbackError('This submission could not be read. Edit your feedback and try again.', 422);
+  const photo = validatePhoto(data.photo);
   const reverseTime = String(9_999_999_999_999 - Number(match[1])).padStart(13, '0');
   return {
     key: `${prefix}${reverseTime}-${match[2]}.json`,
@@ -137,17 +142,133 @@ async function rateLimit(request, env, id) {
   }
 }
 
-function sameReview(a, b) { return a.name === b.name && a.text === b.text && a.photo === b.photo; }
+function publicReview(review) {
+  const { id, name, text, photo, created_at } = review;
+  return { id, name, text, photo, created_at };
+}
+async function submissionHash(review) {
+  const bytes = new TextEncoder().encode(JSON.stringify([review.name, review.text, review.photo]));
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function repeatReview(existing, requested) {
+  if (existing.deleted_at) throw new FeedbackError('This feedback has been removed by the author.', 410);
+  const original = existing._submission_hash || await submissionHash(existing);
+  if (original !== await submissionHash(requested))
+    throw new FeedbackError('This submission was already used. Edit your feedback and try again.', 409);
+  return publicReview(existing);
+}
 
-export default {
+function requireAdmin(request, env) {
+  // These identity headers are set by Sites' authentication gateway, never by
+  // frontend fields. The owner allowlist is a server-only runtime value.
+  const userId = request.headers.get('oai-authenticated-user-id');
+  const email = request.headers.get('oai-authenticated-user-email')?.trim().toLowerCase();
+  if (!userId || !email) throw new FeedbackError('Sign in with ChatGPT to manage feedback.', 401);
+  if (!env.ADMIN_EMAIL || email !== env.ADMIN_EMAIL.trim().toLowerCase() ||
+      (env.ADMIN_USER_ID && userId !== env.ADMIN_USER_ID))
+    throw new FeedbackError('Only the owner can manage this feedback.', 403);
+  return { userId, role: 'admin' };
+}
+
+function pageResponse(body, status = 200, type = 'text/html; charset=utf-8') {
+  return new Response(body, { status, headers: {
+    'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
+    'X-Robots-Tag': 'noindex, nofollow', 'Referrer-Policy': 'same-origin',
+    'Content-Security-Policy': "default-src 'none'; script-src 'self' https://iam-ajmunna.github.io; style-src 'self' https://iam-ajmunna.github.io; font-src https://iam-ajmunna.github.io; img-src 'self' data:; connect-src 'self' https://iam-ajmunna.github.io; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+  } });
+}
+function accessPage(status) {
+  const denied = status === 403;
+  return pageResponse(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Feedback admin · AJ Comics</title><link rel="stylesheet" href="/admin/styles.css"><body><main class="admin-access"><p class="eyebrow">AJ / COMICS</p><h1>${denied ? 'Owner access only' : 'Feedback admin'}</h1><p>${denied ? 'This account cannot manage the feedback. Switch to the site owner’s ChatGPT account.' : 'Sign in with your ChatGPT account to manage reader feedback. Readers can still leave feedback without an account.'}</p><a class="button" target="_top" href="${denied ? '/signout-with-chatgpt?return_to=%2Fadmin' : '/signin-with-chatgpt?return_to=%2Fadmin'}">${denied ? 'Switch account' : 'Sign in with ChatGPT'}</a><a class="back-link" href="https://iam-ajmunna.github.io/Comic-Book/">Back to the book →</a></main></body></html>`, status);
+}
+function keyForReview(book, edition, id) {
+  const prefix = bookPrefix(book, edition);
+  const match = typeof id === 'string' && id.match(submission);
+  if (!match) throw new FeedbackError('Choose a valid feedback post.', 422);
+  return `${prefix}${String(9_999_999_999_999 - Number(match[1])).padStart(13, '0')}-${match[2]}.json`;
+}
+function adminReview(record, stored, key) {
+  const parts = key.split('/');
+  return { ...publicReview(record), book: parts[1], edition: decodeURIComponent(parts[2]),
+    version: stored.etag, deleted_at: record.deleted_at || null, updated_at: record.updated_at || null };
+}
+async function handleAdmin(request, env, url) {
+  const identity = requireAdmin(request, env);
+  if (request.method === 'GET' && url.pathname === '/api/admin/session') return response(identity);
+  if (!env.BUCKET) throw new FeedbackError('Feedback is temporarily unavailable. Try again shortly.', 503);
+  if (request.method === 'GET' && url.pathname === '/api/admin/feedback') {
+    const book = url.searchParams.get('book'), edition = url.searchParams.get('edition');
+    const prefix = book ? bookPrefix(book, edition) : 'reviews/';
+    const cursor = url.searchParams.get('cursor') || undefined;
+    if (cursor?.length > 4096) throw new FeedbackError('Refresh to load feedback.', 400);
+    const filter = url.searchParams.get('status') || 'active';
+    if (!['active', 'deleted'].includes(filter)) throw new FeedbackError('Choose an available feedback filter.', 422);
+    const list = await env.BUCKET.list({ prefix, limit: PAGE_SIZE, ...(cursor ? { cursor } : {}) });
+    const records = (await Promise.all(list.objects.map(async item => {
+      const stored = await env.BUCKET.get(item.key); if (!stored) return null;
+      const record = await stored.json();
+      if (Boolean(record.deleted_at) !== (filter === 'deleted')) return null;
+      return adminReview(record, stored, item.key);
+    }))).filter(Boolean);
+    return response({ reviews: records, cursor: list.truncated ? list.cursor : null });
+  }
+  const match = url.pathname.match(/^\/api\/admin\/feedback\/([^/]+)$/);
+  if (!match || !['PATCH', 'DELETE', 'POST'].includes(request.method))
+    throw new FeedbackError('This admin action is not available.', 405);
+  // Browser authentication alone is not CSRF protection. Mutations must come
+  // from this dashboard origin, not the public reader or an external form.
+  if (request.headers.get('origin') !== url.origin)
+    throw new FeedbackError('Open the admin panel to make this change.', 403);
+  const key = keyForReview(url.searchParams.get('book'), url.searchParams.get('edition'), decodeURIComponent(match[1]));
+  const data = await readJSON(request);
+  if (!data || typeof data.version !== 'string' || !data.version || data.version.length > 128)
+    throw new FeedbackError('Refresh this feedback before making a change.', 422);
+  const stored = await env.BUCKET.get(key);
+  if (!stored) throw new FeedbackError('This feedback is no longer available. Refresh the list.', 404);
+  const record = await stored.json();
+  const action = request.method === 'DELETE' ? 'delete' : request.method === 'POST' ? 'restore' : 'picture';
+  if (action === 'picture' && !Object.hasOwn(data, 'photo')) throw new FeedbackError('Choose a profile picture or explicitly remove it.', 422, 'photo');
+  if (action === 'restore' && data.action !== 'restore') throw new FeedbackError('Choose an available admin action.', 422);
+  const nextPhoto = action === 'picture' ? validatePhoto(data.photo) : null;
+  if ((action === 'delete' && record.deleted_at) || (action === 'restore' && !record.deleted_at) ||
+      (action === 'picture' && !record.deleted_at && record.photo === nextPhoto))
+    return response({ review: adminReview(record, stored, key) });
+  if (stored.etag !== data.version) throw new FeedbackError('This feedback changed. Refresh before trying again.', 409);
+  if (action === 'picture' && record.deleted_at) throw new FeedbackError('Restore this feedback before changing its picture.', 409);
+  record._submission_hash ||= await submissionHash(record);
+  if (action === 'picture') record.photo = nextPhoto;
+  else record.deleted_at = action === 'delete' ? new Date().toISOString() : null;
+  record.updated_at = new Date().toISOString(); record._moderated_by = identity.userId;
+  const updated = await env.BUCKET.put(key, JSON.stringify(record), {
+    onlyIf: { etagMatches: stored.etag }, httpMetadata: { contentType: 'application/json' },
+  });
+  if (!updated) throw new FeedbackError('This feedback changed. Refresh before trying again.', 409);
+  return response({ review: adminReview(record, updated, key) });
+}
+
+export function createWorker(assets = {}) { return {
   async fetch(request, env) {
     const url = new URL(request.url);
     const incoming = request.headers.get('origin') || '';
-    const allowed = (env.ALLOWED_ORIGINS || 'https://iam-ajmunna.github.io').split(',').map(v => v.trim());
+    const adminRoute = url.pathname.startsWith('/api/admin/');
+    const allowed = adminRoute ? [url.origin] : [...(env.ALLOWED_ORIGINS || 'https://iam-ajmunna.github.io').split(',').map(v => v.trim()), url.origin];
     const origin = allowed.includes(incoming) ? incoming : '';
     if (incoming && !origin) return response({ error: 'This reader origin is not allowed.' }, 403);
     if (request.method === 'OPTIONS') return response(null, 204, origin);
     try {
+      if (request.method === 'GET' && url.pathname === '/admin/styles.css')
+        return pageResponse(assets.css || '', 200, 'text/css; charset=utf-8');
+      if (request.method === 'GET' && ['/admin', '/admin/'].includes(url.pathname)) {
+        try { requireAdmin(request, env); } catch (e) { return accessPage(e.status || 403); }
+        if (!assets.html) throw new FeedbackError('The admin panel is temporarily unavailable.', 503);
+        return pageResponse(assets.html);
+      }
+      if (request.method === 'GET' && url.pathname === '/admin/app.js') {
+        requireAdmin(request, env);
+        return pageResponse(assets.js || '', 200, 'text/javascript; charset=utf-8');
+      }
+      if (adminRoute) return await handleAdmin(request, env, url);
       if (request.method === 'GET' && url.pathname === '/')
         return response({ service: 'AJ Comics reader feedback', reader: 'https://iam-ajmunna.github.io/Comic-Book/', account_required: false }, 200, origin);
       if (!env.BUCKET) throw new FeedbackError('Feedback is temporarily unavailable. Try again shortly.', 503);
@@ -164,7 +285,7 @@ export default {
         const reviews = (await Promise.all(list.objects.map(async o => {
           const stored = await env.BUCKET.get(o.key);
           return stored ? stored.json() : null;
-        }))).filter(Boolean);
+        }))).filter(record => record && !record.deleted_at).map(publicReview);
         return response({ reviews, cursor: list.truncated ? list.cursor : null }, 200, origin);
       }
       if (request.method !== 'POST') return response({ error: 'Use GET or POST.' }, 405, origin);
@@ -172,8 +293,7 @@ export default {
       const stored = await env.BUCKET.get(key);
       if (stored) {
         const existing = await stored.json();
-        if (!sameReview(existing, review)) throw new FeedbackError('This submission was already used. Edit your feedback and try again.', 409);
-        return response({ review: existing }, 200, origin);
+        return response({ review: await repeatReview(existing, review) }, 200, origin);
       }
       await rateLimit(request, env, review.id);
       const saved = await env.BUCKET.put(key, JSON.stringify(review), {
@@ -181,12 +301,13 @@ export default {
       });
       if (!saved) {
         const existing = await (await env.BUCKET.get(key)).json();
-        if (!sameReview(existing, review)) throw new FeedbackError('This submission was already used. Edit your feedback and try again.', 409);
-        return response({ review: existing }, 200, origin);
+        return response({ review: await repeatReview(existing, review) }, 200, origin);
       }
       return response({ review }, 201, origin);
     } catch (error) {
       return response({ error: error instanceof FeedbackError ? error.message : 'Feedback is temporarily unavailable. Your draft is still here; try again.', field: error.field || '' }, error.status || 503, origin);
     }
   },
-};
+}; }
+
+export default createWorker();

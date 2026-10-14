@@ -1,6 +1,6 @@
 import { readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-for (const dir of ['src', 'scripts', 'tests']) {
+for (const dir of ['src', 'scripts', 'tests', 'feedback-service/worker', 'feedback-service/admin', 'feedback-service/scripts']) {
   for (const file of readdirSync(dir).filter((name) => /\.(m?js)$/.test(name)))
     execFileSync(process.execPath, ['--check', `${dir}/${file}`], { stdio: 'inherit' });
 }

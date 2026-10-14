@@ -22,4 +22,14 @@ assert.equal(
   `${pathToFileURL(workerPath)} must export default.fetch`,
 );
 
+const request = new Request('https://feedback.example/admin', { headers: {
+  'oai-authenticated-user-id': 'artifact-check-owner',
+  'oai-authenticated-user-email': 'artifact-check@example.invalid',
+} });
+const page = await workerModule.default.fetch(request, { ADMIN_EMAIL: 'artifact-check@example.invalid' });
+assert.equal(page.status, 200);
+assert.match(await page.text(), /id="admin-list"/);
+const style = await workerModule.default.fetch(new Request('https://feedback.example/admin/styles.css'), {});
+assert.match(await style.text(), /admin-main/);
+
 console.log("Artifact is valid ESM and exports default.fetch");

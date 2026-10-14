@@ -1,0 +1,32 @@
+/* Reuse the reading room's canonical fonts, colours, buttons and focus states. */
+@import url('https://iam-ajmunna.github.io/Comic-Book/src/tokens.css?v=20261014-1');
+@import url('https://iam-ajmunna.github.io/Comic-Book/src/styles.css?v=20261014-1');
+@import url('https://iam-ajmunna.github.io/Comic-Book/src/comic-theme.css?v=20261014-1');
+.admin-main { width:min(1100px,calc(100% - 32px)); margin:40px auto 60px }
+.admin-main h1 { font:400 clamp(2rem,5vw,3.5rem)/1.1 var(--font-heading); text-transform:uppercase; margin:0 0 16px; color:var(--color-primary) }
+.admin-main>p { color:var(--color-muted) }
+.admin-toolbar { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px; margin:28px 0 12px }
+.admin-toolbar>div { display:flex; flex-wrap:wrap; gap:8px }
+.admin-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); gap:24px; margin:16px 0 24px }
+.admin-list .comment-card { min-width:0 }
+.admin-review-book { color:var(--color-paper-muted); font-size:.85rem; font-weight:700 }
+.admin-card-actions { display:flex; flex-wrap:wrap; gap:8px; padding-top:12px; margin-top:auto }
+.admin-card-actions .button { font-size:.95rem; padding:8px 10px }
+.admin-card-actions .ghost { color:var(--color-ink); background:transparent }
+.admin-card-actions .ghost:hover:not(:disabled) { color:var(--color-ink); background:var(--color-primary) }
+.admin-delete { color:var(--color-ink); background:var(--color-paper); border-color:var(--color-paper-muted) }
+.admin-delete:hover:not(:disabled) { background:var(--color-primary); color:var(--color-ink) }
+.admin-dialog { width:min(520px,calc(100vw - 24px)) }
+#admin-action-form { padding:20px }
+#admin-action-form label { display:block; font-weight:700; margin-bottom:8px }
+#admin-picture { min-height:44px; width:100%; min-width:0 }
+#admin-picture-name { min-width:0; overflow-wrap:anywhere }
+#admin-picture::file-selector-button { min-height:44px; padding:8px 12px; border:3px solid var(--color-border); color:var(--color-ink); background:var(--color-primary); font:400 1rem var(--font-display); cursor:pointer }
+.admin-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:12px; margin-top:16px }
+#admin-action-save { min-width:150px }
+.admin-access { width:min(620px,calc(100% - 32px)); margin:12vh auto; padding:28px; background:var(--color-surface); border:3px solid var(--color-border); border-top:6px solid var(--color-primary) }
+.admin-access h1 { font-family:var(--font-heading); color:var(--color-primary) }
+.admin-access p { color:var(--color-muted) }
+.admin-access .back-link { display:block; margin-top:24px }
+@media(max-width:480px) { .admin-main { margin-top:28px } .site-header { gap:10px; padding:10px } .site-nav { gap:12px } #admin-action-form { padding:16px } }
+@media(forced-colors:active) { .admin-delete { color:ButtonText; border-color:ButtonText } }
