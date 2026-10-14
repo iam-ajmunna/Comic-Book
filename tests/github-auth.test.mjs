@@ -135,6 +135,8 @@ test('encrypted settings are bound to their Site and can be recovered only throu
   await assert.rejects(resolveGithubSettings(env,'https://another.example'),e=>e.status===503);
   const key='admin-settings/github-oauth',encrypted=JSON.parse(env.BUCKET.data.get(key));encrypted.data[0]^=1;env.BUCKET.data.set(key,JSON.stringify(encrypted));
   await assert.rejects(resolveGithubSettings(env,'https://feedback.example'),e=>e.status===503);
+  const brokenPage=await createWorker().fetch(req('/admin',{'oai-authenticated-user-id':'trusted-site-owner','oai-authenticated-user-email':env.ADMIN_EMAIL}),env);
+  assert.equal(brokenPage.status,503);assert.match(await brokenPage.text(),/Owner GitHub setup \/ recovery/,'unreadable credentials fail closed and retain a recovery route');
   const current=await githubSettingsStatus(env,'https://feedback.example');
   await saveGithubSettings(env,'https://feedback.example',{...credentials,version:current.version});assert.equal((await resolveGithubSettings(env,'https://feedback.example')).GITHUB_CLIENT_ID,credentials.clientId);
 });

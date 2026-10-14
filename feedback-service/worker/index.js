@@ -191,7 +191,7 @@ function accessPage(status, env, auth, message = '', returnTo = '/admin') {
   const safe = text.replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const link = github ? ready ? '<a class="button" href="/auth/github" target="_top">Sign in with GitHub</a>' : '<a class="button" href="/admin/github-setup">Set up GitHub sign-in</a>' : `<a class="button" target="_top" href="${denied ? '/signout-with-chatgpt' : '/signin-with-chatgpt'}?return_to=${encodeURIComponent(returnTo)}">${denied ? 'Switch current owner account' : 'Current owner sign-in'}</a>`;
   const pending = !github ? '<p>GitHub sign-in needs one-time activation. <a href="/admin/github-setup">Set up the GitHub connection</a>.</p>' : '';
-  return pageResponse(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Feedback admin · AJ Comics</title><link rel="stylesheet" href="/admin/styles.css"><body><main class="admin-access"><p class="eyebrow">AJ / COMICS</p><h1>${denied ? 'Owner access only' : 'Feedback admin'}</h1><p>${safe}</p>${pending}<p>Readers can leave feedback without an account.</p>${link}<a class="back-link" href="https://iam-ajmunna.github.io/Comic-Book/">Back to the book →</a></main></body></html>`, status);
+  return pageResponse(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Feedback admin · AJ Comics</title><link rel="stylesheet" href="/admin/styles.css"><body><main class="admin-access"><p class="eyebrow">AJ / COMICS</p><h1>${denied ? 'Owner access only' : 'Feedback admin'}</h1><p>${safe}</p>${pending}<p>Readers can leave feedback without an account.</p>${link}<a class="back-link" href="/admin/github-setup">Owner GitHub setup / recovery</a><a class="back-link" href="https://iam-ajmunna.github.io/Comic-Book/">Back to the book →</a></main></body></html>`, status);
 }
 function keyForReview(book, edition, id) {
   const prefix = bookPrefix(book, edition);
@@ -284,7 +284,13 @@ export function createWorker(assets = {}, { auth = createGithubAuth() } = {}) { 
       }
       // Public feedback never reads credentials; only protected/auth requests
       // resolve the owner configuration, with no credential values in responses.
-      if (adminRoute || ['/admin','/admin/','/admin/app.js'].includes(url.pathname) || url.pathname.startsWith('/auth/github')) env=await resolveGithubSettings(env,url.origin);
+      if (adminRoute || ['/admin','/admin/','/admin/app.js'].includes(url.pathname) || url.pathname.startsWith('/auth/github')) {
+        try { env=await resolveGithubSettings(env,url.origin); } catch (error) {
+          if ((['/admin','/admin/'].includes(url.pathname) || url.pathname.startsWith('/auth/github')) && error instanceof AdminAuthError)
+            return accessPage(error.status,env,{enabled:()=>true,configured:()=>false},error.message);
+          throw error;
+        }
+      }
       if (url.pathname.startsWith('/auth/github')) {
         try {
           if (request.method === 'GET' && url.pathname === '/auth/github') return await auth.begin(request,env);
