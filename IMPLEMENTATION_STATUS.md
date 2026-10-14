@@ -1,5 +1,15 @@
 # Immersive reader release status
 
+## October 14 GitHub owner login and picture repair
+
+- Fixed admin image CSP to allow its local Blob decoder. Shared photo validation now inspects actual JPG/PNG/WebP signatures and normalizes MIME, accepting valid empty/nonstandard labels. File pickers include common extensions; the visible help states the 5 MB/24MP limits and HEIC/HEIF correction. Prepared photos remain 160px JPEGs; original files and metadata are not uploaded.
+- Implemented GitHub OAuth for the pinned iam-ajmunna account ID 87021168, with signed state, PKCE, server-only code exchange and a one-hour revocable HttpOnly session. Provider tokens are not persisted. After activation, Site identity cannot bypass GitHub admin authorization.
+- Added current-owner-protected setup/recovery, masked credentials, shared navigation-loss dialog, AES-GCM storage bound to the service origin, conflict detection and safe unchanged retries. Saving valid app credentials enables GitHub without another deployment. The server encryption/state key is configured as a runtime secret.
+- **Activation remains pending:** the owner must register the dedicated GitHub OAuth app and save its Client ID/secret through the setup page. Current owner access remains available until then. The GitHub connector used for repo publishing does not supply website OAuth credentials. Real GitHub consent/owner sign-in and an authenticated live admin photo save were not exercised.
+- `npm run check`: all **53 tests**, syntax, **240 local assets** and static export passed. The actual Worker artifact (including protected setup and GitHub gating) validated. Strict canonical UI audit: zero findings. Tests cover identity pinning, invalid/expired state, PKCE, private settings/session separation, provider failure, revocation, encrypted setup/recovery, stale writes and picture handling in isolated storage.
+- Live cloud Chrome: all 80 actual opened pages survived the runtime `20261014-2` reload. The existing shared review loaded unchanged. A real PNG produced a 160 × 160 JPEG of about 7.5 KB; removal cleared it; a real WebP produced a 160 × 160 JPEG of about 7.9 KB. No test review was posted. Owner setup/sign-in browser QA remains manual because deployed Sites cannot be opened in this managed browser.
+- Published service source `a6a5ff197294128a3143794e8af65f63cb42829a`, saved version 4, deployment `appgdep_6acf3134a670819196b7d28f913a60fe` succeeded with environment revision 3. The existing service audience, bucket, reader artwork, synopsis, profile and offline cache schema remain intact. No dependency/framework/tooling was added.
+
 ## October 14 feedback placement and owner controls
 
 - The real feedback carousel is immediately beneath the reader. The form starts hidden and opens below the cards only on Leave feedback, after all actual pages are opened. Close form/Escape collapse it, restore trigger focus and preserve drafts. Name stays required; picture stays optional; readers need no account.
