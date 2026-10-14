@@ -34,7 +34,7 @@ contain a salted hash and timestamp, never a raw IP address.
 
 ## Owner dashboard
 
-Use **Manage feedback** in the reader footer, then sign in with the verified
+Use **Manage** in the reader footer, then sign in with the verified
 **iam-ajmunna** GitHub account after the one-time activation below. Readers
 keep posting without any account. No repository scopes are requested.
 
@@ -79,7 +79,7 @@ for this website. Register a dedicated app using GitHub's
 | Authorization callback URL | `https://aj-comic-feedback.iamajmunna.chatgpt.site/auth/github/callback` |
 | Device Flow | Leave disabled |
 
-1. In Manage feedback, choose **Set up GitHub sign-in**. Current owner
+1. In Manage, choose **Set up GitHub sign-in**. Current owner
    sign-in is needed once to protect this setup page.
 2. Register the OAuth app in your iam-ajmunna GitHub account; generate a
    Client secret on its settings page.

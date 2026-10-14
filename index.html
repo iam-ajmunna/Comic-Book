@@ -7,14 +7,14 @@
   <meta name="description" content="Read Multiversal Love by AJ. An immersive comic library with facing pages, artwork lighting, and a quiet cinematic soundtrack.">
   <title>Multiversal Love — AJ's comic reading room</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="src/tokens.css?v=20261014-2">
-  <link rel="stylesheet" href="src/styles.css?v=20261014-2">
-  <link rel="stylesheet" href="src/comic-theme.css?v=20261014-2">
-  <link rel="stylesheet" href="src/author-card.css?v=20261014-2">
+  <link rel="stylesheet" href="src/tokens.css?v=20261014-3">
+  <link rel="stylesheet" href="src/styles.css?v=20261014-3">
+  <link rel="stylesheet" href="src/comic-theme.css?v=20261014-3">
+  <link rel="stylesheet" href="src/author-card.css?v=20261014-3">
   <link rel="preload" href="assets/fonts/bangers-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/anton-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/comic-neue-latin-400.woff2" as="font" type="font/woff2" crossorigin>
-  <script type="module" src="src/app.js?v=20261014-2"></script>
+  <script type="module" src="src/app.js?v=20261014-3"></script>
 </head>
 <body data-sound="quiet">
   <a class="skip-link" id="skip-link" href="#library-title">Skip to the library</a>
@@ -26,7 +26,7 @@
   </svg>
   <header class="site-header">
     <a class="wordmark" href="#library" aria-label="AJ comic library"><span class="wordmark-badge">AJ</span><span>COMICS</span></a>
-    <nav class="site-nav" aria-label="Reading room"><a href="#library">Library</a><a href="#feedback">Feedback</a><a href="#author">Creator</a></nav>
+    <nav class="site-nav" aria-label="Reading room"><a href="#library">Library</a><a id="feedback-link" href="#feedback" hidden>Feedback</a><a href="#author">Creator</a></nav>
   </header>
   <main>
     <section class="library" id="library" aria-labelledby="library-title">
@@ -113,6 +113,23 @@
           </div>
         </div>
       </section>
+      <dialog class="options-dialog" id="options-dialog" aria-labelledby="options-title">
+        <div class="dialog-heading"><h2 id="options-title">Reading options</h2><button class="icon-button" type="button" data-close="options-dialog" aria-label="Close reading options">×</button></div>
+        <div class="options-body">
+          <div class="option-row"><span>Page layout</span><button class="button ghost" id="layout-button" type="button" aria-pressed="false">Single page</button></div>
+          <div class="option-row"><span>Dialogue and descriptions</span><button class="button ghost" id="text-button" type="button" aria-pressed="false">Read text</button></div>
+          <div class="option-row"><span>Artwork lighting</span><button class="button ghost" id="glow-button" type="button" aria-pressed="true">Ambient light on</button></div>
+          <div class="option-row"><div><span>Scene soundtrack</span><p id="sound-label" role="status">Soundtrack off</p></div><button class="button ghost" id="sound-button" type="button" aria-pressed="false">Turn sound on</button></div>
+          <div class="volume-control"><label for="volume">Volume</label><input id="volume" type="range" min="0" max="35" value="15"><output id="volume-value" for="volume">15%</output></div>
+          <p class="dialog-note">Sound is your choice. Your place stays saved on this device.</p>
+          <button class="button ghost" id="download-button" type="button" hidden>Download for offline</button><p class="offline-status" id="offline-status" role="status"></p>
+          <div class="option-links"><button class="text-button" id="help-button" type="button" aria-haspopup="dialog" aria-label="Reading controls and keyboard shortcuts">Help</button><button class="text-button" id="discussion-button" type="button">Feedback ↓</button><button class="text-button" id="library-button" type="button">← Library</button></div>
+        </div>
+      </dialog>
+      <dialog class="drawer" id="contents-dialog" aria-labelledby="contents-title"><div class="dialog-heading"><h2 id="contents-title">Pages</h2><button class="icon-button" type="button" data-close="contents-dialog" aria-label="Close pages">×</button></div><p class="dialog-note">Select a page. A check marks a page you have opened.</p><div class="contents-grid" id="contents-grid"></div></dialog>
+      <dialog class="zoom-dialog" id="zoom-dialog" aria-labelledby="zoom-title"><div class="dialog-heading"><h2 id="zoom-title">Page detail</h2><div class="zoom-tools"><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">−</button><output id="zoom-level" aria-live="polite">100%</output><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">+</button><button class="text-button" id="zoom-reset" type="button">Reset</button><button class="icon-button" type="button" data-close="zoom-dialog" aria-label="Close page detail">×</button></div></div><p class="dialog-note">Pinch or use + / − to zoom. Drag or use arrow keys to pan.</p><div class="zoom-viewport" id="zoom-viewport" tabindex="0" aria-label="Enlarged page. Use plus and minus to zoom, arrows to pan."></div></dialog>
+      <dialog class="help-dialog" id="help-dialog" aria-labelledby="help-title"><div class="dialog-heading"><h2 id="help-title">Make yourself at home.</h2><button class="icon-button" type="button" data-close="help-dialog" aria-label="Close reading help">×</button></div><dl class="shortcut-list"><div><dt>← / →</dt><dd>Turn pages in the book’s reading direction</dd></div><div><dt>Home / End</dt><dd>Go to the cover / final page</dd></div><div><dt>F</dt><dd>Enter or exit fullscreen</dd></div><div><dt>C</dt><dd>Open page thumbnails</dd></div><div><dt>Escape</dt><dd>Close a dialog or exit fullscreen</dd></div></dl><p>Swipe or tap the outer edges to turn. Select the artwork to enlarge it. Move your pointer, touch the screen, or press a key to reveal controls.</p><p>Your progress counts pages you actually open, including text transcripts. Open every page to unlock comments.</p></dialog>
+    </div>
       <section class="author" id="author" aria-labelledby="author-name" tabindex="-1">
         <div class="author-portrait">
           <img
@@ -138,26 +155,8 @@
           <a class="button" href="https://github.com/iam-ajmunna" target="_blank" rel="noopener noreferrer">GitHub @iam-ajmunna ↗</a>
         </div>
       </section>
-
-      <dialog class="options-dialog" id="options-dialog" aria-labelledby="options-title">
-        <div class="dialog-heading"><h2 id="options-title">Reading options</h2><button class="icon-button" type="button" data-close="options-dialog" aria-label="Close reading options">×</button></div>
-        <div class="options-body">
-          <div class="option-row"><span>Page layout</span><button class="button ghost" id="layout-button" type="button" aria-pressed="false">Single page</button></div>
-          <div class="option-row"><span>Dialogue and descriptions</span><button class="button ghost" id="text-button" type="button" aria-pressed="false">Read text</button></div>
-          <div class="option-row"><span>Artwork lighting</span><button class="button ghost" id="glow-button" type="button" aria-pressed="true">Ambient light on</button></div>
-          <div class="option-row"><div><span>Scene soundtrack</span><p id="sound-label" role="status">Soundtrack off</p></div><button class="button ghost" id="sound-button" type="button" aria-pressed="false">Turn sound on</button></div>
-          <div class="volume-control"><label for="volume">Volume</label><input id="volume" type="range" min="0" max="35" value="15"><output id="volume-value" for="volume">15%</output></div>
-          <p class="dialog-note">Sound is your choice. Your place stays saved on this device.</p>
-          <button class="button ghost" id="download-button" type="button" hidden>Download for offline</button><p class="offline-status" id="offline-status" role="status"></p>
-          <div class="option-links"><button class="text-button" id="help-button" type="button" aria-haspopup="dialog" aria-label="Reading controls and keyboard shortcuts">Help</button><button class="text-button" id="discussion-button" type="button">Feedback ↓</button><button class="text-button" id="library-button" type="button">← Library</button></div>
-        </div>
-      </dialog>
-      <dialog class="drawer" id="contents-dialog" aria-labelledby="contents-title"><div class="dialog-heading"><h2 id="contents-title">Pages</h2><button class="icon-button" type="button" data-close="contents-dialog" aria-label="Close pages">×</button></div><p class="dialog-note">Select a page. A check marks a page you have opened.</p><div class="contents-grid" id="contents-grid"></div></dialog>
-      <dialog class="zoom-dialog" id="zoom-dialog" aria-labelledby="zoom-title"><div class="dialog-heading"><h2 id="zoom-title">Page detail</h2><div class="zoom-tools"><button class="icon-button" id="zoom-out" type="button" aria-label="Zoom out">−</button><output id="zoom-level" aria-live="polite">100%</output><button class="icon-button" id="zoom-in" type="button" aria-label="Zoom in">+</button><button class="text-button" id="zoom-reset" type="button">Reset</button><button class="icon-button" type="button" data-close="zoom-dialog" aria-label="Close page detail">×</button></div></div><p class="dialog-note">Pinch or use + / − to zoom. Drag or use arrow keys to pan.</p><div class="zoom-viewport" id="zoom-viewport" tabindex="0" aria-label="Enlarged page. Use plus and minus to zoom, arrows to pan."></div></dialog>
-      <dialog class="help-dialog" id="help-dialog" aria-labelledby="help-title"><div class="dialog-heading"><h2 id="help-title">Make yourself at home.</h2><button class="icon-button" type="button" data-close="help-dialog" aria-label="Close reading help">×</button></div><dl class="shortcut-list"><div><dt>← / →</dt><dd>Turn pages in the book’s reading direction</dd></div><div><dt>Home / End</dt><dd>Go to the cover / final page</dd></div><div><dt>F</dt><dd>Enter or exit fullscreen</dd></div><div><dt>C</dt><dd>Open page thumbnails</dd></div><div><dt>Escape</dt><dd>Close a dialog or exit fullscreen</dd></div></dl><p>Swipe or tap the outer edges to turn. Select the artwork to enlarge it. Move your pointer, touch the screen, or press a key to reveal controls.</p><p>Your progress counts pages you actually open, including text transcripts. Open every page to unlock comments.</p></dialog>
-    </div>
   </main>
-  <footer><strong>AJ / COMICS</strong><a href="https://github.com/iam-ajmunna/Comic-Book" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a><a class="admin-link" href="https://aj-comic-feedback.iamajmunna.chatgpt.site/admin" target="_blank" rel="noopener noreferrer">Manage feedback</a></footer>
+  <footer><strong>AJ / COMICS</strong><a href="https://github.com/iam-ajmunna/Comic-Book" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a><a class="admin-link" href="https://aj-comic-feedback.iamajmunna.chatgpt.site/admin" target="_blank" rel="noopener noreferrer">Manage</a></footer>
   <noscript><p class="notice">Enable JavaScript to read the comic. The artwork is also available in the <a href="https://github.com/iam-ajmunna/Comic-Book/tree/main/assets/pages">repository</a>.</p></noscript>
 </body>
 </html>

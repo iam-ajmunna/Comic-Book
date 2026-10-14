@@ -1,15 +1,15 @@
-import { validateCatalog, fetchJson } from './catalog.js?v=20261014-2';
-import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261014-2';
-import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261014-2';
-import { PageImages } from './images.js?v=20261014-2';
-import { AmbientLight } from './lighting.js?v=20261014-2';
-import { flipSpread, cancelFlip } from './flip.js?v=20261014-2';
-import { initZoom } from './zoom.js?v=20261014-2';
-import { initComments } from './comments.js?v=20261014-2';
-import { initAmbience } from './ambience.js?v=20261014-2';
-import { initOffline } from './offline.js?v=20261014-2';
-import { attachSwipe } from './swipe.js?v=20261014-2';
-import { initFullscreen } from './fullscreen.js?v=20261014-2';
+import { validateCatalog, fetchJson } from './catalog.js?v=20261014-3';
+import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261014-3';
+import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261014-3';
+import { PageImages } from './images.js?v=20261014-3';
+import { AmbientLight } from './lighting.js?v=20261014-3';
+import { flipSpread, cancelFlip } from './flip.js?v=20261014-3';
+import { initZoom } from './zoom.js?v=20261014-3';
+import { initComments } from './comments.js?v=20261014-3';
+import { initAmbience } from './ambience.js?v=20261014-3';
+import { initOffline } from './offline.js?v=20261014-3';
+import { attachSwipe } from './swipe.js?v=20261014-3';
+import { initFullscreen } from './fullscreen.js?v=20261014-3';
 
 let storage = null;
 try { storage = window.localStorage; } catch { /* Reading works with memory-only progress. */ }
@@ -43,7 +43,7 @@ const inReader = () => book && !$('reading-view').hidden;
 // The inline reader owns one visibility signal for both light and sound.
 let readerVisible = false;
 new IntersectionObserver(([entry]) => {
-  readerVisible = entry.isIntersecting && entry.intersectionRatio >= .2;
+  readerVisible = Boolean(inReader() && entry.isIntersecting && entry.intersectionRatio >= .2);
   document.body.classList.toggle('reader-in-view', readerVisible);
   setAmbience.setActive(readerVisible);
 }, { threshold: [0, .2] }).observe($('book-host'));
@@ -193,6 +193,7 @@ async function render({ animate = false, forward = true } = {}) {
   $('layout-button').setAttribute('aria-pressed', String(single()));
   $('text-button').textContent = textMode ? 'View artwork' : 'Read text'; $('text-button').setAttribute('aria-pressed', String(textMode));
   document.title = `${label} · ${page.title} — ${book.title}`;
+  $('feedback-link').href = bookHash('feedback');
   setAmbience(current, page.cue); updateProgress();
   const next = turnPage(current, 1, single(), book.pages.length);
   if (!textMode && next !== current) for (const id of single() ? [next] : spreadForPage(next, book.pages.length)) images.load(book.pages[id], width, 'low').catch(() => {});
@@ -208,7 +209,7 @@ async function render({ animate = false, forward = true } = {}) {
 function go(page, animate = false) {
   if (!book || !validPage(page, book.pages.length)) return;
   const forward = page > current; current = page;
-  history.replaceState(null, '', `#read=${book.id}&page=${current}`);
+  history.replaceState(null, '', bookHash());
   save(); revealControls(); render({ animate, forward });
 }
 function turn(direction) {
@@ -216,7 +217,8 @@ function turn(direction) {
   const next = turnPage(current, direction, single(), book.pages.length);
   if (next !== current) go(next, true);
 }
-function firstUnread() { go(nextUnread(state.visited, book.pages.length) ?? current); $('reader').scrollIntoView({ behavior: 'instant' }); $('reader').focus({ preventScroll: true }); }
+function firstUnread() { if (!book) return; go(nextUnread(state.visited, book.pages.length) ?? current); $('reader').scrollIntoView({ behavior: 'instant' }); $('reader').focus({ preventScroll: true }); }
+function bookHash(section = '') { return `#read=${book.id}&page=${current}${section ? `&section=${section}` : ''}`; }
 function openBook(comic, page, push = true, { scroll = true } = {}) {
   // Close old-book overlays before changing the identity used by completion.
   ++generation; observer.disconnect(); visible.clear(); cancelFlip(stage);
@@ -225,17 +227,33 @@ function openBook(comic, page, push = true, { scroll = true } = {}) {
   book = comic; state = readSaved(storage, comic); current = validPage(page, comic.pages.length) ? page : state.page;
   layoutOverride = null; textMode = false; openedReviewBook = null;
   $('reading-view').hidden = false;
+  $('feedback-link').hidden = false;
   $('book-summary').textContent = comic.description || '';
   $('contents-grid').replaceChildren(); comments?.reset();
-  if (push) history.pushState(null, '', `#read=${comic.id}&page=${current}`);
+  if (push) history.pushState(null, '', bookHash());
   save(); render(); renderLibrary(); updateDownload();
   if (scroll) {
     $('reader').scrollIntoView({ behavior: reduced.matches ? 'instant' : 'smooth' });
     $('reader').focus({ preventScroll: true }); revealControls();
   }
 }
+function closeBook() {
+  if (!book) return;
+  // Invalidate pending artwork/feed work before exposing another shelf selection.
+  ++generation; observer.disconnect(); visible.clear(); cancelFlip(stage);
+  for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close();
+  book = null; current = 0; state = { page: 0, visited: [] }; turning = false;
+  comments?.reset(); openedReviewBook = null;
+  images.clear(); stage.replaceChildren(); $('contents-grid').replaceChildren();
+  $('reading-view').hidden = true; $('feedback-link').hidden = true;
+  readerVisible = false; document.body.classList.remove('reader-in-view');
+  setAmbience.setActive(false);
+  document.title = 'Comic library — AJ / Comics';
+}
 async function showLibrary(push = true, { focus = true } = {}) {
+  closeBook();
   try { await fullscreen.exit(); } catch { /* Keep navigation available. */ }
+  if (book) return; // A cover may have been selected while fullscreen was exiting.
   for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close();
   setAmbience.setActive?.(false);
   if (push) history.pushState(null, '', libraryHash());
@@ -293,10 +311,18 @@ $('download-button').addEventListener('click', async () => {
     await offline.download(comic, (message) => { job.message = message; if (book?.id === comic.id) updateDownload(); });
   } finally { job.busy = false; if (book?.id === comic.id) updateDownload(); }
 });
-function clearSearch() { search = ''; history.replaceState(null, '', libraryHash()); renderLibrary(); $('library-search').focus(); }
+function renderSearch() {
+  // Filtering can shorten the page: retain the input's position instead of
+  // letting a lower section become the browser's scroll anchor.
+  const top = window.scrollY;
+  closeBook(); history.replaceState(null, '', libraryHash()); renderLibrary();
+  window.scrollTo({ top, behavior: 'instant' });
+  $('library-search').scrollIntoView({ block: 'nearest', behavior: 'instant' });
+}
+function clearSearch() { search = ''; renderSearch(); $('library-search').focus({ preventScroll: true }); }
 $('library-search').addEventListener('compositionstart', () => { composing = true; });
 $('library-search').addEventListener('compositionend', () => { composing = false; applySearch(); });
-function applySearch() { if (composing) return; search = $('library-search').value; history.replaceState(null, '', libraryHash()); renderLibrary(); }
+function applySearch() { if (composing) return; search = $('library-search').value; renderSearch(); }
 $('library-search').addEventListener('input', applySearch); $('clear-search').addEventListener('click', clearSearch);
 
 function buildContents() {
@@ -318,11 +344,18 @@ $('edge-left').addEventListener('click', () => turn(book.readingDirection === 'r
 $('edge-right').addEventListener('click', () => turn(book.readingDirection === 'rtl' ? -1 : 1));
 $('next-unread').addEventListener('click', firstUnread); $('finish-reading').addEventListener('click', firstUnread);
 $('library-button').addEventListener('click', () => showLibrary());
+for (const link of document.querySelectorAll('a[href="#library"]')) link.addEventListener('click', (event) => {
+  if (event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  event.preventDefault(); showLibrary();
+});
 $('layout-button').addEventListener('click', () => { layoutOverride = !single(); render(); revealControls(); });
 $('text-button').addEventListener('click', () => { textMode = !textMode; render(); revealControls(); });
 $('page-scrubber').addEventListener('input', () => { const page = book.pages[Number($('page-scrubber').value)]; $('page-label').textContent = page.id ? `Page ${page.label}` : 'Cover'; $('page-scrubber').setAttribute('aria-valuetext', $('page-label').textContent); });
 $('page-scrubber').addEventListener('change', () => go(Number($('page-scrubber').value)));
-$('discussion-button').addEventListener('click', () => { $('options-dialog').close(); history.pushState(null, '', '#feedback'); showSection('feedback'); });
+$('discussion-button').addEventListener('click', () => {
+  if (!book) return;
+  $('options-dialog').close(); history.pushState(null, '', bookHash('feedback')); showSection('feedback');
+});
 
 attachSwipe($('book-host'), {
   onTurn: (direction) => turn(book.readingDirection === 'rtl' ? -direction : direction),
@@ -359,20 +392,29 @@ $('glow-button').addEventListener('click', () => {
   $('glow-button').textContent = preferences.glow ? 'Ambient light on' : 'Ambient light off'; savePreferences(storage, preferences);
 });
 async function showSection(id) {
+  if (id !== 'author' && !book) {
+    await showLibrary(false);
+    $('library-status').textContent = 'Choose a book to open its reader and feedback.';
+    return;
+  }
   try { await fullscreen.exit(); } catch { /* Keep section navigation available. */ }
   const section = $(id);
   section.scrollIntoView({ behavior: reduced.matches ? 'instant' : 'smooth' });
   section.focus({ preventScroll: true });
 }
-function route({ initial = false } = {}) {
+async function route({ initial = false } = {}) {
   const params = new URLSearchParams(location.hash.slice(1)), id = params.get('read');
   if (id) {
     const comic = comics.find((c) => c.id === id);
-    if (comic) { const value = params.get('page'); openBook(comic, /^\d+$/.test(value || '') ? Number(value) : undefined, false); }
-    else { showLibrary(false); $('library-status').textContent = 'That book is not in this library. Choose a book below.'; }
+    if (comic) {
+      const value = params.get('page'), feedback = params.get('section') === 'feedback';
+      if (book?.id !== comic.id || !feedback) openBook(comic, /^\d+$/.test(value || '') ? Number(value) : undefined, false, { scroll: !feedback });
+      if (feedback) showSection('feedback');
+    }
+    else { await showLibrary(false); if (!book) $('library-status').textContent = 'That book is not in this library. Choose a book below.'; }
   } else if (location.hash.startsWith('#page=')) openBook(comics[0], pageFromHash(location.hash, comics[0].pages.length) ?? 0, false);
-  else if (['#author', '#feedback', '#reader'].includes(location.hash)) showSection(location.hash.slice(1));
-  else { search = new URLSearchParams(location.hash.split('?')[1] || '').get('q') || ''; showLibrary(false, { focus: !initial }); }
+  else if (['#author', '#feedback', '#reader'].includes(location.hash)) await showSection(location.hash.slice(1));
+  else { search = new URLSearchParams(location.hash.split('?')[1] || '').get('q') || ''; await showLibrary(false, { focus: !initial }); }
 }
 window.addEventListener('hashchange', () => { if (comics.length) route(); });
 async function boot() {
@@ -381,9 +423,7 @@ async function boot() {
     comics = validateCatalog(await fetchJson('comics.json'));
     comments = initComments(() => Boolean(book && isComplete(state.visited, book.pages.length)), () => book);
     renderLibrary();
-    const requested = new URLSearchParams(location.hash.slice(1)).get('read');
-    if (!comics.some((comic) => comic.id === requested) && !location.hash.startsWith('#page=')) openBook(comics[0], undefined, false, { scroll: false });
-    route({ initial: true });
+    await route({ initial: true });
   } catch {
     $('library-status').textContent = 'The library couldn’t open. Check your connection and retry. Your saved place is safe.';
     const retry = el('button', 'button', 'Retry library'); retry.type = 'button'; retry.addEventListener('click', boot); $('library-shelf').replaceChildren(retry);

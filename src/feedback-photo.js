@@ -1,5 +1,5 @@
-import { config } from './config.js?v=20261014-2';
-import { FeedbackError } from './feedback-api.js?v=20261014-2';
+import { config } from './config.js?v=20261014-3';
+import { FeedbackError } from './feedback-api.js?v=20261014-3';
 
 export function validatePhotoFile(file) {
   if (!file || !Number.isFinite(file.size) || !file.size || file.size > config.photoLimit)

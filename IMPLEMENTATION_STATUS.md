@@ -1,5 +1,12 @@
 # Immersive reader release status
 
+## October 14 library selection and persistent search
+
+- Renamed the footer entry to **Manage**. The library starts without an active comic, even when reading progress exists. A cover click or explicit comic deep link opens only that book and its feedback. Library navigation/search closes the selection, stops its ambience and cancels stale image/feed work. Progress and per-book feedback drafts remain intact; the creator card is independent of selection.
+- Feedback navigation carries the comic ID; missing-book and unscoped reader/feedback links return to the shelf with a selection message. Search keeps its field, focus, clear action and no-results explanation visible, with no scroll-collapse effect. Clearing a query never opens a result.
+- Runtime `20261014-3` preserves the existing offline cache schema. No artwork, transcript, service credentials or dependency changed.
+- `npm run check`: JavaScript syntax, all **58 tests**, **240 local image assets** and static export passed. Five app-coordinator tests cover initial selection, multi-book isolation, saved progress, no results, clearing, IME and deep links. Strict canonical UI audit: zero findings. Live browser checks follow publication; cross-browser device checks remain in TEST_CHECKLIST.md.
+
 ## October 14 GitHub owner login and picture repair
 
 - Fixed admin image CSP to allow its local Blob decoder. Shared photo validation now inspects actual JPG/PNG/WebP signatures and normalizes MIME, accepting valid empty/nonstandard labels. File pickers include common extensions; the visible help states the 5 MB/24MP limits and HEIC/HEIF correction. Prepared photos remain 160px JPEGs; original files and metadata are not uploaded.

@@ -150,7 +150,7 @@ button:active:not(:disabled) {
 .site-nav { display:flex; align-items:center }
 .site-nav a { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:8px 11px; color:var(--color-muted); text-decoration:none; font:400 1.05rem/1 var(--font-display); letter-spacing:.08em; text-transform:uppercase }
 .site-nav a:hover { color:var(--color-primary) }
-.library { max-width:var(--space-page-max); margin:auto; padding:56px clamp(16px,5vw,64px) 36px; scroll-margin-top:72px }
+.library { max-width:var(--space-page-max); margin:auto; padding:56px clamp(16px,5vw,64px) 36px; scroll-margin-top:72px; overflow-anchor:none }
 .shelf-heading { display:grid; gap:20px }
 .shelf-heading h1 { margin:0; font:400 clamp(2.4rem,8vw,4.4rem)/1.08 var(--font-heading); letter-spacing:.02em; text-transform:uppercase }
 .shelf-heading h1 span { color:var(--color-primary) }

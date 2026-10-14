@@ -1,5 +1,14 @@
 # Browser test checklist
 
+## Library selection and search (October 14)
+
+- Root/library URL: shelf and creator are visible; book, synopsis, feedback and Feedback nav are hidden, including with saved progress. No comic pages or feedback should load until selection.
+- Click a cover: show only that book, resume its progress and expose its Feedback link. Library hides it again without losing progress or the current search.
+- Search an absent title after reading: search must remain visible and focused, with `0 books found`, a no-results explanation and Clear search. Clear restores covers without opening one. Repeat while scrolled, at 360px and using IME composition.
+- Two-book fixture: changing books must not inherit the other book’s completion or feedback; returning to a book keeps its draft. Explicit reader/feedback deep links select the specified book; missing IDs and unscoped reader/feedback links ask for selection.
+- Footer label is **Manage**, pointing to the existing protected dashboard.
+
+
 Run shared checks on current Chrome, Safari and Firefox desktop, Safari on iOS, and Chrome on Android. Record browser/OS versions, viewport, DPR and pass/fail; simulated responsive layouts do not prove a physical-device pass.
 
 | Platform | Additional checks |
@@ -47,7 +56,7 @@ Use a cold profile without extensions and run Lighthouse desktop and mobile. Rec
 
 ## Owner feedback management
 
-- Footer → Manage feedback: after one-time activation, signed-out users see Sign in with GitHub; only iam-ajmunna's verified numeric account ID is accepted. A matching display name, another account, fabricated cookie or legacy Site identity must not bypass it. The owner sees Published/Deleted, Refresh and paginated real posts. No admin secret is in source, browser storage or public API responses.
+- Footer → Manage: after one-time activation, signed-out users see Sign in with GitHub; only iam-ajmunna's verified numeric account ID is accepted. A matching display name, another account, fabricated cookie or legacy Site identity must not bypass it. The owner sees Published/Deleted, Refresh and paginated real posts. No admin secret is in source, browser storage or public API responses.
 - In isolated storage, delete and restore a post, add/replace/remove its picture, and confirm the public feed reflects the result while name/text remain unchanged. Duplicate retries must be safe, concurrent edits must return 409, and an old reader retry must not republish deleted feedback or undo its updated picture. Do not modify real reviews for testing.
 - Keyboard: action dialog traps focus, Escape/Cancel restores its trigger, deletion defaults focus to Cancel, picture errors are associated with the input, busy actions cannot repeat and failures preserve the selected picture for retry. Filter changes must not leave cards from another view actionable.
 - Repeat the owner dashboard's card layout, native dialog and file picker on Chrome, Safari, Firefox, iOS Safari and Android Chrome at narrow and wide widths. Browser owner sign-in is a separate manual check when managed Sites preview cannot open the deployed dashboard.
