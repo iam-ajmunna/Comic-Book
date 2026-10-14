@@ -135,6 +135,7 @@ test('owner dashboard is protected and uses a real platform sign-in link',async(
   const wrong=await dashboard.fetch(adminRequest('/admin','GET',undefined,{'oai-authenticated-user-email':'another@example.invalid'}),adminEnv()); assert.equal(wrong.status,403);
   const owner=await dashboard.fetch(adminRequest('/admin'),adminEnv()); assert.equal(owner.status,200); assert.match(await owner.text(),/Owner controls/);
   assert.match(owner.headers.get('Content-Security-Policy'),/frame-ancestors 'none'/);
+  assert.match(owner.headers.get('Content-Security-Policy'),/img-src 'self' data: blob:/,'local picture decoding must be allowed');
   assert.equal(owner.headers.get('Cache-Control'),'no-store');
   assert.equal((await dashboard.fetch(new Request('https://feedback.example/admin/app.js'),adminEnv())).status,401);
 });

@@ -20,8 +20,9 @@ Endpoint: `https://aj-comic-feedback.iamajmunna.chatgpt.site/api/feedback`
   up to 64 KB and 256px. Complete request bodies are capped at 110 KB.
 - `GET /health` checks the storage binding without revealing records.
 
-Names, comments and supplied pictures are public. Original images, email,
-passwords, GitHub identity and reader accounts are not stored. Comment text
+Names, comments and supplied pictures are public. Original images, reader email,
+passwords and reader accounts are not stored. The owner's GitHub ID/login are
+stored only in private, expiring admin sessions. Comment text
 is never rendered as HTML. Records survive browser and frontend reloads.
 Feedback remains subject to host availability and needs a network connection.
 
@@ -34,15 +35,22 @@ contain a salted hash and timestamp, never a raw IP address.
 ## Owner dashboard
 
 Use **Manage feedback** in the reader footer, then sign in with the verified
-Site owner's ChatGPT account. Readers keep posting without any account.
-Sites owns `/signin-with-chatgpt` and `/signout-with-chatgpt`; this service
-adds no password form, OAuth provider, client admin key or browser-stored token.
+**iam-ajmunna** GitHub account after the one-time activation below. Readers
+keep posting without any account. No repository scopes are requested.
 
-`/admin` is protected HTML. Every admin API request checks the authenticated
-user ID and verified email supplied by the Sites gateway against the
-server-only owner allowlist. This depends on the hosting gateway protecting
-its identity headers; an alternative host must replace that trust boundary,
-not expose this Worker directly with caller-supplied identity headers.
+`/admin` is protected HTML. GitHub OAuth uses signed state and PKCE; the
+server exchanges the code and verifies both login and numeric account ID
+`87021168`, obtained from the repository's owner metadata. Only that account
+receives a random one-hour HttpOnly/Secure/SameSite=Lax cookie. The private
+bucket stores a hash of the cookie with its identity/expiration, never the
+provider access token. Sign-out revokes that session; mutation Origin checks
+remain mandatory. No client admin key or localStorage token is introduced.
+
+Until activation, the current Site owner login remains available. Its verified
+gateway identity and server-only allowlist also protect setup/recovery after
+activation. They cannot authorize ordinary GitHub admin requests once OAuth
+credentials are configured. An alternative host must replace the trusted
+Sites identity boundary for setup, never accept caller-supplied identity headers.
 
 Published cards have **Add/Replace picture**, **Remove picture** and
 **Delete feedback**. Deletion removes the post from the public carousel;
@@ -52,13 +60,55 @@ Name/text remain unchanged. Refresh the public carousel after moderation.
 Changing filters, loading lists and pending writes guard repeated actions;
 failed uploads preserve the prepared picture for retry.
 
+Photos accept JPG/PNG/WebP up to 5 MB and 24 megapixels, including empty or
+nonstandard MIME labels when actual signatures match. SVG/HEIC/HEIF require
+a supported export. Decoding uses a correctly typed Blob; the admin CSP
+permits blob image previews, with restricted script sources. Originals are
+never uploaded; only the prepared 160px JPEG is stored.
+
+## GitHub sign-in activation
+
+The ChatGPT GitHub connector cannot substitute for an OAuth app registered
+for this website. Register a dedicated app using GitHub's
+[official OAuth app instructions](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
+
+| GitHub field | Value |
+|---|---|
+| Application name | `AJ Comics Admin` |
+| Homepage URL | `https://iam-ajmunna.github.io/Comic-Book/` |
+| Authorization callback URL | `https://aj-comic-feedback.iamajmunna.chatgpt.site/auth/github/callback` |
+| Device Flow | Leave disabled |
+
+1. In Manage feedback, choose **Set up GitHub sign-in**. Current owner
+   sign-in is needed once to protect this setup page.
+2. Register the OAuth app in your iam-ajmunna GitHub account; generate a
+   Client secret on its settings page.
+3. Enter the Client ID and Client secret on the protected setup page.
+   **Save and enable GitHub sign-in**, then **Sign in as @iam-ajmunna**.
+   No additional deployment is needed. Do not paste secrets into chat or source.
+
+The Worker encrypts those credentials with AES-GCM, bound to the Site origin,
+using a separate server-only runtime key. Private settings are outside all
+public feed prefixes. Setup never returns the secret; failures retain it only
+in the current form, with conflict detection and safe unchanged retries.
+Current owner access continues until valid settings are saved, then ordinary
+admin access requires GitHub. A changed Site origin/key needs owner recovery
+and updated callback registration. Provider downtime fails closed; public
+reading and feedback continue independently. An expired admin session needs
+sign-in again. Expired private session records are inactive; configure bucket
+lifecycle cleanup if long-term login volume warrants it.
+
+The implementation follows GitHub's
+[web application flow](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps).
+
 | Protected endpoint | Behavior |
 |---|---|
-| `GET /api/admin/session` | Owner role and authenticated site user ID |
+| `GET /api/admin/session` | Verified owner role, provider and identity |
 | `GET /api/admin/feedback?status=active\|deleted&cursor=<optional>` | At most 12 records plus opaque cursor; includes book, edition and version |
 | `PATCH /api/admin/feedback/<id>?book=<id>&edition=<edition>` | JSON `{ version, photo }`; null removes the picture |
 | `DELETE` at the same review URL | JSON `{ version }`; reversible soft deletion |
 | `POST` at the same review URL | JSON `{ version, action: "restore" }` |
+| `GET/POST /api/admin/github-setup` | Current Site owner only; safe status or encrypted credential save |
 
 Admin writes require the dashboard's exact Origin and a matching storage
 version. Stale/conflicting changes return 409. Repeating an already completed
@@ -72,7 +122,8 @@ raw-bucket or anonymous maintenance route is available.
 Run `npm test` from the repository root. Tests exercise the actual Worker
 against isolated R2 storage, including conditional writes, public read-back,
 pagination, validation, cooldown, deduplication, owner authorization,
-CSRF rejection, reversible deletion, picture updates and stale versions. Tests never publish
+CSRF rejection, reversible deletion, picture updates, OAuth/PKCE state,
+encrypted owner setup, expiration, revocation and stale versions. Tests never publish
 fabricated reader reviews. From this folder, `npm run build` and
 `npm run validate` package/check the Worker. There is nothing to install.
 
@@ -96,8 +147,11 @@ Configure these server-only runtime values through Sites environment tools:
 |---|---|
 | `ALLOWED_ORIGINS` | Comma-separated allowed origins; production is `https://iam-ajmunna.github.io`. Add local origins deliberately for browser testing. |
 | `RATE_LIMIT_SECRET` | Random secret salting private cooldown counters. Never put it in source, logs, hosting.json or frontend code. |
-| `ADMIN_EMAIL` | Required verified Site owner's email, configured as a secret. No other account gets moderation access. |
+| `ADMIN_EMAIL` | Verified Site owner's email, configured as a secret; protects bootstrap/setup/recovery. |
 | `ADMIN_USER_ID` | Optional additional pin to the authenticated **site-scoped** user ID; available after owner sign-in. Do not substitute the workspace account ID. |
+| `ADMIN_SESSION_SECRET` | Required independent random secret (32+ characters), already configured through Sites; signs transient OAuth state and encrypts private credentials. |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Optional server-managed alternative to the protected setup form. Store the secret through Sites tools; never in source. Partial configuration fails closed. |
+| `GITHUB_REDIRECT_URI` | Optional explicit callback; defaults to this service origin plus `/auth/github/callback`. Must match the registered callback. |
 
 R2 records use `reviews/<comic-id>/<encoded-edition>/<inverse-time>-<uuid>.json`.
 Private counters use `limits/<salted-hash>`. The service exposes no public

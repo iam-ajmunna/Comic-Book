@@ -1,5 +1,5 @@
-import { preparePhoto } from 'https://iam-ajmunna.github.io/Comic-Book/src/feedback-photo.js?v=20261014-1';
-import { validPhotoData } from 'https://iam-ajmunna.github.io/Comic-Book/src/feedback-api.js?v=20261014-1';
+import { preparePhoto } from 'https://iam-ajmunna.github.io/Comic-Book/src/feedback-photo.js?v=20261014-2';
+import { validPhotoData } from 'https://iam-ajmunna.github.io/Comic-Book/src/feedback-api.js?v=20261014-2';
 const $ = id => document.getElementById(id);
 const dialog = $('admin-dialog'), list = $('admin-list');
 let filter = new URLSearchParams(location.search).get('status') === 'deleted' ? 'deleted' : 'active';
@@ -26,7 +26,7 @@ async function api(path, options = {}) {
 function sessionError(node, error) {
   node.textContent = error.message;
   if (error.status === 401) {
-    const link = document.createElement('a'); link.href = '/signin-with-chatgpt?return_to=%2Fadmin'; link.target = '_top'; link.textContent = ' Sign in again with ChatGPT'; node.append(link);
+    const link = document.createElement('a'); link.href = '/admin'; link.target = '_top'; link.textContent = ' Sign in again'; node.append(link);
   }
 }
 function button(label, fn, className = 'button ghost') {
@@ -152,7 +152,8 @@ async function start() {
   $('admin-refresh').disabled = true;
   try {
     const session = await api('/api/admin/session'); authorized = true;
-    $('admin-identity').textContent = 'Signed in as AJ · Administrator';
+    $('admin-identity').textContent = session.provider === 'github' ? 'Signed in as @'+session.login+' · GitHub administrator' : 'Current owner access · GitHub sign-in pending activation';
+    $('github-setup-note').hidden = session.provider === 'github';
     $('admin-identity').dataset.userId = session.userId;
     $('show-active').disabled = $('show-deleted').disabled = false;
     changeFilter(filter);

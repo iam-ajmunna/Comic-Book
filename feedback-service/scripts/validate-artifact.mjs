@@ -31,5 +31,15 @@ assert.equal(page.status, 200);
 assert.match(await page.text(), /id="admin-list"/);
 const style = await workerModule.default.fetch(new Request('https://feedback.example/admin/styles.css'), {});
 assert.match(await style.text(), /admin-main/);
+const setupRequest = new Request('https://feedback.example/admin/github-setup',{headers:{
+  'oai-authenticated-user-id':'artifact-check-owner','oai-authenticated-user-email':'artifact-check@example.invalid',
+}});
+const setup = await workerModule.default.fetch(setupRequest,{ADMIN_EMAIL:'artifact-check@example.invalid'});
+assert.equal(setup.status,200);
+assert.match(await setup.text(),/type="password"/);
+const gated = await workerModule.default.fetch(new Request('https://feedback.example/admin'),{
+  GITHUB_CLIENT_ID:'artifact-client-id',GITHUB_CLIENT_SECRET:'artifact-client-secret',ADMIN_SESSION_SECRET:'artifact-state-secret-'.repeat(3),BUCKET:{get:async()=>null},
+});
+assert.equal(gated.status,401);assert.match(await gated.text(),/Sign in with GitHub/);
 
 console.log("Artifact is valid ESM and exports default.fetch");

@@ -9,10 +9,11 @@
 </head>
 <body>
   <a class="skip-link" href="#admin-title">Skip to feedback</a>
-  <header class="site-header"><a class="wordmark" href="https://iam-ajmunna.github.io/Comic-Book/"><span class="wordmark-badge">AJ</span><span>COMICS</span></a><nav class="site-nav" aria-label="Admin navigation"><a href="https://iam-ajmunna.github.io/Comic-Book/">Back to the book</a><a target="_top" href="/signout-with-chatgpt?return_to=%2Fadmin">Sign out</a></nav></header>
+  <header class="site-header"><a class="wordmark" href="https://iam-ajmunna.github.io/Comic-Book/"><span class="wordmark-badge">AJ</span><span>COMICS</span></a><nav class="site-nav" aria-label="Admin navigation"><a href="https://iam-ajmunna.github.io/Comic-Book/">Back to the book</a><!--ADMIN_SIGNOUT--></nav></header>
   <main class="admin-main">
     <p class="eyebrow">OWNER CONTROLS</p><h1 id="admin-title" tabindex="-1">Reader feedback</h1>
     <p id="admin-identity">Checking owner access…</p>
+    <p id="github-setup-note" hidden>Enable your GitHub account for this admin panel: <a href="/admin/github-setup">Set up GitHub sign-in</a>.</p>
     <p>Manage comments and profile pictures. Deleted comments leave the public carousel and can be restored.</p>
     <div class="admin-toolbar"><div role="group" aria-label="Feedback status"><button class="button" id="show-active" type="button" aria-pressed="true" disabled>Published</button><button class="button ghost" id="show-deleted" type="button" aria-pressed="false" disabled>Deleted</button></div><button class="button ghost" id="admin-refresh" type="button" disabled>Refresh</button></div>
     <p class="form-status" id="admin-status" role="status" aria-live="polite" aria-atomic="true"></p>
@@ -25,8 +26,8 @@
     <form id="admin-action-form" novalidate>
       <p id="admin-action-message"></p>
       <div id="admin-picture-fields" hidden>
-        <label for="admin-picture">Profile picture</label><input id="admin-picture" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="admin-picture-help admin-picture-error">
-        <p class="field-help" id="admin-picture-help">JPG, PNG or WebP · up to 5 MB. A small square preview is shared when you save.</p>
+        <label for="admin-picture">Profile picture</label><input id="admin-picture" type="file" accept=".jpg,.jpeg,.jfif,.png,.webp,image/jpeg,image/png,image/webp" aria-describedby="admin-picture-help admin-picture-error">
+        <p class="field-help" id="admin-picture-help">JPG, PNG or WebP · up to 5 MB and 24 megapixels. A small square preview is shared when you save.</p>
         <div class="photo-selection" id="admin-picture-selection" hidden><img id="admin-picture-preview" width="96" height="96" alt="New profile picture preview"><span id="admin-picture-name"></span><button class="text-button" id="admin-picture-clear" type="button" disabled>Remove selection</button></div>
         <p class="error-text" id="admin-picture-error" hidden></p>
       </div>

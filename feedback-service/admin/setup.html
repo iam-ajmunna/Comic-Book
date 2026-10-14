@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GitHub owner setup · AJ Comics</title><link rel="stylesheet" href="/admin/styles.css"><script type="module" src="/admin/setup.js"></script></head>
+<body>
+  <header class="site-header"><a class="wordmark" href="https://iam-ajmunna.github.io/Comic-Book/"><span class="wordmark-badge">AJ</span><span>COMICS</span></a><nav class="site-nav" aria-label="Setup navigation"><a href="/admin">Back to admin</a></nav></header>
+  <main class="admin-main admin-setup">
+    <p class="eyebrow">ONE-TIME OWNER SETUP</p><h1>Connect @iam-ajmunna</h1>
+    <p>Register a GitHub OAuth app for this reading room, then save its credentials here. This page is protected by your current owner account. After setup, the admin panel uses GitHub sign-in.</p>
+    <dl class="setup-details"><dt>Application name</dt><dd>AJ Comics Admin</dd><dt>Homepage URL</dt><dd>https://iam-ajmunna.github.io/Comic-Book/</dd><dt>Authorization callback URL</dt><dd id="github-callback">Checking the callback…</dd></dl>
+    <p><a class="button" href="https://github.com/settings/applications/new" target="_blank" rel="noopener noreferrer">Register GitHub OAuth app ↗</a></p>
+    <p>Leave Device Flow off. Only your public GitHub identity is requested; no repository permissions are needed. Generate a Client secret in the app settings.</p>
+    <form id="github-setup-form" novalidate aria-busy="false">
+      <fieldset id="github-setup-fields" disabled><legend>OAuth app credentials</legend>
+        <label for="github-client-id">Client ID</label><input id="github-client-id" name="clientId" type="text" required autocomplete="off" maxlength="120" aria-describedby="github-id-error"><p class="error-text" id="github-id-error" hidden></p>
+        <label for="github-client-secret">Client secret</label><div class="secret-input"><input id="github-client-secret" name="clientSecret" type="password" required autocomplete="off" maxlength="256" aria-describedby="github-secret-help github-secret-error"><button class="button ghost" id="show-github-secret" type="button" aria-label="Show client secret" aria-pressed="false" disabled>Show</button></div>
+        <p class="field-help" id="github-secret-help">Saved encrypted on the server. Never put this secret in GitHub, chat or a public comment.</p><p class="error-text" id="github-secret-error" hidden></p>
+        <button class="button" id="save-github-setup" type="submit" disabled>Save and enable GitHub sign-in</button>
+      </fieldset>
+      <p class="form-status" id="github-setup-status" role="status" aria-live="polite" aria-atomic="true">Checking owner access…</p>
+    </form>
+    <p id="github-setup-success" hidden>GitHub sign-in is enabled. <a class="button" href="/auth/github" target="_top">Sign in as @iam-ajmunna</a></p>
+  </main>
+  <dialog id="setup-leave-dialog" aria-labelledby="setup-leave-title"><div class="dialog-heading"><h2 id="setup-leave-title">Leave GitHub setup?</h2></div><div class="dialog-content"><p>Your unsaved credentials will be cleared.</p><div class="admin-actions"><button class="button ghost" type="button" data-close="setup-leave-dialog" disabled>Keep editing</button><button class="button" id="leave-github-setup" type="button" disabled>Leave setup</button></div></div></dialog>
+</body>
+</html>

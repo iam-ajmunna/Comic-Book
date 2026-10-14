@@ -1,5 +1,7 @@
 // Small, dependency-free public feedback API. BUCKET is a private R2 binding;
 // only validated feedback is exposed, never raw bucket keys or rate records.
+import { createGithubAuth, AdminAuthError } from './github-auth.js';
+import { resolveGithubSettings, saveGithubSettings, githubSettingsStatus } from './github-settings.js';
 const MAX_BODY = 110_000;
 const MAX_PHOTO = 65_536;
 const PAGE_SIZE = 12;
@@ -159,7 +161,11 @@ async function repeatReview(existing, requested) {
   return publicReview(existing);
 }
 
-function requireAdmin(request, env) {
+async function requireAdmin(request, env, auth) {
+  if (auth.enabled(env)) return auth.requireSession(request,env);
+  return requireSiteOwner(request,env);
+}
+function requireSiteOwner(request, env) {
   // These identity headers are set by Sites' authentication gateway, never by
   // frontend fields. The owner allowlist is a server-only runtime value.
   const userId = request.headers.get('oai-authenticated-user-id');
@@ -168,19 +174,24 @@ function requireAdmin(request, env) {
   if (!env.ADMIN_EMAIL || email !== env.ADMIN_EMAIL.trim().toLowerCase() ||
       (env.ADMIN_USER_ID && userId !== env.ADMIN_USER_ID))
     throw new FeedbackError('Only the owner can manage this feedback.', 403);
-  return { userId, role: 'admin' };
+  return { userId, role: 'admin', provider: 'chatgpt', githubReady: false };
 }
 
 function pageResponse(body, status = 200, type = 'text/html; charset=utf-8') {
   return new Response(body, { status, headers: {
     'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
     'X-Robots-Tag': 'noindex, nofollow', 'Referrer-Policy': 'same-origin',
-    'Content-Security-Policy': "default-src 'none'; script-src 'self' https://iam-ajmunna.github.io; style-src 'self' https://iam-ajmunna.github.io; font-src https://iam-ajmunna.github.io; img-src 'self' data:; connect-src 'self' https://iam-ajmunna.github.io; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+    'Content-Security-Policy': "default-src 'none'; script-src 'self' https://iam-ajmunna.github.io; style-src 'self' https://iam-ajmunna.github.io; font-src https://iam-ajmunna.github.io; img-src 'self' data: blob:; connect-src 'self' https://iam-ajmunna.github.io; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
   } });
 }
-function accessPage(status) {
+function accessPage(status, env, auth, message = '', returnTo = '/admin') {
   const denied = status === 403;
-  return pageResponse(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Feedback admin · AJ Comics</title><link rel="stylesheet" href="/admin/styles.css"><body><main class="admin-access"><p class="eyebrow">AJ / COMICS</p><h1>${denied ? 'Owner access only' : 'Feedback admin'}</h1><p>${denied ? 'This account cannot manage the feedback. Switch to the site owner’s ChatGPT account.' : 'Sign in with your ChatGPT account to manage reader feedback. Readers can still leave feedback without an account.'}</p><a class="button" target="_top" href="${denied ? '/signout-with-chatgpt?return_to=%2Fadmin' : '/signin-with-chatgpt?return_to=%2Fadmin'}">${denied ? 'Switch account' : 'Sign in with ChatGPT'}</a><a class="back-link" href="https://iam-ajmunna.github.io/Comic-Book/">Back to the book →</a></main></body></html>`, status);
+  const github = auth.enabled(env), ready = auth.configured(env);
+  const text = message || (github ? denied ? 'Only @iam-ajmunna can manage this feedback. Sign in with that GitHub account.' : 'Sign in with @iam-ajmunna on GitHub to manage reader feedback.' : 'GitHub sign-in is awaiting its one-time owner setup. Current owner access remains available until activation.');
+  const safe = text.replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const link = github ? ready ? '<a class="button" href="/auth/github" target="_top">Sign in with GitHub</a>' : '<a class="button" href="/admin/github-setup">Set up GitHub sign-in</a>' : `<a class="button" target="_top" href="${denied ? '/signout-with-chatgpt' : '/signin-with-chatgpt'}?return_to=${encodeURIComponent(returnTo)}">${denied ? 'Switch current owner account' : 'Current owner sign-in'}</a>`;
+  const pending = !github ? '<p>GitHub sign-in needs one-time activation. <a href="/admin/github-setup">Set up the GitHub connection</a>.</p>' : '';
+  return pageResponse(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Feedback admin · AJ Comics</title><link rel="stylesheet" href="/admin/styles.css"><body><main class="admin-access"><p class="eyebrow">AJ / COMICS</p><h1>${denied ? 'Owner access only' : 'Feedback admin'}</h1><p>${safe}</p>${pending}<p>Readers can leave feedback without an account.</p>${link}<a class="back-link" href="https://iam-ajmunna.github.io/Comic-Book/">Back to the book →</a></main></body></html>`, status);
 }
 function keyForReview(book, edition, id) {
   const prefix = bookPrefix(book, edition);
@@ -193,8 +204,8 @@ function adminReview(record, stored, key) {
   return { ...publicReview(record), book: parts[1], edition: decodeURIComponent(parts[2]),
     version: stored.etag, deleted_at: record.deleted_at || null, updated_at: record.updated_at || null };
 }
-async function handleAdmin(request, env, url) {
-  const identity = requireAdmin(request, env);
+async function handleAdmin(request, env, url, auth) {
+  const identity = await requireAdmin(request, env, auth);
   if (request.method === 'GET' && url.pathname === '/api/admin/session') return response(identity);
   if (!env.BUCKET) throw new FeedbackError('Feedback is temporarily unavailable. Try again shortly.', 503);
   if (request.method === 'GET' && url.pathname === '/api/admin/feedback') {
@@ -247,7 +258,7 @@ async function handleAdmin(request, env, url) {
   return response({ review: adminReview(record, updated, key) });
 }
 
-export function createWorker(assets = {}) { return {
+export function createWorker(assets = {}, { auth = createGithubAuth() } = {}) { return {
   async fetch(request, env) {
     const url = new URL(request.url);
     const incoming = request.headers.get('origin') || '';
@@ -257,18 +268,47 @@ export function createWorker(assets = {}) { return {
     if (incoming && !origin) return response({ error: 'This reader origin is not allowed.' }, 403);
     if (request.method === 'OPTIONS') return response(null, 204, origin);
     try {
+      if (['/admin/github-setup','/admin/setup.js','/api/admin/github-setup'].includes(url.pathname)) {
+        try { requireSiteOwner(request,env); } catch (e) {
+          if (url.pathname.startsWith('/api/')) throw e;
+          return accessPage(e.status,env,{enabled:()=>false,configured:auth.configured},'Use your current owner account for this one-time GitHub setup.','/admin/github-setup');
+        }
+        if (request.method === 'GET' && url.pathname === '/admin/github-setup') return pageResponse(assets.setupHtml || 'Setup is temporarily unavailable.',assets.setupHtml?200:503);
+        if (request.method === 'GET' && url.pathname === '/admin/setup.js') return pageResponse(assets.setupJs || '',200,'text/javascript; charset=utf-8');
+        if (url.pathname === '/api/admin/github-setup' && request.method === 'GET') return response(await githubSettingsStatus(env,url.origin));
+        if (url.pathname === '/api/admin/github-setup' && request.method === 'POST') {
+          if (incoming !== url.origin) throw new AdminAuthError('Open the owner setup page to save this connection.',403);
+          await saveGithubSettings(env,url.origin,await readJSON(request));return response({saved:true});
+        }
+        return response({error:'This setup action is not available.'},405);
+      }
+      // Public feedback never reads credentials; only protected/auth requests
+      // resolve the owner configuration, with no credential values in responses.
+      if (adminRoute || ['/admin','/admin/','/admin/app.js'].includes(url.pathname) || url.pathname.startsWith('/auth/github')) env=await resolveGithubSettings(env,url.origin);
+      if (url.pathname.startsWith('/auth/github')) {
+        try {
+          if (request.method === 'GET' && url.pathname === '/auth/github') return await auth.begin(request,env);
+          if (request.method === 'GET' && url.pathname === '/auth/github/callback') return await auth.callback(request,env);
+          if (request.method === 'POST' && url.pathname === '/auth/github/logout') return await auth.logout(request,env);
+          return response({error:'This sign-in action is not available.'},405);
+        } catch (e) {
+          if (!(e instanceof AdminAuthError)) throw e;
+          return accessPage(e.status,env,auth,e.message);
+        }
+      }
       if (request.method === 'GET' && url.pathname === '/admin/styles.css')
         return pageResponse(assets.css || '', 200, 'text/css; charset=utf-8');
       if (request.method === 'GET' && ['/admin', '/admin/'].includes(url.pathname)) {
-        try { requireAdmin(request, env); } catch (e) { return accessPage(e.status || 403); }
+        try { await requireAdmin(request, env, auth); } catch (e) { return accessPage(e.status || 403,env,auth,e.message); }
         if (!assets.html) throw new FeedbackError('The admin panel is temporarily unavailable.', 503);
-        return pageResponse(assets.html);
+        const signout = auth.enabled(env) ? '<form class="admin-signout" action="/auth/github/logout" method="post" novalidate><button class="text-button" type="submit">Sign out</button></form>' : '<a target="_top" href="/signout-with-chatgpt?return_to=%2Fadmin">Sign out</a>';
+        return pageResponse(assets.html.replace('<!--ADMIN_SIGNOUT-->',signout));
       }
       if (request.method === 'GET' && url.pathname === '/admin/app.js') {
-        requireAdmin(request, env);
+        await requireAdmin(request, env, auth);
         return pageResponse(assets.js || '', 200, 'text/javascript; charset=utf-8');
       }
-      if (adminRoute) return await handleAdmin(request, env, url);
+      if (adminRoute) return await handleAdmin(request, env, url, auth);
       if (request.method === 'GET' && url.pathname === '/')
         return response({ service: 'AJ Comics reader feedback', reader: 'https://iam-ajmunna.github.io/Comic-Book/', account_required: false }, 200, origin);
       if (!env.BUCKET) throw new FeedbackError('Feedback is temporarily unavailable. Try again shortly.', 503);
@@ -305,7 +345,7 @@ export function createWorker(assets = {}) { return {
       }
       return response({ review }, 201, origin);
     } catch (error) {
-      return response({ error: error instanceof FeedbackError ? error.message : 'Feedback is temporarily unavailable. Your draft is still here; try again.', field: error.field || '' }, error.status || 503, origin);
+      return response({ error: error instanceof FeedbackError || error instanceof AdminAuthError ? error.message : 'Feedback is temporarily unavailable. Your draft is still here; try again.', field: error.field || '' }, error.status || 503, origin);
     }
   },
 }; }
