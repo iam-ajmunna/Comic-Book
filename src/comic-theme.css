@@ -83,7 +83,7 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: 400; text-transform:
 }
 .text-button[aria-pressed="true"], .icon-button[aria-pressed="true"] { color: var(--color-primary); }
 .eyebrow { color: var(--color-primary); font: 400 1rem/1.4 var(--font-display); letter-spacing: .3em; margin: 0 0 .4rem; }
-.search-field input, #reader-name, textarea {
+.search-field input, #reader-name, textarea, #github-setup-fields input {
   color-scheme: light;
   color: var(--color-ink);
   background: #fff;
@@ -143,5 +143,5 @@ dialog::backdrop {
   :focus-visible { outline-color: Highlight; }
   .wordmark { text-shadow: none; }
   .button, .cover-card, .comment-card, dialog { box-shadow: none; border-color: ButtonText; }
-  .search-field input, #reader-name, textarea { border-color: ButtonText; }
+  .search-field input, #reader-name, textarea, #github-setup-fields input { border-color: ButtonText; }
 }

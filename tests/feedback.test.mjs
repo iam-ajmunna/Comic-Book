@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { initComments } from '../src/comments.js';
 import { createFeedbackClient, validateDraft, validPhotoData, FeedbackError } from '../src/feedback-api.js';
-import { validatePhotoFile } from '../src/feedback-photo.js';
+import { validatePhotoFile, inspectPhotoFile } from '../src/feedback-photo.js';
 
 class Node {
   constructor() { this.children = []; this.events = new Map(); this.attributes = new Map(); this.style = {}; this.value = ''; this.scrollLeft = 0; this.clientWidth = 280; this.textContent = ''; }
@@ -43,8 +43,18 @@ test('draft validation requires a name, allows unicode and keeps pictures option
   assert.equal(validPhotoData('https://other.example/tracking.jpg'), false);
   assert.equal(validPhotoData('data:image/svg+xml;base64,PHN2Zz4='), false);
   assert.doesNotThrow(() => validatePhotoFile({ type: 'image/png', size: 1000 }));
-  for (const file of [{ type: 'image/svg+xml', size: 1000 }, { type: 'image/jpeg', size: 6 * 1024 * 1024 }, { type: 'image/webp', size: 0 }])
+  for (const file of [null, { type: 'image/jpeg', size: 6 * 1024 * 1024 }, { type: 'image/webp', size: 0 }])
     assert.throws(() => validatePhotoFile(file), e => e.field === 'photo');
+});
+
+test('picture signatures accept real formats despite missing or nonstandard MIME labels', async () => {
+  for (const type of ['', 'image/pjpeg', 'application/octet-stream']) {
+    assert.equal(await inspectPhotoFile(new Blob([new Uint8Array([255,216,255,224,0,16])], {type})), 'image/jpeg');
+  }
+  assert.equal(await inspectPhotoFile(new Blob([new Uint8Array([137,80,78,71,13,10,26,10,0,0])])), 'image/png');
+  assert.equal(await inspectPhotoFile(new Blob(['RIFF0000WEBPVP8 '], {type:'image/jpeg'})), 'image/webp');
+  for (const value of ['<svg xmlns="http://www.w3.org/2000/svg"></svg>', 'not an image', '0000ftypheic'])
+    await assert.rejects(inspectPhotoFile(new Blob([value], {type:'image/jpeg'})), e=>e.field==='photo');
 });
 
 test('feedback is gated, safe as text, scrollable, and drafts are scoped to book and edition', async t => {

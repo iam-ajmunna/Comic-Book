@@ -1,6 +1,6 @@
-import { config } from './config.js?v=20261014-1';
-import { createFeedbackClient, validateDraft, validPhotoData } from './feedback-api.js?v=20261014-1';
-import { preparePhoto } from './feedback-photo.js?v=20261014-1';
+import { config } from './config.js?v=20261014-2';
+import { createFeedbackClient, validateDraft, validPhotoData } from './feedback-api.js?v=20261014-2';
+import { preparePhoto } from './feedback-photo.js?v=20261014-2';
 
 // One owner for the inline composer, per-book drafts and the shared feed.
 // Nothing is "posted" until the server confirms the same submission ID.

@@ -47,7 +47,14 @@ Use a cold profile without extensions and run Lighthouse desktop and mobile. Rec
 
 ## Owner feedback management
 
-- Footer → Manage feedback: signed-out users see the native ChatGPT sign-in link; a different account is denied. The verified owner sees Published/Deleted, Refresh and paginated real posts. No admin secret is in source, browser storage or public API responses.
+- Footer → Manage feedback: after one-time activation, signed-out users see Sign in with GitHub; only iam-ajmunna's verified numeric account ID is accepted. A matching display name, another account, fabricated cookie or legacy Site identity must not bypass it. The owner sees Published/Deleted, Refresh and paginated real posts. No admin secret is in source, browser storage or public API responses.
 - In isolated storage, delete and restore a post, add/replace/remove its picture, and confirm the public feed reflects the result while name/text remain unchanged. Duplicate retries must be safe, concurrent edits must return 409, and an old reader retry must not republish deleted feedback or undo its updated picture. Do not modify real reviews for testing.
 - Keyboard: action dialog traps focus, Escape/Cancel restores its trigger, deletion defaults focus to Cancel, picture errors are associated with the input, busy actions cannot repeat and failures preserve the selected picture for retry. Filter changes must not leave cards from another view actionable.
 - Repeat the owner dashboard's card layout, native dialog and file picker on Chrome, Safari, Firefox, iOS Safari and Android Chrome at narrow and wide widths. Browser owner sign-in is a separate manual check when managed Sites preview cannot open the deployed dashboard.
+
+## GitHub activation and picture regression
+
+- Current Site owner → Set up GitHub sign-in: other/anonymous users are denied. Register a dedicated OAuth app with the exact callback shown; Device Flow off, no repo scopes. Required Client ID/secret fields validate inline, secret is masked with a labelled Show/Hide control, failed entries remain in memory, pending saves cannot repeat, and Back warns before losing unsaved entries.
+- Saving credentials stores encrypted bytes in the private bucket and returns no credential values. Stale writes fail, unchanged uncertain retries are safe, and public feedback never lists settings/sessions. Successful setup enables GitHub immediately. Test signed state/PKCE mismatch, expired flow, cancelled consent, wrong account, provider failure, one-hour session expiry and POST sign-out revocation in isolated storage.
+- Select actual JPG, PNG and WebP files with normal, missing and nonstandard MIME labels. Confirm 160px JPEG previews and removal in both reader/admin flows. SVG, corrupt files, HEIC/HEIF, empty files, >5 MB and >24MP get specific correction messages. Check that the admin CSP permits blob image decoding while retaining its script restrictions.
+- Live OAuth registration/consent and an owner-authenticated photo save require the real owner account. Do not claim those passed from fixtures alone or publish test reviews.

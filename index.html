@@ -7,14 +7,14 @@
   <meta name="description" content="Read Multiversal Love by AJ. An immersive comic library with facing pages, artwork lighting, and a quiet cinematic soundtrack.">
   <title>Multiversal Love — AJ's comic reading room</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="src/tokens.css?v=20261014-1">
-  <link rel="stylesheet" href="src/styles.css?v=20261014-1">
-  <link rel="stylesheet" href="src/comic-theme.css?v=20261014-1">
-  <link rel="stylesheet" href="src/author-card.css?v=20261014-1">
+  <link rel="stylesheet" href="src/tokens.css?v=20261014-2">
+  <link rel="stylesheet" href="src/styles.css?v=20261014-2">
+  <link rel="stylesheet" href="src/comic-theme.css?v=20261014-2">
+  <link rel="stylesheet" href="src/author-card.css?v=20261014-2">
   <link rel="preload" href="assets/fonts/bangers-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/anton-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/comic-neue-latin-400.woff2" as="font" type="font/woff2" crossorigin>
-  <script type="module" src="src/app.js?v=20261014-1"></script>
+  <script type="module" src="src/app.js?v=20261014-2"></script>
 </head>
 <body data-sound="quiet">
   <a class="skip-link" id="skip-link" href="#library-title">Skip to the library</a>
@@ -96,8 +96,8 @@
                   </div>
                   <div class="feedback-field">
                     <label for="reader-photo">Your picture <span class="field-requirement">(optional)</span></label>
-                    <input id="reader-photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="photo-help photo-error">
-                    <p class="field-help" id="photo-help">JPG, PNG or WebP · up to 5 MB. We make a small square profile picture.</p>
+                    <input id="reader-photo" name="photo" type="file" accept=".jpg,.jpeg,.jfif,.png,.webp,image/jpeg,image/png,image/webp" aria-describedby="photo-help photo-error">
+                    <p class="field-help" id="photo-help">JPG, PNG or WebP · up to 5 MB and 24 megapixels. We make a small square profile picture.</p>
                     <div class="photo-selection" id="photo-selection" hidden><img id="photo-preview" width="64" height="64" alt="Your selected profile picture"><span id="photo-name"></span><button class="text-button" id="remove-photo" type="button">Remove picture</button></div>
                     <p class="error-text field-error" id="photo-error" hidden></p>
                   </div>

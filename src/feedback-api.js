@@ -1,4 +1,4 @@
-import { config } from './config.js?v=20261014-1';
+import { config } from './config.js?v=20261014-2';
 
 export class FeedbackError extends Error {
   constructor(message, field = '') { super(message); this.field = field; }
