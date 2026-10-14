@@ -1,5 +1,14 @@
 # Immersive reader release status
 
+## October 14 feedback placement and owner controls
+
+- The real feedback carousel is immediately beneath the reader. The form starts hidden and opens below the cards only on Leave feedback, after all actual pages are opened. Close form/Escape collapse it, restore trigger focus and preserve drafts. Name stays required; picture stays optional; readers need no account.
+- Deployed the protected owner dashboard on the existing feedback service with its existing public audience and R2 bucket. Manage feedback in the reader footer uses native ChatGPT sign-in. The verified owner's allowlist is server-only. Delete/restore and add/replace/remove picture actions preserve name/text, require owner authentication, check Origin and use conditional versions. Real reviews were not modified for testing.
+- Published service source `67c938d7e6522cdd5549f8ccebd215536a2c14e6`, saved version 2 and deployment `appgdep_6acf1498c20c8191884326bd2ca0cb4f` succeeded with environment revision 2. The Worker remains dependency-free; a standard-library script embeds the dashboard into the existing Worker artifact. Runtime `20261014-1` preserves the offline cache schema and all approved artwork.
+- `npm run check`: syntax, all **41 tests**, validation of **240 local comic assets** and static export passed. The service's build/artifact validation passed. Strict canonical UI audit: zero findings. Admin tests use isolated storage and cover denied accounts, protected HTML/assets, CSRF, delete/restore, picture changes, safe retries, private metadata and stale versions.
+- Live cloud Chrome verified all 80 actual opened pages, the existing public review loading unchanged, a hidden composer after reload, click-to-open placement below the carousel, required name/optional picture, focused name field, draft-preserving close and Escape with trigger focus restored. Reader overflow checks at 360, 768, 1440 and 2560px all passed; the open phone form also fits without horizontal overflow.
+- Signed-in dashboard browser QA remains manual: this managed Sites environment cannot open deployed Site pages in the cloud browser. The actual protected Worker and embedded artifact were tested; the owner sign-in UI was not exercised in a live browser. Safari, Firefox, iOS and Android checks remain on TEST_CHECKLIST.md.
+
 ## October 10 inline anonymous feedback
 
 - Replaced the GitHub draft handoff and feedback modal with an inline composer beneath the book. Names are required (1–80 characters); pictures are optional; feedback is required (3–600 characters). No reader account, sign-in, email or GitHub connection is needed.
