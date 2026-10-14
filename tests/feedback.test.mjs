@@ -17,6 +17,7 @@ class Node {
   addEventListener(name, fn) { this.events.set(name, fn); }
   dispatch(name, event = {}) { return this.events.get(name)?.(event); }
   focus() { this.focused = true; }
+  scrollIntoView(options) { this.scrolled = options; }
   getBoundingClientRect() { return { width: 300 }; }
   scrollBy({ left }) { this.scrollLeft = Math.max(0, Math.min(this.scrollWidth - this.clientWidth, this.scrollLeft + left)); this.dispatch('scroll'); }
 }
@@ -129,4 +130,21 @@ test('public API requests omit credentials and preserve server validation errors
   install('fetch', async (url, options) => { seen.push({ url, options }); return new Response(JSON.stringify({ reviews: [], cursor: 'next' })); });
   assert.equal((await client.list({ id: 'book', edition: 'v1' }, 'current')).cursor, 'next');
   assert.equal(new URL(seen.at(-1).url).searchParams.get('cursor'), 'current');
+});
+
+test('the form opens only by request below the feed and closes without losing its draft', async t => {
+  const { $ } = setup(t);
+  let complete = false, book = { id:'book',edition:'v1' };
+  const client = {list:async()=>({reviews:[],cursor:null})};
+  const feed = initComments(()=>complete,()=>book,{client}); feed.reset();
+  assert.equal($('comment-form').hidden,true);
+  feed.openForm(); assert.equal($('comment-form').hidden,true);
+  complete = true; await feed.refresh(); assert.equal($('comment-form').hidden,true,'completion and feed loading do not open the form');
+  feed.openForm(); assert.equal($('comment-form').hidden,false); assert.equal($('reader-name').focused,true);
+  assert.equal($('leave-feedback').getAttribute('aria-expanded'),'true');
+  $('reader-name').value='Lily'; $('comment').value='A thought that stays in the draft.';
+  $('close-feedback').dispatch('click'); assert.equal($('comment-form').hidden,true); assert.equal($('comment').value,'A thought that stays in the draft.');
+  feed.openForm(); let prevented=false; $('comment-form').dispatch('keydown',{key:'Escape',preventDefault(){prevented=true;}});
+  assert.equal(prevented,true); assert.equal($('leave-feedback').getAttribute('aria-expanded'),'false');
+  feed.openForm(); book={id:'other',edition:'v1'}; feed.reset(); assert.equal($('comment-form').hidden,true);
 });

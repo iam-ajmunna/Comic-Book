@@ -1,6 +1,6 @@
 {
   "profile": "product-admin",
-  "sourceRoots": ["src", "index.html"],
+  "sourceRoots": ["src", "index.html", "feedback-service/admin"],
   "locale": "en",
   "canonicalMap": "DESIGN.md",
   "requiredCapabilities": ["Form", "Scrollbar"],

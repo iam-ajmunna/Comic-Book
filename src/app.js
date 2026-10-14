@@ -1,15 +1,15 @@
-import { validateCatalog, fetchJson } from './catalog.js?v=20261010-7';
-import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261010-7';
-import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261010-7';
-import { PageImages } from './images.js?v=20261010-7';
-import { AmbientLight } from './lighting.js?v=20261010-7';
-import { flipSpread, cancelFlip } from './flip.js?v=20261010-7';
-import { initZoom } from './zoom.js?v=20261010-7';
-import { initComments } from './comments.js?v=20261010-7';
-import { initAmbience } from './ambience.js?v=20261010-7';
-import { initOffline } from './offline.js?v=20261010-7';
-import { attachSwipe } from './swipe.js?v=20261010-7';
-import { initFullscreen } from './fullscreen.js?v=20261010-7';
+import { validateCatalog, fetchJson } from './catalog.js?v=20261014-1';
+import { validPage, normalizeState, visitedFor, isComplete, nextUnread, spreadForPage, turnPage, readSaved, persist, storageKey, pageFromHash } from './state.js?v=20261014-1';
+import { $, el, announce, initDialogs, openDialog, idleControls, readPreferences, savePreferences } from './ui.js?v=20261014-1';
+import { PageImages } from './images.js?v=20261014-1';
+import { AmbientLight } from './lighting.js?v=20261014-1';
+import { flipSpread, cancelFlip } from './flip.js?v=20261014-1';
+import { initZoom } from './zoom.js?v=20261014-1';
+import { initComments } from './comments.js?v=20261014-1';
+import { initAmbience } from './ambience.js?v=20261014-1';
+import { initOffline } from './offline.js?v=20261014-1';
+import { attachSwipe } from './swipe.js?v=20261014-1';
+import { initFullscreen } from './fullscreen.js?v=20261014-1';
 
 let storage = null;
 try { storage = window.localStorage; } catch { /* Reading works with memory-only progress. */ }
@@ -311,8 +311,7 @@ $('options-button').addEventListener('click', () => openDialog($('options-dialog
 $('help-button').addEventListener('click', () => { $('options-dialog').close(); openDialog($('help-dialog'), $('options-button')); });
 $('leave-feedback').addEventListener('click', () => {
   if (!book || !isComplete(state.visited, book.pages.length)) return;
-  $('comment-form').scrollIntoView({ behavior: reduced.matches ? 'instant' : 'smooth', block: 'start' });
-  $('reader-name').focus({ preventScroll: true });
+  comments.openForm();
 });
 $('previous').addEventListener('click', () => turn(-1)); $('next').addEventListener('click', () => turn(1));
 $('edge-left').addEventListener('click', () => turn(book.readingDirection === 'rtl' ? 1 : -1));

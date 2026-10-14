@@ -7,14 +7,14 @@
   <meta name="description" content="Read Multiversal Love by AJ. An immersive comic library with facing pages, artwork lighting, and a quiet cinematic soundtrack.">
   <title>Multiversal Love — AJ's comic reading room</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="src/tokens.css?v=20261010-7">
-  <link rel="stylesheet" href="src/styles.css?v=20261010-7">
-  <link rel="stylesheet" href="src/comic-theme.css?v=20261010-7">
-  <link rel="stylesheet" href="src/author-card.css?v=20261010-7">
+  <link rel="stylesheet" href="src/tokens.css?v=20261014-1">
+  <link rel="stylesheet" href="src/styles.css?v=20261014-1">
+  <link rel="stylesheet" href="src/comic-theme.css?v=20261014-1">
+  <link rel="stylesheet" href="src/author-card.css?v=20261014-1">
   <link rel="preload" href="assets/fonts/bangers-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/anton-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/comic-neue-latin-400.woff2" as="font" type="font/woff2" crossorigin>
-  <script type="module" src="src/app.js?v=20261010-7"></script>
+  <script type="module" src="src/app.js?v=20261014-1"></script>
 </head>
 <body data-sound="quiet">
   <a class="skip-link" id="skip-link" href="#library-title">Skip to the library</a>
@@ -68,7 +68,7 @@
           <h2 id="discussion-title">Reader feedback</h2>
           <p id="progress-label" role="status">0 / 80 pages opened</p>
           <button class="text-button" id="next-unread" type="button">Next unread</button>
-          <button class="button primary" id="leave-feedback" type="button" aria-controls="comment-form" aria-describedby="progress-label" disabled>Leave feedback</button>
+          <button class="button primary" id="leave-feedback" type="button" aria-controls="comment-form" aria-expanded="false" aria-describedby="progress-label" disabled>Leave feedback</button>
           <progress id="progress" value="0" max="80" aria-labelledby="progress-label"></progress>
         </div>
         <div class="feedback-carousel">
@@ -78,8 +78,13 @@
             <button class="button ghost" id="finish-reading" type="button">Keep reading →</button>
           </div>
           <div id="comments-open" hidden>
-            <form class="feedback-composer" id="comment-form" novalidate aria-labelledby="feedback-title">
-              <h3 id="feedback-title">What stayed with you?</h3>
+
+            <div class="comments-toolbar"><p class="unlocked" id="completion-message" role="status">All 80 pages opened. What stayed with you?</p><button class="text-button" id="refresh-comments" type="button">Refresh</button></div>
+            <p id="comments-status" role="status"></p>
+            <div class="comment-list" id="comment-list" role="region" aria-label="Reader feedback carousel" tabindex="0"></div>
+            <div class="carousel-navigation"><button class="button ghost" id="more-comments" type="button" hidden>Load more</button><button class="button ghost nav-button" id="feedback-previous" type="button" aria-label="Previous feedback" aria-controls="comment-list" disabled><svg class="icon" aria-hidden="true"><use href="#icon-left"/></svg></button><button class="button ghost nav-button" id="feedback-next" type="button" aria-label="Next feedback" aria-controls="comment-list" disabled><svg class="icon" aria-hidden="true"><use href="#icon-right"/></svg></button></div>
+            <form class="feedback-composer" id="comment-form" novalidate aria-labelledby="feedback-title" hidden>
+              <div class="composer-heading"><h3 id="feedback-title">What stayed with you?</h3><button class="text-button" id="close-feedback" type="button" aria-controls="comment-form">Close form ×</button></div>
               <p class="composer-intro">Leave a note for AJ and the next reader. No account needed.</p>
               <fieldset id="comment-fields">
                 <legend class="sr-only">Your public feedback</legend>
@@ -105,10 +110,6 @@
               <div class="feedback-submit"><button class="button primary" id="post-feedback" type="submit">Post feedback</button><button class="text-button" id="cancel-feedback" type="button" hidden>Cancel</button></div>
               <p class="form-status" id="comment-status" role="status" aria-live="polite" aria-atomic="true"></p>
             </form>
-            <div class="comments-toolbar"><p class="unlocked" id="completion-message" role="status">All 80 pages opened. What stayed with you?</p><button class="text-button" id="refresh-comments" type="button">Refresh</button></div>
-            <p id="comments-status" role="status"></p>
-            <div class="comment-list" id="comment-list" role="region" aria-label="Reader feedback carousel" tabindex="0"></div>
-            <div class="carousel-navigation"><button class="button ghost" id="more-comments" type="button" hidden>Load more</button><button class="button ghost nav-button" id="feedback-previous" type="button" aria-label="Previous feedback" aria-controls="comment-list" disabled><svg class="icon" aria-hidden="true"><use href="#icon-left"/></svg></button><button class="button ghost nav-button" id="feedback-next" type="button" aria-label="Next feedback" aria-controls="comment-list" disabled><svg class="icon" aria-hidden="true"><use href="#icon-right"/></svg></button></div>
           </div>
         </div>
       </section>
@@ -156,7 +157,7 @@
       <dialog class="help-dialog" id="help-dialog" aria-labelledby="help-title"><div class="dialog-heading"><h2 id="help-title">Make yourself at home.</h2><button class="icon-button" type="button" data-close="help-dialog" aria-label="Close reading help">×</button></div><dl class="shortcut-list"><div><dt>← / →</dt><dd>Turn pages in the book’s reading direction</dd></div><div><dt>Home / End</dt><dd>Go to the cover / final page</dd></div><div><dt>F</dt><dd>Enter or exit fullscreen</dd></div><div><dt>C</dt><dd>Open page thumbnails</dd></div><div><dt>Escape</dt><dd>Close a dialog or exit fullscreen</dd></div></dl><p>Swipe or tap the outer edges to turn. Select the artwork to enlarge it. Move your pointer, touch the screen, or press a key to reveal controls.</p><p>Your progress counts pages you actually open, including text transcripts. Open every page to unlock comments.</p></dialog>
     </div>
   </main>
-  <footer><strong>AJ / COMICS</strong><a href="https://github.com/iam-ajmunna/Comic-Book" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a></footer>
+  <footer><strong>AJ / COMICS</strong><a href="https://github.com/iam-ajmunna/Comic-Book" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a><a class="admin-link" href="https://aj-comic-feedback.iamajmunna.chatgpt.site/admin" target="_blank" rel="noopener noreferrer">Manage feedback</a></footer>
   <noscript><p class="notice">Enable JavaScript to read the comic. The artwork is also available in the <a href="https://github.com/iam-ajmunna/Comic-Book/tree/main/assets/pages">repository</a>.</p></noscript>
 </body>
 </html>

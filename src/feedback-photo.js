@@ -1,5 +1,5 @@
-import { config } from './config.js?v=20261010-7';
-import { FeedbackError } from './feedback-api.js?v=20261010-7';
+import { config } from './config.js?v=20261014-1';
+import { FeedbackError } from './feedback-api.js?v=20261014-1';
 
 export function validatePhotoFile(file) {
   if (!file || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type))

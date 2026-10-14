@@ -1,6 +1,6 @@
-import { config } from './config.js?v=20261010-7';
-import { createFeedbackClient, validateDraft, validPhotoData } from './feedback-api.js?v=20261010-7';
-import { preparePhoto } from './feedback-photo.js?v=20261010-7';
+import { config } from './config.js?v=20261014-1';
+import { createFeedbackClient, validateDraft, validPhotoData } from './feedback-api.js?v=20261014-1';
+import { preparePhoto } from './feedback-photo.js?v=20261014-1';
 
 // One owner for the inline composer, per-book drafts and the shared feed.
 // Nothing is "posted" until the server confirms the same submission ID.
@@ -16,6 +16,24 @@ export function initComments(canComment, getBook, { client = createFeedbackClien
   let composing = false;
   const drafts = new Map();
   let draftBook = null;
+
+  function openForm() {
+    if (!canComment() || !getBook()) return;
+    form.hidden = false;
+    $('leave-feedback').setAttribute('aria-expanded', 'true');
+    form.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+    name.focus({ preventScroll: true });
+  }
+  function closeForm(restoreFocus = true) {
+    if (submitting) submitAborter?.abort();
+    form.hidden = true;
+    $('leave-feedback').setAttribute('aria-expanded', 'false');
+    if (restoreFocus) $('leave-feedback').focus();
+  }
+  $('close-feedback').addEventListener('click', () => closeForm());
+  form.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.preventDefault(); closeForm(); }
+  });
 
   function error(key, message = '') {
     const node = $(errorIds[key]); node.textContent = message; node.hidden = !message;
@@ -165,7 +183,7 @@ export function initComments(canComment, getBook, { client = createFeedbackClien
       cursor = data.cursor || null; hasMore = Boolean(cursor); $('more-comments').hidden = !hasMore;
       $('comments-status').textContent = rendered.size
         ? `${rendered.size} reader ${rendered.size === 1 ? 'comment' : 'comments'} loaded.`
-        : 'No feedback yet. Leave the first thought.';
+        : hasMore ? 'More feedback is available. Load more to keep reading.' : 'No feedback yet. Leave the first thought.';
     } catch (e) {
       if (request === loadGeneration && ownView === viewGeneration)
         $('comments-status').textContent = e.name === 'AbortError' ? 'Feedback took too long. Refresh to try again.' : e.message;
@@ -181,9 +199,12 @@ export function initComments(canComment, getBook, { client = createFeedbackClien
   $('more-comments').addEventListener('click', () => { if (hasMore) return load(); });
   return {
     refresh: () => load(true),
+    openForm,
+    closeForm,
     reset() {
       if (draftBook) drafts.set(draftBook, { name: name.value, text: field.value, photo, photoLabel, submissionId, pictureError });
       viewGeneration++; loadGeneration++; pictureGeneration++;
+      closeForm(false); composing = false;
       feedAborter?.abort(); submitAborter?.abort(); busy = submitting = photoPending = false;
       cursor = null; hasMore = false; rendered = new Set();
       draftBook = getBook() ? `${getBook().id}:${getBook().edition}` : null;
